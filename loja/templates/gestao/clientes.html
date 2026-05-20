@@ -1,0 +1,112 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Clientes{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ clientes|length }} cliente(s) registado(s)</p>
+        <a href="{% url 'gestao_cliente_criar' %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+            + Novo Cliente
+        </a>
+    </div>
+
+    <!-- Pesquisa -->
+    <div class="bg-white border border-stone-200 px-5 py-4 mb-0 rounded-t-xl shadow-sm flex items-center gap-3">
+        <div class="relative flex-1 max-w-sm">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+            </svg>
+            <input id="pesquisa" type="text" placeholder="Pesquisar por nome ou telefone…"
+                   class="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-700 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="bg-white border border-t-0 border-stone-200 overflow-x-auto rounded-b-xl shadow-sm">
+        <table class="w-full text-xs gestao-table">
+            <thead class="bg-stone-50 border-b border-stone-200">
+                <tr>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Nome</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Telefone</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Email</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Pontos</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Membro desde</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Notas</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Acções</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-clientes" class="divide-y divide-stone-100">
+                {% for c in clientes %}
+                <tr class="cli-row hover:bg-stone-50 transition-colors"
+                    data-nome="{{ c.nome|lower }}"
+                    data-tel="{{ c.telefone|lower }}">
+                    <td class="px-5 py-3 font-medium text-stone-800">{{ c.nome }}</td>
+                    <td class="px-5 py-3 text-stone-500 font-mono">{{ c.telefone }}</td>
+                    <td class="px-5 py-3 text-stone-400">{{ c.email|default:"—" }}</td>
+                    <td class="px-5 py-3 text-right">
+                        {% if c.pontos > 0 %}
+                        <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-800 text-[9px] font-semibold uppercase tracking-wider">{{ c.pontos }} pts</span>
+                        {% else %}
+                        <span class="text-stone-300">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-stone-400">{{ c.membro_desde|date:"d/m/Y" }}</td>
+                    <td class="px-5 py-3 text-stone-400 max-w-[200px]">
+                        {% if c.notas %}<span class="truncate block" title="{{ c.notas }}">{{ c.notas }}</span>{% else %}—{% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-right whitespace-nowrap">
+                        <a href="{% url 'gestao_cliente_detalhe' c.pk %}"
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-stone-300 text-[9px] uppercase tracking-[0.2em] text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            </svg>
+                            Ver mais
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum cliente registado ainda.
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr id="row-sem-resultados" class="hidden">
+                    <td colspan="7" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum cliente encontrado.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    var pesquisa = document.getElementById('pesquisa');
+    var contador = document.getElementById('contador');
+    var semRes   = document.getElementById('row-sem-resultados');
+    var rows     = Array.from(document.querySelectorAll('.cli-row'));
+
+    function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+    pesquisa.addEventListener('input', function () {
+        var t = norm(pesquisa.value.trim());
+        var vis = 0;
+        rows.forEach(function (r) {
+            var ok = !t || norm(r.dataset.nome).includes(t) || norm(r.dataset.tel).includes(t);
+            r.classList.toggle('hidden', !ok);
+            if (ok) vis++;
+        });
+        semRes.classList.toggle('hidden', vis > 0 || rows.length === 0);
+        contador.textContent = vis + ' cliente' + (vis !== 1 ? 's' : '') + ' encontrado' + (vis !== 1 ? 's' : '');
+    });
+})();
+</script>
+{% endblock %}

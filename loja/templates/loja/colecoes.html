@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Colecções</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        html { scroll-behavior: smooth; }
+        .tab-btn.active {
+            background-color: #78350f;
+            color: #fff;
+            border-color: #78350f;
+        }
+        .tab-btn.active .tab-count {
+            background-color: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .perfume-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .perfume-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.08); }
+        .placeholder-img {
+            background: linear-gradient(135deg, #f5f0e8 0%, #ede0cc 100%);
+        }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-900">
+    {% load static %}
+
+    <!-- Navbar -->
+    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50 sticky top-0 z-30">
+        <a href="{% url 'home' %}" class="-mt-16">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="h-56 w-auto">
+        </a>
+        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
+            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-950 font-semibold px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="bg-stone-900 text-stone-100 py-16 px-8 text-center relative overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-amber-700/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl"></div>
+        <div class="relative">
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-400">A nossa curadoria</span>
+            <h1 class="font-serif italic text-4xl md:text-6xl mt-3">Colecções</h1>
+            <div class="w-16 h-px bg-amber-500 mx-auto mt-5"></div>
+            <p class="text-stone-300 text-sm md:text-base mt-6 max-w-xl mx-auto leading-relaxed">
+                Descubra as nossas fragrâncias exclusivas, organizadas por categoria. Da masculinidade marcante ao requinte feminino, do equilíbrio unissexo às raridades de nicho.
+            </p>
+        </div>
+    </header>
+
+    <!-- Pesquisa Geral -->
+    <section class="px-4 md:px-8 -mt-8 relative z-10">
+        <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-stone-200 p-3 md:p-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-stone-400 ml-2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
+            </svg>
+            <input id="busca-geral" type="text" placeholder="Pesquisar perfume por nome ou categoria..."
+                   class="flex-1 px-2 py-2 text-sm md:text-base text-stone-800 placeholder-stone-400 bg-transparent focus:outline-none"
+                   autocomplete="off">
+            <button id="btn-pesquisar" type="button"
+                    class="bg-stone-900 hover:bg-stone-800 text-white text-xs md:text-sm uppercase tracking-widest px-5 py-2.5 rounded-xl transition-colors">
+                Pesquisar
+            </button>
+        </div>
+        <p id="resultado-info" class="text-center text-xs text-stone-500 mt-3 hidden"></p>
+    </section>
+
+    <!-- Separadores por categoria -->
+    <section class="px-4 md:px-8 py-12">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+                <button data-tab="todos" class="tab-btn active inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-stone-300 bg-white text-xs md:text-sm uppercase tracking-widest text-stone-700 hover:border-amber-700 transition">
+                    Todos
+                    <span class="tab-count text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button data-tab="masculinos" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-stone-300 bg-white text-xs md:text-sm uppercase tracking-widest text-stone-700 hover:border-amber-700 transition">
+                    Masculinos
+                    <span class="tab-count text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button data-tab="femininos" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-stone-300 bg-white text-xs md:text-sm uppercase tracking-widest text-stone-700 hover:border-amber-700 transition">
+                    Femininos
+                    <span class="tab-count text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button data-tab="unissexos" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-stone-300 bg-white text-xs md:text-sm uppercase tracking-widest text-stone-700 hover:border-amber-700 transition">
+                    Unissexos
+                    <span class="tab-count text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">0</span>
+                </button>
+                <button data-tab="nicho" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-stone-300 bg-white text-xs md:text-sm uppercase tracking-widest text-stone-700 hover:border-amber-700 transition">
+                    Nicho
+                    <span class="tab-count text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full">0</span>
+                </button>
+                {% if promocoes_publicas %}
+                <button data-tab="promocao" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-amber-700 bg-amber-50 text-xs md:text-sm uppercase tracking-widest text-amber-800 hover:bg-amber-100 transition">
+                    🎁 Em Promoção
+                    <span class="tab-count text-[10px] bg-amber-700 text-white px-2 py-0.5 rounded-full">{{ promocoes_publicas|length }}</span>
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Painel: Masculinos -->
+            <div data-panel="masculinos" class="categoria-panel mb-16">
+                <div class="flex items-end justify-between mb-6 px-2">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.4em] text-amber-700">Categoria</span>
+                        <h2 class="font-serif italic text-2xl md:text-3xl text-stone-800">Perfumes Masculinos</h2>
+                    </div>
+                    <div class="w-16 h-px bg-amber-700 hidden md:block"></div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" data-grid="masculinos">
+                    {# ============================================================
+                       Para adicionar um perfume MASCULINO, copie o bloco abaixo,
+                       descomente, ajuste o nome, marca e a imagem.
+                       ============================================================
+                    <article class="perfume-card bg-white rounded-2xl border border-stone-200 overflow-hidden"
+                             data-nome="Nome do Perfume" data-categoria="masculinos">
+                        <div class="placeholder-img aspect-[4/5] flex items-center justify-center">
+                            <img src="{% static 'loja/images/perfumes/masculinos/exemplo.png' %}"
+                                 alt="Nome do Perfume" class="object-contain h-full w-full">
+                        </div>
+                        <div class="p-4 text-center">
+                            <h3 class="font-serif italic text-lg text-stone-800">Nome do Perfume</h3>
+                            <p class="text-xs uppercase tracking-widest text-stone-500 mt-1">Marca</p>
+                        </div>
+                    </article>
+                    #}
+                </div>
+                <p class="empty-msg text-center text-sm text-stone-400 italic mt-4 hidden">Sem perfumes nesta categoria de momento.</p>
+            </div>
+
+            <!-- Painel: Femininos -->
+            <div data-panel="femininos" class="categoria-panel mb-16">
+                <div class="flex items-end justify-between mb-6 px-2">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.4em] text-amber-700">Categoria</span>
+                        <h2 class="font-serif italic text-2xl md:text-3xl text-stone-800">Perfumes Femininos</h2>
+                    </div>
+                    <div class="w-16 h-px bg-amber-700 hidden md:block"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" data-grid="femininos">
+                    {# Adicione cards de perfumes FEMININOS aqui (mesmo modelo). #}
+                </div>
+                <p class="empty-msg text-center text-sm text-stone-400 italic mt-4 hidden">Sem perfumes nesta categoria de momento.</p>
+            </div>
+
+            <!-- Painel: Unissexos -->
+            <div data-panel="unissexos" class="categoria-panel mb-16">
+                <div class="flex items-end justify-between mb-6 px-2">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.4em] text-amber-700">Categoria</span>
+                        <h2 class="font-serif italic text-2xl md:text-3xl text-stone-800">Perfumes Unissexos</h2>
+                    </div>
+                    <div class="w-16 h-px bg-amber-700 hidden md:block"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" data-grid="unissexos">
+                    {# Adicione cards de perfumes UNISSEXOS aqui. #}
+                </div>
+                <p class="empty-msg text-center text-sm text-stone-400 italic mt-4 hidden">Sem perfumes nesta categoria de momento.</p>
+            </div>
+
+            <!-- Painel: Nicho -->
+            <div data-panel="nicho" class="categoria-panel mb-16">
+                <div class="flex items-end justify-between mb-6 px-2">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.4em] text-amber-700">Categoria</span>
+                        <h2 class="font-serif italic text-2xl md:text-3xl text-stone-800">Perfumes de Nicho</h2>
+                    </div>
+                    <div class="w-16 h-px bg-amber-700 hidden md:block"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" data-grid="nicho">
+                    {# Adicione cards de perfumes de NICHO aqui. #}
+                </div>
+                <p class="empty-msg text-center text-sm text-stone-400 italic mt-4 hidden">Sem perfumes nesta categoria de momento.</p>
+            </div>
+
+            {% if promocoes_publicas %}
+            <!-- Painel: Em Promoção (colecções temporárias) -->
+            <div data-panel="promocao" class="categoria-panel mb-16">
+                {% for p in promocoes_publicas %}
+                <div class="bg-white border border-amber-200 rounded-2xl shadow-sm overflow-hidden mb-10">
+                    <div class="grid md:grid-cols-12 gap-0">
+                        <div class="md:col-span-4 relative">
+                            {% if p.imagem %}
+                            <img src="{{ p.imagem.url }}" alt="{{ p.nome }}" class="w-full h-full min-h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-full min-h-48 bg-gradient-to-br from-amber-100 to-amber-300 flex items-center justify-center text-7xl">{{ p.icone|default:'🎁' }}</div>
+                            {% endif %}
+                            {% if p.desconto_percentagem %}
+                            <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-3 py-1.5 rounded">-{{ p.desconto_percentagem }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-8 p-6">
+                            {% if p.subtitulo %}<span class="text-xs uppercase tracking-[0.3em] text-amber-700">{{ p.subtitulo }}</span>{% endif %}
+                            <h3 class="font-serif italic text-2xl text-stone-800 mt-1">{{ p.icone }} {{ p.nome }}</h3>
+                            <p class="text-[11px] uppercase tracking-widest text-stone-500 mt-1">{{ p.data_inicio|date:"d M" }} — {{ p.data_fim|date:"d M Y" }}</p>
+                            {% if p.descricao %}<p class="text-stone-600 text-sm mt-3 leading-relaxed">{{ p.descricao }}</p>{% endif %}
+                            <a href="{{ p.get_absolute_url }}" class="inline-block mt-4 text-[10px] uppercase tracking-[0.4em] text-amber-700 hover:text-amber-900">{{ p.texto_botao|default:'Ver Promoção' }} →</a>
+                        </div>
+                    </div>
+
+                    {% if p.produtos.all %}
+                    <div class="border-t border-stone-100 px-6 py-5 bg-stone-50/50">
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                            {% for prod in p.produtos.all %}
+                            {% if prod.disponivel %}
+                            <article class="perfume-card bg-white rounded-xl border border-stone-200 overflow-hidden">
+                                <div class="relative">
+                                    {% if prod.imagem %}
+                                    <img src="{{ prod.imagem.url }}" alt="{{ prod.nome }}" class="w-full h-44 object-cover">
+                                    {% else %}
+                                    <div class="placeholder-img w-full h-44 flex items-center justify-center text-stone-400 text-xs">Sem imagem</div>
+                                    {% endif %}
+                                    {% if p.desconto_percentagem %}
+                                    <span class="absolute top-2 right-2 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded">-{{ p.desconto_percentagem }}%</span>
+                                    {% endif %}
+                                </div>
+                                <div class="p-3">
+                                    <p class="text-[10px] uppercase tracking-widest text-stone-500">{{ prod.marca }}</p>
+                                    <h4 class="font-serif italic text-base text-stone-800 truncate">{{ prod.nome }}</h4>
+                                    <p class="text-amber-700 font-semibold text-sm mt-1">{{ prod.preco_venda|floatformat:0 }} Kz</p>
+                                </div>
+                            </article>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- Rodapé minimalista -->
+    <footer class="bg-stone-900 text-stone-300 py-8 px-8 text-center text-xs tracking-wide">
+        &copy; 2026 Decent Privé — Curadoria de fragrâncias raras.
+    </footer>
+
+    <script>
+        (function() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.categoria-panel');
+            const input = document.getElementById('busca-geral');
+            const btnPesquisar = document.getElementById('btn-pesquisar');
+            const info = document.getElementById('resultado-info');
+
+            function atualizarContadores() {
+                let total = 0;
+                document.querySelectorAll('[data-grid]').forEach(grid => {
+                    const count = grid.querySelectorAll('article.perfume-card').length;
+                    total += count;
+                    const tab = document.querySelector('.tab-btn[data-tab="' + grid.dataset.grid + '"] .tab-count');
+                    if (tab) tab.textContent = count;
+                    const empty = grid.parentElement.querySelector('.empty-msg');
+                    if (empty) empty.classList.toggle('hidden', count > 0);
+                });
+                const tabTodos = document.querySelector('.tab-btn[data-tab="todos"] .tab-count');
+                if (tabTodos) tabTodos.textContent = total;
+            }
+
+            function activarTab(tab) {
+                tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+                panels.forEach(p => {
+                    p.classList.toggle('hide', !(tab === 'todos' || p.dataset.panel === tab));
+                });
+            }
+
+            tabs.forEach(t => t.addEventListener('click', () => {
+                activarTab(t.dataset.tab);
+                if (input.value.trim()) filtrar(input.value.trim());
+            }));
+
+            function filtrar(termo) {
+                const q = termo.toLowerCase();
+                let encontrados = 0;
+                document.querySelectorAll('article.perfume-card').forEach(card => {
+                    const nome = (card.dataset.nome || '').toLowerCase();
+                    const cat = (card.dataset.categoria || '').toLowerCase();
+                    const match = !q || nome.includes(q) || cat.includes(q);
+                    card.classList.toggle('hide', !match);
+                    if (match) encontrados++;
+                });
+                if (q) {
+                    info.textContent = encontrados + ' resultado(s) para "' + termo + '".';
+                    info.classList.remove('hidden');
+                } else {
+                    info.classList.add('hidden');
+                }
+            }
+
+            btnPesquisar.addEventListener('click', () => filtrar(input.value.trim()));
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); filtrar(input.value.trim()); }
+            });
+            input.addEventListener('input', () => {
+                if (!input.value.trim()) filtrar('');
+            });
+
+            atualizarContadores();
+        })();
+    </script>
+</body>
+</html>

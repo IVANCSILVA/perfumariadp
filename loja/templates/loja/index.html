@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Além do Essencial — Huambo, Angola</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <meta name="description" content="Decent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rápida e segura.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .font-serif{ font-family: 'Playfair Display', serif; }
+        .slide img {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 100%;
+            width: 70%;
+            object-fit: cover;
+        }
+        #produtos .group img {
+            mix-blend-mode: multiply;
+        }
+        .banner-wrap { height: 650px; }
+        .product-img-wrap { height: 280px; }
+        .map-wrap { height: 300px; }
+        .map-frame { border: 0; filter: grayscale(0.3) invert(0.9) hue-rotate(180deg); }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
+            70% { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        .wa-pulse { animation: pulseRing 2s infinite; }
+        </style>
+</head>
+<body class="bg-white text-gray-900 transition-colors duration-300">
+    {% load static %}
+    <!-- Navbar -->
+    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
+        <a href="{% url 'home' %}" class="-mt-8">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Prive" class="h-52 w-auto">
+        </a>
+        <div class="flex flex-col items-end gap-1 pt-4">
+            <div class="flex items-center gap-5">
+                <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex">
+                    <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 border-b border-amber-800 transition-all duration-200">Página Inicial</a>
+                    <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+                    <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
+                    <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+                </div>
+                <!-- Ícone do Carrinho -->
+                <button onclick="toggleCart()" class="relative text-amber-800 hover:text-amber-600 transition-colors duration-200" aria-label="Carrinho">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.892-7.143a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.273M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                    </svg>
+                    <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] font-semibold w-5 h-5 rounded-full items-center justify-center leading-none">0</span>
+                </button>
+                <!-- Hamburger (mobile) -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-amber-800 hover:text-amber-600 transition-colors duration-200" aria-label="Menu">
+                    <svg id="hamburger-icon" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Pesquisa -->
+            <div class="hidden md:flex gap-0 mt-3">
+                <input
+                    id="search-input-mobile"
+                    type="text"
+                    placeholder="Pesquisar marca ou fragrância..."
+                    onkeydown="if(event.key==='Enter') searchPerfumeMobile()"
+                    class="bg-white border border-stone-300 border-r-0 text-stone-700 text-sm placeholder-stone-400 px-4 py-3 w-80 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                >
+                <button onclick="searchPerfumeMobile()" class="bg-amber-800 hover:bg-amber-700 text-white px-4 py-3 transition-colors duration-200 flex items-center gap-1.5 text-xs uppercase tracking-widest whitespace-nowrap" aria-label="Pesquisar">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                    </svg>
+                    Pesquisar
+                </button>
+            </div>
+            <div id="search-results" class="hidden">
+                <p id="search-msg" class="text-xs text-stone-500 tracking-wide text-right"></p>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        const productData = [
+            { name: 'Noir Absolu', brand: 'Eau de Parfum', category: 'masculino' },
+            { name: 'Bois de Cèdre', brand: 'Eau de Toilette', category: 'masculino' },
+            { name: 'Cuir Fumé', brand: 'Extrait de Parfum', category: 'masculino' },
+            { name: 'Vétiver Royal', brand: 'Parfum', category: 'masculino' },
+            { name: 'Rose Dorée', brand: 'Eau de Parfum', category: 'feminino' },
+            { name: 'Fleur Blanche', brand: 'Eau de Toilette', category: 'feminino' },
+            { name: 'Jasmin Précieux', brand: 'Extrait de Parfum', category: 'feminino' },
+            { name: 'Musc Soyeux', brand: 'Parfum', category: 'feminino' },
+            { name: 'Oud Impérial', brand: 'Extrait de Parfum', category: 'nicho' },
+            { name: 'Ambre Précieux', brand: 'Parfum', category: 'nicho' },
+            { name: 'Encens Sacré', brand: 'Extrait de Parfum', category: 'nicho' },
+            { name: 'Iris Absolu', brand: 'Parfum', category: 'nicho' },
+        ];
+
+        function doSearch(query) {
+            if (!query.trim()) return;
+            const q = query.toLowerCase();
+            const results = productData.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.brand.toLowerCase().includes(q) ||
+                p.category.toLowerCase().includes(q)
+            );
+            const msg = document.getElementById('search-msg');
+            const box = document.getElementById('search-results');
+            box.classList.remove('hidden');
+            if (results.length === 0) {
+                msg.textContent = 'Nenhum produto encontrado para "' + query + '". Contacte-nos para encomendas especiais.';
+            } else {
+                msg.textContent = results.length + ' produto(s) encontrado(s): ' + results.map(r => r.name + ' (' + r.brand + ')').join(', ') + '.';
+                document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+            }
+            setTimeout(() => box.classList.add('hidden'), 6000);
+        }
+
+        function searchPerfumeMobile() {
+            const val = document.getElementById('search-input-mobile').value;
+            doSearch(val);
+        }
+    </script>
+
+    <!-- Banner Promocional — Carrossel -->
+    <div id="banner" class="banner-wrap relative w-full overflow-hidden bg-stone-900">
+
+        <!-- Slides -->
+        <div id="slides" class="flex transition-transform duration-700 ease-in-out h-full">
+{% if promocoes_carrossel %}
+{% for p in promocoes_carrossel %}
+            <div class="slide relative min-w-full h-full flex-shrink-0">
+                {% if p.imagem %}
+                <img {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} src="{{ p.imagem.url }}" alt="{{ p.nome }}" class="w-full h-full object-cover opacity-80">
+                {% else %}
+                <img {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} src="{% static 'loja/images/image1.jpeg' %}" alt="{{ p.nome }}" class="w-full h-full object-cover opacity-80">
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">{{ p.icone }} {{ p.subtitulo|default:p.get_tipo_display }}</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">{{ p.nome }}</h2>
+                    {% if p.desconto_percentagem %}
+                    <p class="text-amber-300 text-xs uppercase tracking-widest mb-3">Até {{ p.desconto_percentagem }}% de desconto</p>
+                    {% endif %}
+                    {% if p.descricao %}
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8 max-w-2xl">{{ p.descricao|truncatewords:18 }}</p>
+                    {% else %}
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Promoção por tempo limitado</p>
+                    {% endif %}
+                    <a href="{% if p.link_botao %}{{ p.link_botao }}{% else %}{{ p.get_absolute_url }}{% endif %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ p.texto_botao|default:'Ver Promoção' }}</a>
+                </div>
+            </div>
+{% endfor %}
+{% else %}
+            <div class="slide relative min-w-full h-full flex-shrink-0">
+                <img src="{% static 'loja/images/image1.jpeg' %}" alt="Promoção 1" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Promoção do Dia</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Nova Colecção Primavera</h2>
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Descubra as fragrâncias da estação</p>
+                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
+                </div>
+            </div>
+
+            <div class="slide relative min-w-full h-full flex-shrink-0">
+                <img loading="lazy" decoding="async" src="{% static 'loja/images/image2.jpeg' %}" alt="Promoção 2" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Oferta Especial</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Dia da Mãe</h2>
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Presentes únicos para momentos inesquecíveis</p>
+                    <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
+                </div>
+            </div>
+
+            <div class="slide relative min-w-full h-full flex-shrink-0">
+                <img loading="lazy" decoding="async" src="{% static 'loja/images/image3.jpeg' %}" alt="Promoção 3" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Edição Limitada</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Exclusividade Garantida</h2>
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Peças únicas disponíveis por tempo limitado</p>
+                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Descobrir</a>
+                </div>
+            </div>
+
+            <div class="slide relative min-w-full h-full flex-shrink-0">
+                <img loading="lazy" decoding="async" src="{% static 'loja/images/image4.jpeg' %}" alt="Promoção 4" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Novidade</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Fragrâncias Orientais</h2>
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Uma viagem sensorial ao oriente</p>
+                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Explorar</a>
+                </div>
+            </div>
+{% endif %}
+
+        </div>
+
+        <!-- Seta esquerda -->
+        <button onclick="moveSlide(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10">
+            &#8592;
+        </button>
+        <!-- Seta direita -->
+        <button onclick="moveSlide(1)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10">
+            &#8594;
+        </button>
+
+        <!-- Pontos indicadores -->
+        <div id="dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+{% if promocoes_carrossel %}
+{% for p in promocoes_carrossel %}
+            <button type="button" onclick="goToSlide(Number('{{ forloop.counter0 }}'))" aria-label="Slide {{ forloop.counter }}" class="dot w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all duration-200"></button>
+{% endfor %}
+{% else %}
+            <button type="button" onclick="goToSlide(0)" aria-label="Slide 1" class="dot w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all duration-200"></button>
+            <button type="button" onclick="goToSlide(1)" aria-label="Slide 2" class="dot w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all duration-200"></button>
+            <button type="button" onclick="goToSlide(2)" aria-label="Slide 3" class="dot w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all duration-200"></button>
+            <button type="button" onclick="goToSlide(3)" aria-label="Slide 4" class="dot w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all duration-200"></button>
+{% endif %}
+        </div>
+
+    </div>
+
+    <script>
+        let current = 0;
+        {% if promocoes_carrossel %}
+        const total = Number('{{ promocoes_carrossel|length }}');
+        {% else %}
+        const total = 4;
+        {% endif %}
+        const slidesEl = document.getElementById('slides');
+        const dots = document.querySelectorAll('.dot');
+
+        function updateCarousel() {
+            slidesEl.style.transform = `translateX(-${current * 100}%)`;
+            dots.forEach((d, i) => {
+                d.classList.toggle('bg-white', i === current);
+                d.classList.toggle('bg-white/50', i !== current);
+                d.classList.toggle('scale-125', i === current);
+            });
+        }
+
+        function moveSlide(dir) {
+            current = (current + dir + total) % total;
+            updateCarousel();
+            resetTimer();
+        }
+
+        function goToSlide(idx) {
+            current = idx;
+            updateCarousel();
+            resetTimer();
+        }
+
+        let timer = setInterval(() => moveSlide(1), 5000);
+
+        function resetTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => moveSlide(1), 5000);
+        }
+
+        updateCarousel();
+    </script>
+
+    <!-- Sobre Nós -->
+    <section class="bg-white py-20 px-8 border-b border-stone-100">
+        <div class="max-w-4xl mx-auto text-center">
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">A Nossa História</span>
+            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-3 mb-6">A Arte de Uma Fragrância</h2>
+            <div class="w-16 h-px bg-amber-700 mx-auto mb-10"></div>
+            <p class="text-stone-500 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-6">
+                A <span class="font-semibold text-stone-700">Decent Privé</span> nasceu da paixão pelas fragrâncias raras e pela elegância atemporal. Actualmente localizados na Província do Huambo, Angola, somos mais do que uma perfumaria — somos um destino sensorial para quem aprecia o requinte e a autenticidade.
+            </p>
+            <p class="text-stone-400 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-10">
+                Cada frasco que seleccionamos conta uma história. Do Médio Oriente à Europa, trazemos até si as melhores casas de perfumaria do mundo, com atendimento personalizado e uma curadoria que privilegia a qualidade acima de tudo.
+            </p>
+            <div class="flex flex-wrap justify-center gap-12">
+                <div class="text-center">
+                    <p class="font-serif italic text-4xl text-amber-700">200+</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">Fragrâncias</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-serif italic text-4xl text-amber-700">5★</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">Atendimento</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-serif italic text-4xl text-amber-700">100%</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">Autenticidade</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-serif italic text-4xl text-amber-700">{{ total_visitas|default:0 }}</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">Visitas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if promocoes_landing %}
+    <!-- Promoções a decorrer (landing) -->
+    <section id="promocoes" class="bg-white py-16 px-8 border-t border-stone-100">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Tempo Limitado</span>
+            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Promoções a Decorrer</h2>
+            <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
+        </div>
+
+        <div class="max-w-6xl mx-auto space-y-16">
+            {% for p in promocoes_landing %}
+            <article class="grid md:grid-cols-12 gap-8 items-center">
+                <div class="md:col-span-5 relative">
+                    {% if p.imagem %}
+                    <img src="{{ p.imagem.url }}" alt="{{ p.nome }}" class="w-full h-72 object-cover rounded-lg shadow-md">
+                    {% else %}
+                    <div class="w-full h-72 rounded-lg shadow-md bg-gradient-to-br from-amber-100 to-amber-300 flex items-center justify-center text-7xl">{{ p.icone|default:'🎁' }}</div>
+                    {% endif %}
+                    {% if p.desconto_percentagem %}
+                    <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-3 py-1.5 rounded">-{{ p.desconto_percentagem }}%</span>
+                    {% endif %}
+                </div>
+                <div class="md:col-span-7">
+                    {% if p.subtitulo %}<span class="text-xs uppercase tracking-[0.3em] text-amber-700">{{ p.subtitulo }}</span>{% endif %}
+                    <h3 class="font-serif italic text-3xl text-stone-800 mt-2">{{ p.icone }} {{ p.nome }}</h3>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mt-2">{{ p.data_inicio|date:"d M" }} — {{ p.data_fim|date:"d M Y" }}</p>
+                    {% if p.descricao %}<p class="text-stone-600 mt-4 leading-relaxed">{{ p.descricao }}</p>{% endif %}
+
+                    {% if p.produtos.all %}
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
+                        {% for prod in p.produtos.all|slice:":6" %}
+                        <a href="{% url 'colecoes' %}" class="group block">
+                            {% if prod.imagem %}
+                            <img src="{{ prod.imagem.url }}" alt="{{ prod.nome }}" class="w-full h-24 object-cover rounded">
+                            {% else %}
+                            <div class="w-full h-24 rounded bg-stone-100 flex items-center justify-center text-stone-400 text-xs">Sem imagem</div>
+                            {% endif %}
+                            <div class="mt-1 text-[11px] text-stone-700 truncate group-hover:text-amber-700">{{ prod.nome }}</div>
+                            <div class="text-[10px] text-stone-500">{{ prod.preco_venda|floatformat:0 }} Kz</div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <a href="{{ p.get_absolute_url }}" class="inline-block mt-6 border border-amber-700 text-amber-700 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white transition-all">
+                        {{ p.texto_botao|default:'Ver Promoção' }}
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Secção de Produtos em Destaque -->
+    <section id="produtos" class="bg-stone-50 py-16 px-8">
+
+        <!-- Cabeçalho principal -->
+        <div class="text-center mb-14">
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Selecção da Semana</span>
+            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Produtos em Destaque</h2>
+            <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
+        </div>
+
+        <!-- ── PERFUMES MASCULINOS ── -->
+        <div class="max-w-6xl mx-auto mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="flex-1 h-px bg-stone-200"></div>
+                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes Masculinos</h3>
+                <div class="flex-1 h-px bg-stone-200"></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image5.jpeg' %}" alt="Noir Absolu"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-20%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Noir Absolu</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">62.500 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">50.000 Kz</span>
+                    </div>
+                    <button data-name="Noir Absolu" data-price="50000" data-img="{% static 'loja/images/image5.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image6.jpeg' %}" alt="Bois de Cèdre"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Novo</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Toilette</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Bois de Cèdre</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">85.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">69.000 Kz</span>
+                    </div>
+                    <button data-name="Bois de Cèdre" data-price="69000" data-img="{% static 'loja/images/image6.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image7.jpeg' %}" alt="Cuir Fumé"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-15%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Cuir Fumé</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">120.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">102.000 Kz</span>
+                    </div>
+                    <button data-name="Cuir Fumé" data-price="102000" data-img="{% static 'loja/images/image7.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image8.jpeg' %}" alt="Vétiver Royal"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Vétiver Royal</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-amber-800 font-semibold text-base">95.000 Kz</span>
+                    </div>
+                    <button data-name="Vétiver Royal" data-price="95000" data-img="{% static 'loja/images/image8.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── PERFUMES FEMININOS ── -->
+        <div class="max-w-6xl mx-auto mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="flex-1 h-px bg-stone-200"></div>
+                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes Femininos</h3>
+                <div class="flex-1 h-px bg-stone-200"></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image9.jpeg' %}" alt="Rose Dorée"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-25%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Rose Dorée</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">75.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">56.250 Kz</span>
+                    </div>
+                    <button data-name="Rose Dorée" data-price="56250" data-img="{% static 'loja/images/image9.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image10.jpeg' %}" alt="Fleur Blanche"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Novo</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Toilette</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Fleur Blanche</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">68.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">55.000 Kz</span>
+                    </div>
+                    <button data-name="Fleur Blanche" data-price="55000" data-img="{% static 'loja/images/image10.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image11.jpeg' %}" alt="Jasmin Précieux"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Jasmin Précieux</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-amber-800 font-semibold text-base">88.000 Kz</span>
+                    </div>
+                    <button data-name="Jasmin Précieux" data-price="88000" data-img="{% static 'loja/images/image11.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image12.jpeg' %}" alt="Musc Soyeux"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-10%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Musc Soyeux</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">110.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">99.000 Kz</span>
+                    </div>
+                    <button data-name="Musc Soyeux" data-price="99000" data-img="{% static 'loja/images/image12.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── PERFUMES DE NICHO ── -->
+        <div class="max-w-6xl mx-auto mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="flex-1 h-px bg-stone-200"></div>
+                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes de Nicho</h3>
+                <div class="flex-1 h-px bg-stone-200"></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image13.jpeg' %}" alt="Oud Impérial"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-30%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Oud Impérial</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">140.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">98.000 Kz</span>
+                    </div>
+                    <button data-name="Oud Impérial" data-price="98000" data-img="{% static 'loja/images/image13.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image14.jpeg' %}" alt="Ambre Précieux"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Exclusivo</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Ambre Précieux</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">180.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">149.000 Kz</span>
+                    </div>
+                    <button data-name="Ambre Précieux" data-price="149000" data-img="{% static 'loja/images/image14.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image15.jpeg' %}" alt="Encens Sacré"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-20%</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Encens Sacré</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">220.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">176.000 Kz</span>
+                    </div>
+                    <button data-name="Encens Sacré" data-price="176000" data-img="{% static 'loja/images/image15.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+                <div class="group flex flex-col items-center text-center">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image16.jpeg' %}" alt="Iris Absolu"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Edição Limitada</span>
+                    </div>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Iris Absolu</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-400 line-through text-sm">260.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">210.000 Kz</span>
+                    </div>
+                    <button data-name="Iris Absolu" data-price="210000" data-img="{% static 'loja/images/image16.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Botão ver todos -->
+        <div class="text-center mt-4">
+            <a href="{% url 'colecoes' %}" class="border border-amber-800 text-amber-800 text-[10px] uppercase tracking-[0.4em] px-10 py-3 hover:bg-amber-800 hover:text-white transition-all duration-300">
+                Ver Toda a Colecção
+            </a>
+        </div>
+
+    </section>
+
+    <!-- Mapa Google -->
+    <section class="bg-white py-14 px-8 border-t border-stone-100">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Visite-nos</span>
+                <h2 class="font-serif italic text-3xl text-stone-800 mt-2">Onde nos Encontrar</h2>
+                <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
+            </div>
+            <div class="map-wrap w-full overflow-hidden">
+                <iframe
+                    title="Localização Decent Privé"
+                    src="https://maps.google.com/maps?q=SIAC+Huambo&output=embed&z=17"
+                    width="100%"
+                    height="300"
+                    class="map-frame"
+                    allowfullscreen=""
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="bg-stone-900 text-stone-200">
+
+        <!-- Faixa superior decorativa -->
+        <div class="h-px bg-amber-800 w-full"></div>
+
+        <!-- Conteúdo principal do rodapé -->
+        <div class="max-w-6xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+            <!-- Logo + Quem Somos -->
+            <div class="md:col-span-1">
+                <h4 class="font-serif italic text-amber-500 text-xl mb-4">Decent Privé</h4>
+                <p class="text-stone-300 text-xs leading-relaxed tracking-wide">
+                    Somos uma perfumaria dedicada à exclusividade e à arte das fragrâncias. Curámos cada peça com rigor, oferecendo experiências sensoriais únicas para quem valoriza o detalhe.
+                </p>
+            </div>
+
+            <!-- Links rápidos -->
+            <div>
+                <h5 class="text-xs uppercase tracking-[0.3em] text-stone-300 mb-5">Navegação</h5>
+                <ul class="space-y-3 text-xs">
+                    <li><a href="{% url 'home' %}" class="hover:text-amber-500 transition-colors duration-200">Página Inicial</a></li>
+                    <li><a href="{% url 'colecoes' %}" class="hover:text-amber-500 transition-colors duration-200">Colecções</a></li>
+                    <li><a href="{% url 'encomendas' %}" class="hover:text-amber-500 transition-colors duration-200">Encomendas</a></li>
+                    <li><a href="{% url 'fidelidade' %}" class="hover:text-amber-500 transition-colors duration-200">Fidelidade</a></li>
+                </ul>
+            </div>
+
+            <!-- Fale connosco -->
+            <div>
+                <h5 class="text-xs uppercase tracking-[0.3em] text-stone-300 mb-5">Fale Connosco</h5>
+                <ul class="space-y-3 text-xs">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                        </svg>
+                        <a href="https://wa.me/244940385564" target="_blank" rel="noopener noreferrer" class="hover:text-amber-500 transition-colors duration-200">+244 940 385 564</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0-9.75 6.75L2.25 6.75"/>
+                        </svg>
+                        <a href="mailto:geral@decentprive.ao" class="hover:text-amber-500 transition-colors duration-200">geral@decentprive.ao</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z"/>
+                        </svg>
+                        <a href="tel:+244940385564" class="hover:text-amber-500 transition-colors duration-200">+244 940 385 564</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Redes sociais -->
+            <div>
+                <h5 class="text-xs uppercase tracking-[0.3em] text-stone-300 mb-5">Siga-nos</h5>
+                <div class="flex flex-col space-y-3">
+
+                    <!-- Facebook -->
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 text-xs text-stone-200 hover:text-stone-100 transition-colors duration-200">
+                        <svg class="w-5 h-5 fill-current text-amber-500 hover:text-amber-300 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.12 8.44 9.88v-6.99H7.9v-2.89h2.54V9.84c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.89h-2.34v6.99C18.34 21.12 22 16.99 22 12z"/>
+                        </svg>
+                        Facebook
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 text-xs text-stone-200 hover:text-stone-100 transition-colors duration-200">
+                        <svg class="w-5 h-5 fill-current text-amber-500 hover:text-amber-300 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.515 2.497 5.783 2.225 7.149 2.163 8.415 2.105 8.795 2.163 12 2.163zm0-2.163C8.741 0 8.333.013 7.053.072 5.197.157 3.355.745 2.014 2.086.674 3.427.086 5.269 0 7.125-.013 8.333 0 8.741 0 12c0 3.259.013 3.668.072 4.948.085 1.856.674 3.698 2.014 5.038 1.341 1.341 3.183 1.929 5.038 2.014C8.333 23.987 8.741 24 12 24c3.259 0 3.668-.013 4.948-.072 1.856-.085 3.698-.674 5.038-2.014 1.341-1.341 1.929-3.183 2.014-5.038C23.987 15.668 24 15.259 24 12c0-3.259-.013-3.668-.072-4.948-.085-1.856-.674-3.698-2.014-5.038C20.573.745 18.731.157 16.875.072 15.667.013 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                        </svg>
+                        Instagram
+                    </a>
+
+                    <!-- TikTok -->
+                    <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 text-xs text-stone-200 hover:text-stone-100 transition-colors duration-200">
+                        <svg class="w-5 h-5 fill-current text-amber-500 hover:text-amber-300 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                        </svg>
+                        TikTok
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Newsletter + Métodos de Pagamento -->
+        <div class="border-t border-stone-800 py-10 px-8">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+
+                <!-- Newsletter -->
+                <div class="flex flex-col gap-4">
+                    <h5 class="text-xs uppercase tracking-[0.4em] text-stone-300">Subscreva a nossa Newsletter</h5>
+                    <p class="text-xs text-stone-300 tracking-wide">Receba em primeira mão as nossas novidades, promoções e lançamentos exclusivos.
+                        Junte-se à nossa comunidade e seja o primeiro a saber das nossas ofertas especiais.
+                    </p>
+                    <form onsubmit="submitNewsletter(event)" class="flex flex-col sm:flex-row items-center gap-3 w-full mt-2">
+                        <input
+                            id="newsletter-email"
+                            type="email"
+                            placeholder="o-seu-email@exemplo.com"
+                            required
+                            maxlength="254"
+                            autocomplete="email"
+                            class="flex-1 w-full bg-stone-800 border border-stone-600 text-stone-200 text-xs placeholder-stone-500 px-4 py-3 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                        >
+                        <button
+                            type="submit"
+                            class="bg-amber-800 text-white text-[10px] uppercase tracking-[0.35em] px-7 py-3 hover:bg-amber-700 transition-colors duration-200 whitespace-nowrap"
+                        >
+                            Enviar
+                        </button>
+                    </form>
+                    <p id="newsletter-msg" class="text-xs text-amber-500 hidden"></p>
+                </div>
+
+                <!-- Métodos de Pagamento -->
+                <div class="flex flex-col gap-4">
+                    <h5 class="text-xs uppercase tracking-[0.35em] text-stone-300">Métodos de Pagamento</h5>
+                    <p class="text-xs text-stone-300 tracking-wide">Oferecemos opções de pagamento seguras e convenientes para a sua encomenda.
+                        Após confirmação do pagamento, a sua encomenda é processada de imediato.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+
+                        <!-- Transferência Bancária -->
+                        <div class="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded px-4 py-3 flex-1 min-w-[150px]">
+                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l9-3 9 3M3 6v2m18-2v2M3 8h18M5 8v10m4-10v10m4-10v10m4-10v10M3 18h18M3 20h18"/>
+                            </svg>
+                            <p class="text-white text-[9px] uppercase tracking-wider leading-tight">Transferência<br>Bancária</p>
+                        </div>
+
+                        <!-- Multicaixa Express -->
+                        <div class="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded px-4 py-3 flex-1 min-w-[150px]">
+                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="2" y="5" width="20" height="14" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2 10h20M7 15h2m4 0h4"/>
+                            </svg>
+                            <p class="text-white text-[9px] uppercase tracking-wider leading-tight">Multicaixa<br>Express</p>
+                        </div>
+
+                        <!-- Paypay -->
+                        <div class="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded px-4 py-3 flex-1 min-w-[150px]">
+                            <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2zm0 0v20M2 12h20"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v2m0 8v2"/>
+                            </svg>
+                            <p class="text-white text-[9px] uppercase tracking-wider leading-tight">Paypay</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <script>
+        function submitNewsletter(e) {
+            e.preventDefault();
+            const input = document.getElementById('newsletter-email');
+            const msg = document.getElementById('newsletter-msg');
+            msg.classList.add('hidden');
+            msg.textContent = '';
+            const email = input.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                msg.textContent = 'E-mail inválido.';
+                msg.classList.remove('hidden');
+                msg.classList.remove('text-amber-500');
+                msg.classList.add('text-red-400');
+                return;
+            }
+            fetch("{% url 'newsletter_inscrever' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]')||{}).value || ''
+                },
+                body: 'email=' + encodeURIComponent(email)
+            })
+            .then(r => r.json().then(j => ({ok: r.ok, status: r.status, ...j})))
+            .then(res => {
+                if (res.ok) {
+                    msg.textContent = 'Obrigado pela subscrição!';
+                    msg.classList.remove('text-red-400');
+                    msg.classList.add('text-amber-500');
+                    input.value = '';
+                } else {
+                    msg.textContent = res.erro || 'Erro ao subscrever.';
+                    msg.classList.remove('text-amber-500');
+                    msg.classList.add('text-red-400');
+                }
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 4000);
+            })
+            .catch(() => {
+                msg.textContent = 'Erro de ligação.';
+                msg.classList.remove('text-amber-500');
+                msg.classList.add('text-red-400');
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 4000);
+            });
+        }
+        </script>
+
+        <!-- Faixa de copyright -->
+        <div class="border-t border-stone-800 py-5 px-8 flex flex-col md:flex-row items-center justify-between gap-2">
+            <p class="text-xs text-stone-400 tracking-wide">
+                &copy; 2026 Decent Privé. Todos os direitos reservados.
+            </p>
+            <p class="text-xs text-stone-400 tracking-wide flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700 text-amber-400">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <strong class="text-amber-300">{{ total_visitas|default:0 }}</strong> visitas
+                </span>
+                <span>Desenvolvido por Soft Dreams.</span>
+            </p>
+        </div>
+
+    </footer>
+
+    <!-- ── Carrinho Lateral ── -->
+    <div id="cart-overlay" onclick="toggleCart()" class="hidden fixed inset-0 bg-black/50 z-40 cursor-pointer"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-[28rem] bg-stone-900 shadow-2xl z-50 flex flex-col translate-x-full transition-transform duration-300">
+        <div class="flex items-center justify-between px-8 py-6 border-b border-stone-700">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.892-7.143a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.273M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+                <h2 class="font-serif italic text-3xl text-white">O Meu Carrinho</h2>
+            </div>
+            <button onclick="toggleCart()" class="text-stone-400 hover:text-white text-4xl leading-none transition-colors">&times;</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+            <p id="cart-empty" class="text-sm text-stone-400 uppercase tracking-widest text-center mt-16">O seu carrinho está vazio.</p>
+        </div>
+        <div class="px-8 py-6 border-t border-stone-700 space-y-5 bg-stone-800">
+            <div class="flex justify-between items-center">
+                <span class="text-sm uppercase tracking-widest text-stone-300">Total</span>
+                <span id="cart-total" class="font-bold text-amber-400 text-2xl">0 Kz</span>
+            </div>
+            <button class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Finalizar Encomenda</button>
+        </div>
+    </div>
+
+    <script>
+        let cartOpen = false;
+        let cartItems = JSON.parse(localStorage.getItem('dp_cart') || '[]');
+
+        function saveCart() { localStorage.setItem('dp_cart', JSON.stringify(cartItems)); }
+
+        function updateBadge() {
+            const badge = document.getElementById('cart-badge');
+            const total = cartItems.reduce((s, i) => s + i.qty, 0);
+            badge.textContent = total;
+            if (total > 0) { badge.classList.remove('hidden'); badge.classList.add('flex'); }
+            else { badge.classList.add('hidden'); badge.classList.remove('flex'); }
+        }
+
+        function formatPrice(val) { return Math.round(val).toLocaleString('pt-PT').replace(/,/g,'.') + ' Kz'; }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const empty = document.getElementById('cart-empty');
+            const totalEl = document.getElementById('cart-total');
+            container.querySelectorAll('.cart-item').forEach(el => el.remove());
+            if (cartItems.length === 0) {
+                empty.classList.remove('hidden');
+                totalEl.textContent = '0 Kz';
+                return;
+            }
+            empty.classList.add('hidden');
+            let total = 0;
+            cartItems.forEach(item => {
+                total += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = 'cart-item flex gap-5 items-start border-b border-stone-700 pb-5';
+                const safeName = item.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                div.innerHTML =
+                    '<img loading="lazy" decoding="async" src="' + item.img + '" alt="' + item.name + '" class="w-24 h-24 object-cover flex-shrink-0 border border-stone-700">' +
+                    '<div class="flex-1 min-w-0">' +
+                        '<p class="font-serif italic text-white text-lg truncate">' + item.name + '</p>' +
+                        '<p class="text-amber-400 text-base font-semibold mt-1">' + formatPrice(item.price) + '</p>' +
+                        '<div class="flex items-center gap-3 mt-3">' +
+                            '<button onclick="changeQty(\'' + safeName + '\', -1)" class="w-8 h-8 border border-stone-600 text-stone-300 text-base flex items-center justify-center hover:border-amber-500 hover:text-amber-400 transition-colors">−</button>' +
+                            '<span class="text-base text-white w-6 text-center">' + item.qty + '</span>' +
+                            '<button onclick="changeQty(\'' + safeName + '\', 1)" class="w-8 h-8 border border-stone-600 text-stone-300 text-base flex items-center justify-center hover:border-amber-500 hover:text-amber-400 transition-colors">+</button>' +
+                            '<button onclick="removeFromCart(\'' + safeName + '\')" class="ml-auto text-stone-500 hover:text-red-400 text-xl transition-colors">&times;</button>' +
+                        '</div>' +
+                    '</div>';
+                container.appendChild(div);
+            });
+            totalEl.textContent = formatPrice(total);
+        }
+
+        function addToCartFromBtn(btn) {
+            const name = btn.dataset.name;
+            const price = parseFloat(btn.dataset.price);
+            const img = btn.dataset.img;
+            const existing = cartItems.find(i => i.name === name);
+            if (existing) { existing.qty++; } else { cartItems.push({ name, price, img, qty: 1 }); }
+            saveCart(); updateBadge(); renderCart();
+            btn.textContent = '✓ Adicionado';
+            btn.classList.replace('bg-amber-800', 'bg-green-700');
+            setTimeout(() => { btn.textContent = '+ Carrinho'; btn.classList.replace('bg-green-700', 'bg-amber-800'); }, 1200);
+        }
+
+        function changeQty(name, delta) {
+            const item = cartItems.find(i => i.name === name);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cartItems = cartItems.filter(i => i.name !== name);
+            saveCart(); updateBadge(); renderCart();
+        }
+
+        function removeFromCart(name) {
+            cartItems = cartItems.filter(i => i.name !== name);
+            saveCart(); updateBadge(); renderCart();
+        }
+
+        function toggleCart() {
+            cartOpen = !cartOpen;
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            if (cartOpen) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                renderCart();
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        updateBadge();
+    </script>
+
+    <!-- ── Menu Móvel ── -->
+    <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
+            <span class="font-serif italic text-amber-700 text-2xl">Decent Privé</span>
+            <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none" aria-label="Fechar">&times;</button>
+        </div>
+        <nav class="flex flex-col p-6 gap-1">
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
+        </nav>
+        <div class="px-6 pb-6 mt-auto">
+            <div class="flex gap-2 border border-stone-300">
+                <input
+                    type="text"
+                    placeholder="Pesquisar..."
+                    onkeydown="if(event.key==='Enter') { doSearch(this.value); toggleMobileMenu(); }"
+                    class="flex-1 bg-white text-stone-700 text-sm placeholder-stone-400 px-4 py-3 focus:outline-none"
+                >
+                <button onclick="doSearch(this.previousElementSibling.value); toggleMobileMenu();"
+                        class="bg-amber-800 hover:bg-amber-700 text-white px-4 transition-colors" aria-label="Pesquisar">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── WhatsApp Flutuante ── -->
+    <a href="https://wa.me/244940385564?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20Decent%20Priv%C3%A9."
+       target="_blank" rel="noopener noreferrer"
+       class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
+       aria-label="Falar no WhatsApp">
+        <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </svg>
+    </a>
+
+    <!-- ── Voltar ao Topo ── -->
+    <button id="scroll-top" onclick="window.scrollTo({top:0, behavior:'smooth'})"
+            class="hidden fixed bottom-24 right-6 z-30 w-11 h-11 bg-stone-900 hover:bg-amber-800 text-white shadow-xl flex items-center justify-center transition-colors"
+            aria-label="Voltar ao topo">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+        </svg>
+    </button>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const open = menu.classList.contains('-translate-x-full');
+            menu.classList.toggle('-translate-x-full', !open);
+            overlay.classList.toggle('hidden', !open);
+        }
+
+        // Scroll-to-top visibility
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scroll-top');
+            if (window.scrollY > 400) btn.classList.remove('hidden');
+            else btn.classList.add('hidden');
+        });
+    </script>
+
+</body>
+</html>

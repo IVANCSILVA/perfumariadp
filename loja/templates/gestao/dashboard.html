@@ -1,0 +1,269 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Stats cards -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Encomendas Hoje</p>
+        <p class="text-3xl font-semibold text-stone-800">{{ encomendas_hoje }}</p>
+    </div>
+    <div class="bg-white border border-amber-200 p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Em Curso</p>
+        <p class="text-3xl font-semibold text-amber-700">{{ pendentes }}</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Total Encomendas</p>
+        <p class="text-3xl font-semibold text-stone-800">{{ total_encomendas }}</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Produtos</p>
+        <p class="text-3xl font-semibold text-stone-800">{{ total_produtos }}</p>
+    </div>
+    <div class="bg-white border {% if stock_baixo > 0 %}border-red-200{% else %}border-stone-200{% endif %} p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Stock Baixo</p>
+        <p class="text-3xl font-semibold {% if stock_baixo > 0 %}text-red-600{% else %}text-stone-800{% endif %}">{{ stock_baixo }}</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Clientes</p>
+        <p class="text-3xl font-semibold text-stone-800">{{ total_clientes }}</p>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+
+    <!-- Receita últimos 14 dias -->
+    <div class="xl:col-span-2 bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold">Receita — Últimos 14 dias</p>
+            <span class="text-[9px] uppercase tracking-widest text-stone-400">Kz</span>
+        </div>
+        <div class="h-[240px] relative">
+            <canvas id="chartReceita"></canvas>
+        </div>
+    </div>
+
+    <!-- Distribuição por estado -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold mb-4">Distribuição de Encomendas</p>
+        <div class="h-[240px] relative">
+            <canvas id="chartEstados"></canvas>
+        </div>
+    </div>
+
+    <!-- Vendas por dia (barras) -->
+    <div class="xl:col-span-2 bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold mb-4">Vendas Finalizadas por Dia</p>
+        <div class="h-[220px] relative">
+            <canvas id="chartVendas"></canvas>
+        </div>
+    </div>
+
+    <!-- Top 5 produtos do mês -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
+        <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold mb-4">Top 5 Produtos (mês)</p>
+        <div class="h-[220px] relative">
+            <canvas id="chartTopProdutos"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+    <!-- Últimas encomendas -->
+    <div class="xl:col-span-2 bg-white border border-stone-200 rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between">
+            <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold">Últimas Encomendas</p>
+            <a href="{% url 'gestao_vendas' %}" class="text-[9px] uppercase tracking-widest text-amber-700 hover:text-amber-600">Ver todas →</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-stone-100 text-[9px] uppercase tracking-widest text-stone-400">
+                        <th class="px-6 py-3 text-left">#</th>
+                        <th class="px-6 py-3 text-left">Cliente</th>
+                        <th class="px-6 py-3 text-left">Telefone</th>
+                        <th class="px-6 py-3 text-left">Status</th>
+                        <th class="px-6 py-3 text-left">Data</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-50">
+                    {% for enc in ultimas_encomendas %}
+                    <tr class="hover:bg-stone-50 transition-colors">
+                        <td class="px-6 py-3 text-stone-400">#{{ enc.pk }}</td>
+                        <td class="px-6 py-3 text-stone-800 font-medium">{{ enc.nome_cliente }}</td>
+                        <td class="px-6 py-3 text-stone-500">{{ enc.telefone }}</td>
+                        <td class="px-6 py-3">
+                            <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm
+                                {% if enc.status == 'em_curso' %}bg-yellow-100 text-yellow-700
+                                {% elif enc.status == 'finalizada' %}bg-green-100 text-green-700
+                                {% elif enc.status == 'cancelada' %}bg-red-100 text-red-700
+                                {% endif %}">
+                                {{ enc.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3 text-stone-400">{{ enc.criado_em|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="px-6 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">Nenhuma encomenda ainda</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Stock baixo -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-stone-100">
+            <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold">Stock Baixo (&lt; 5 un.)</p>
+        </div>
+        <div class="divide-y divide-stone-50">
+            {% for prod in produtos_stock_baixo %}
+            <div class="px-6 py-3 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-stone-800 font-medium">{{ prod.nome }}</p>
+                    <p class="text-[9px] text-stone-400 uppercase tracking-widest">{{ prod.marca }}</p>
+                </div>
+                <span class="text-xs font-semibold {% if prod.stock == 0 %}text-red-600{% else %}text-amber-600{% endif %}">
+                    {{ prod.stock }} un.
+                </span>
+            </div>
+            {% empty %}
+            <div class="px-6 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">
+                Stock em boas condições
+            </div>
+            {% endfor %}
+        </div>
+        {% if produtos_stock_baixo %}
+        <div class="px-6 py-3 border-t border-stone-100">
+            <a href="{% url 'gestao_produtos' %}" class="text-[9px] uppercase tracking-widest text-amber-700 hover:text-amber-600">→ Ver produtos</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    if (typeof Chart === 'undefined') return;
+
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = '#78716c';
+    Chart.defaults.plugins.legend.labels.boxWidth = 10;
+    Chart.defaults.plugins.legend.labels.font = { size: 10 };
+
+    var diasLabels = JSON.parse('{{ grafico_dias_labels|escapejs }}');
+    var vendasData = JSON.parse('{{ grafico_vendas_data|escapejs }}');
+    var receitaData = JSON.parse('{{ grafico_receita_data|escapejs }}');
+    var estadosLabels = JSON.parse('{{ estados_labels|escapejs }}');
+    var estadosData = JSON.parse('{{ estados_data|escapejs }}');
+    var topProdLabels = JSON.parse('{{ top_prod_labels|escapejs }}');
+    var topProdData = JSON.parse('{{ top_prod_data|escapejs }}');
+
+    // 1. Receita (linha)
+    new Chart(document.getElementById('chartReceita'), {
+        type: 'line',
+        data: {
+            labels: diasLabels,
+            datasets: [{
+                label: 'Receita (Kz)',
+                data: receitaData,
+                borderColor: '#92400e',
+                backgroundColor: 'rgba(146, 64, 14, 0.08)',
+                borderWidth: 2,
+                tension: 0.35,
+                fill: true,
+                pointRadius: 3,
+                pointBackgroundColor: '#92400e',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: function (v) { return v.toLocaleString('pt-PT'); } },
+                    grid: { color: '#f5f5f4' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. Estados (donut)
+    new Chart(document.getElementById('chartEstados'), {
+        type: 'doughnut',
+        data: {
+            labels: estadosLabels,
+            datasets: [{
+                data: estadosData,
+                backgroundColor: ['#eab308', '#16a34a', '#dc2626'],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // 3. Vendas por dia (barras)
+    new Chart(document.getElementById('chartVendas'), {
+        type: 'bar',
+        data: {
+            labels: diasLabels,
+            datasets: [{
+                label: 'Vendas',
+                data: vendasData,
+                backgroundColor: '#a16207',
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f5f5f4' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Top produtos (horizontal)
+    new Chart(document.getElementById('chartTopProdutos'), {
+        type: 'bar',
+        data: {
+            labels: topProdLabels,
+            datasets: [{
+                label: 'Quantidade',
+                data: topProdData,
+                backgroundColor: '#0369a1',
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f5f5f4' } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

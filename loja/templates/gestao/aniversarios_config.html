@@ -1,0 +1,153 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Configurar Felicitações{% endblock %}
+{% block page_title %}Configurar Felicitações de Aniversário{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+    <a href="{% url 'gestao_promocoes' %}"
+       class="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 mb-6">
+        ← Voltar a Promoções
+    </a>
+
+    {% if messages %}
+        <div class="mb-6 space-y-2">
+        {% for m in messages %}
+            <div class="px-4 py-3 rounded text-xs
+                {% if m.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800
+                {% elif m.tags == 'error' %}bg-red-50 border border-red-200 text-red-800
+                {% else %}bg-amber-50 border border-amber-200 text-amber-800{% endif %}">{{ m }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-stone-100 bg-gradient-to-r from-rose-50 to-amber-50">
+            <h2 class="font-serif italic text-2xl text-stone-800">🎂 Felicitações Automáticas</h2>
+            <p class="text-xs text-stone-500 mt-1">As mensagens são enviadas no dia do aniversário à hora indicada, por email e/ou WhatsApp.</p>
+        </div>
+
+        <form method="POST" class="px-6 py-6 space-y-6">
+            {% csrf_token %}
+
+            <!-- Estado geral -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                    {% if config.activo %}border-emerald-300 bg-emerald-50{% else %}border-stone-200{% endif %}">
+                    <input type="checkbox" name="activo" class="w-4 h-4 accent-emerald-600" {% if config.activo %}checked{% endif %}>
+                    <div>
+                        <p class="text-xs font-semibold text-stone-800">Sistema activo</p>
+                        <p class="text-[10px] text-stone-500">Liga/desliga todo o envio automático.</p>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                    {% if config.horario_aleatorio %}border-violet-300 bg-violet-50{% else %}border-stone-200{% endif %}">
+                    <input type="checkbox" name="horario_aleatorio" class="w-4 h-4 accent-violet-600"
+                           {% if config.horario_aleatorio %}checked{% endif %}
+                           onchange="document.getElementById('time-fixed').classList.toggle('hidden'); document.getElementById('time-random').classList.toggle('hidden');">
+                    <div>
+                        <p class="text-xs font-semibold text-stone-800">🎲 Horário aleatório</p>
+                        <p class="text-[10px] text-stone-500">Cada pessoa recebe a uma hora diferente dentro da janela.</p>
+                    </div>
+                </label>
+
+                <div></div>
+            </div>
+
+            <!-- Modo fixo -->
+            <div id="time-fixed" class="{% if config.horario_aleatorio %}hidden{% endif %}">
+                <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Hora de envio (todos à mesma hora)</label>
+                <input type="time" name="hora_envio" value="{{ config.hora_envio|time:'H:i' }}"
+                       class="w-full md:w-1/3 px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                <p class="text-[10px] text-stone-500 mt-1">Agendar a tarefa diariamente a esta hora.</p>
+            </div>
+
+            <!-- Modo aleatório -->
+            <div id="time-random" class="{% if not config.horario_aleatorio %}hidden{% endif %} grid grid-cols-2 gap-4 p-4 bg-violet-50/40 border border-violet-200 rounded-lg">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Janela — Início</label>
+                    <input type="time" name="janela_inicio" value="{{ config.janela_inicio|time:'H:i' }}"
+                           class="w-full px-4 py-2.5 text-sm bg-white border border-stone-200 rounded-lg focus:outline-none focus:border-violet-600 transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Janela — Fim</label>
+                    <input type="time" name="janela_fim" value="{{ config.janela_fim|time:'H:i' }}"
+                           class="w-full px-4 py-2.5 text-sm bg-white border border-stone-200 rounded-lg focus:outline-none focus:border-violet-600 transition">
+                </div>
+                <p class="col-span-2 text-[10px] text-stone-600">
+                    A cada pessoa é atribuída uma hora aleatória (mas estável) dentro desta janela. Agende a tarefa <strong>de 15 em 15 minutos</strong> ou de hora a hora — o comando só envia quando chegar a hora de cada pessoa.
+                </p>
+            </div>
+
+            <!-- Canais -->
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Canais de envio</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                        {% if config.enviar_email %}border-amber-300 bg-amber-50{% else %}border-stone-200{% endif %}">
+                        <input type="checkbox" name="enviar_email" class="w-4 h-4 accent-amber-700" {% if config.enviar_email %}checked{% endif %}>
+                        <span class="text-xs">✉ Email</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                        {% if config.enviar_sms %}border-emerald-300 bg-emerald-50{% else %}border-stone-200{% endif %}">
+                        <input type="checkbox" name="enviar_sms" class="w-4 h-4 accent-emerald-600" {% if config.enviar_sms %}checked{% endif %}>
+                        <span class="text-xs">📱 WhatsApp / SMS</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Brinde -->
+            <div class="border-t border-stone-100 pt-5">
+                <label class="flex items-center gap-2 cursor-pointer mb-3">
+                    <input type="checkbox" name="brinde_activo" class="w-4 h-4 accent-rose-600" {% if config.brinde_activo %}checked{% endif %}>
+                    <span class="text-sm font-semibold text-stone-800">🎁 Oferecer brinde no aniversário</span>
+                </label>
+                <textarea name="brinde_descricao" rows="2" maxlength="200"
+                          placeholder="Ex: 10% de desconto em qualquer compra durante o seu mês de aniversário."
+                          class="w-full px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition resize-none">{{ config.brinde_descricao }}</textarea>
+                <p class="text-[10px] text-stone-500 mt-1">Quando activo, este texto é incluído no marcador <code class="px-1 bg-stone-100 rounded">{brinde}</code> da mensagem.</p>
+            </div>
+
+            <!-- Mensagens -->
+            <div class="border-t border-stone-100 pt-5">
+                <p class="text-sm font-semibold text-stone-800 mb-3">Mensagens</p>
+                <p class="text-[10px] text-stone-500 mb-4">Marcadores disponíveis: <code class="px-1 bg-stone-100 rounded">{nome}</code> (primeiro nome) e <code class="px-1 bg-stone-100 rounded">{brinde}</code>.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Para Clientes</label>
+                        <textarea name="mensagem_cliente" rows="9"
+                                  class="w-full px-4 py-3 text-xs font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition resize-y">{{ config.mensagem_cliente }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Para Funcionários</label>
+                        <textarea name="mensagem_funcionario" rows="9"
+                                  class="w-full px-4 py-3 text-xs font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition resize-y">{{ config.mensagem_funcionario }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">
+                <a href="{% url 'gestao_promocoes' %}"
+                   class="px-5 py-2.5 text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 transition">Cancelar</a>
+                <button type="submit"
+                        class="bg-stone-900 hover:bg-stone-800 text-white text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 rounded-lg shadow-sm transition">
+                    Guardar Configuração
+                </button>
+            </div>
+        </form>
+
+        <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 text-[11px] text-stone-600">
+            <p class="font-semibold mb-1">⚙ Agendamento automático</p>
+            <p>Modo fixo — agende <strong>diariamente</strong> à hora configurada:</p>
+            <pre class="mt-1 p-2 bg-stone-900 text-emerald-300 rounded text-[10px] overflow-x-auto">.\venv\Scripts\python.exe manage.py enviar_felicitacoes</pre>
+            <p class="mt-2">Modo aleatório — agende <strong>de 15 em 15 minutos</strong> (cada pessoa só recebe à sua hora atribuída):</p>
+            <pre class="mt-1 p-2 bg-stone-900 text-emerald-300 rounded text-[10px] overflow-x-auto">.\venv\Scripts\python.exe manage.py enviar_felicitacoes</pre>
+            <p class="mt-2 text-stone-500">Use <code class="px-1 bg-stone-100 rounded">--ignore-time</code> para enviar agora a todos os aniversariantes do dia, ou <code class="px-1 bg-stone-100 rounded">--dry-run</code> para simular.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

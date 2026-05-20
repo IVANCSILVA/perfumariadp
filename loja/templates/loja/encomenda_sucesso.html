@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Encomenda Recebida</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-white text-stone-900">
+    {% load static %}
+
+    <!-- Navbar -->
+    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
+        <a href="{% url 'home' %}" class="-mt-16">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="h-56 w-auto">
+        </a>
+        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
+            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        </div>
+    </nav>
+
+    <!-- Conteúdo -->
+    <section class="min-h-[70vh] flex flex-col items-center justify-center text-center px-8 py-20">
+        <!-- Ícone de confirmação -->
+        <div class="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-8">
+            <svg class="w-8 h-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+            </svg>
+        </div>
+
+        <p class="text-[10px] uppercase tracking-[0.35em] text-amber-800 mb-3">Encomenda Recebida</p>
+        <h1 class="text-5xl font-serif italic text-stone-900 mb-5">Obrigado!</h1>
+        <p class="text-stone-500 text-xs uppercase tracking-widest max-w-sm mx-auto leading-relaxed mb-10">
+            A sua encomenda foi registada com sucesso.<br>
+            Entraremos em contacto brevemente para confirmar disponibilidade e pagamento.
+        </p>
+
+        <!-- Contacto WhatsApp -->
+        <a
+            href="https://wa.me/244940385564"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-3 bg-green-600 hover:bg-green-500 text-white text-xs uppercase tracking-widest px-8 py-4 transition-colors duration-200 mb-4"
+        >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.843L.057 23.117a.75.75 0 0 0 .928.899l5.444-1.463A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.356l-.355-.211-3.68.989.997-3.595-.232-.371A9.713 9.713 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/>
+            </svg>
+            Falar no WhatsApp
+        </a>
+
+        <a href="{% url 'home' %}" class="text-[10px] uppercase tracking-widest text-stone-400 hover:text-amber-800 transition-colors duration-200">
+            ← Voltar à loja
+        </a>
+    </section>
+
+    <footer class="border-t border-stone-200 py-8 text-center">
+        <p class="text-[10px] text-stone-400 uppercase tracking-widest">© 2026 Decent Privé — Huambo, Angola</p>
+    </footer>
+
+    <script>
+        // Limpa o carrinho após encomenda submetida com sucesso
+        localStorage.removeItem('dp_cart');
+    </script>
+</body>
+</html>

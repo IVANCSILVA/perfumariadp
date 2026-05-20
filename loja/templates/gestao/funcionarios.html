@@ -1,0 +1,236 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}Funcionários{% endblock %}
+{% block page_title %}Funcionários{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ funcionarios|length }} funcionário(s) registado(s)</p>
+        <a href="{% url 'gestao_funcionario_criar' %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150">
+            + Adicionar
+        </a>
+    </div>
+
+    <!-- Barra de pesquisa + filtros -->
+    <div class="bg-white border border-stone-200 px-5 py-4 mb-0 rounded-t-xl shadow-sm flex flex-wrap items-center gap-3">
+
+        <!-- Campo de pesquisa -->
+        <div class="relative flex-1 min-w-[200px]">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+            </svg>
+            <input
+                id="pesquisa"
+                type="text"
+                placeholder="Pesquisar por nome, BI, telefone ou utilizador…"
+                class="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-700 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors"
+            >
+        </div>
+
+        <!-- Filtro cargo -->
+        <div class="flex items-center gap-1 flex-wrap">
+            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Cargo:</span>
+            <button data-filtro="cargo" data-valor="" class="filtro-btn activo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
+            <button data-filtro="cargo" data-valor="gerente" class="filtro-btn text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-sky-500 hover:text-sky-700">Gerente</button>
+            <button data-filtro="cargo" data-valor="vendedor" class="filtro-btn text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Vendedor</button>
+            <button data-filtro="cargo" data-valor="operador" class="filtro-btn text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-stone-500 hover:text-stone-700">Operador</button>
+            <button data-filtro="cargo" data-valor="armazem" class="filtro-btn text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-violet-500 hover:text-violet-700">Armazém</button>
+        </div>
+
+        <!-- Filtro estado -->
+        <div class="flex items-center gap-1">
+            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Estado:</span>
+            <button data-filtro="estado" data-valor="" class="filtro-estado activo-estado text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
+            <button data-filtro="estado" data-valor="activo" class="filtro-estado text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Activos</button>
+            <button data-filtro="estado" data-valor="inactivo" class="filtro-estado text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-stone-400 hover:text-stone-600">Inactivos</button>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="bg-white border border-t-0 border-stone-200 overflow-x-auto rounded-b-xl shadow-sm">
+        <table class="w-full text-xs gestao-table" id="tabela-funcionarios">
+            <thead class="bg-stone-50 border-b border-stone-200">
+                <tr>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold w-[260px] min-w-[220px]">Nome</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Nº BI</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Telefone</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Cargo</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Turno</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Salário (Kz)</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Nascimento</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Admissão</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Estado</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Acções</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-funcionarios" class="divide-y divide-stone-100">
+                {% for f in funcionarios %}
+                <tr class="func-row hover:bg-stone-50 transition-colors duration-100"
+                    data-nome="{{ f.nome|lower }}"
+                    data-bi="{{ f.bi|lower }}"
+                    data-telefone="{{ f.telefone }}"
+                    data-utilizador="{% if f.utilizador %}{{ f.utilizador.username|lower }}{% endif %}"
+                    data-cargo="{{ f.cargo }}"
+                    data-estado="{% if f.activo %}activo{% else %}inactivo{% endif %}">
+                    <td class="px-5 py-3 font-medium text-stone-800 w-[260px] min-w-[220px]">
+                        <div class="flex items-center gap-3">
+                            <div class="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-stone-200 to-stone-300 flex items-center justify-center text-stone-500 text-xs font-medium">
+                                {% if f.foto %}
+                                    <img src="{{ f.foto.url }}" alt="{{ f.nome }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ f.nome|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'gestao_funcionario_detalhe' f.pk %}"
+                               class="hover:text-amber-700 transition-colors whitespace-normal break-words">{{ f.nome }}</a>
+                        </div>
+                    </td>
+                    <td class="px-5 py-3 text-stone-500 font-mono">{{ f.bi }}</td>
+                    <td class="px-5 py-3 text-stone-600">{{ f.telefone }}</td>
+                    <td class="px-5 py-3">
+                        <span class="inline-block px-2 py-0.5 text-[9px] uppercase tracking-wider
+                            {% if f.cargo == 'gerente' %}bg-sky-100 text-sky-800
+                            {% elif f.cargo == 'vendedor' %}bg-emerald-100 text-emerald-800
+                            {% elif f.cargo == 'armazem' %}bg-violet-100 text-violet-800
+                            {% else %}bg-stone-100 text-stone-600{% endif %}">
+                            {{ f.get_cargo_display }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-3 text-stone-500">{{ f.get_turno_display }}</td>
+                    <td class="px-5 py-3 text-stone-600">
+                        {% if f.salario %}{{ f.salario|floatformat:0|intcomma }}{% else %}<span class="text-stone-300">—</span>{% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-stone-500">{% if f.data_nascimento %}{{ f.data_nascimento|date:"d/m/Y" }}{% else %}<span class="text-stone-300">—</span>{% endif %}</td>
+                    <td class="px-5 py-3 text-stone-500">{{ f.data_admissao|date:"d/m/Y" }}</td>
+                    <td class="px-5 py-3">
+                        {% if f.activo %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-emerald-700 ml-1">Activo</span>
+                        {% else %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-stone-300"></span>
+                        <span class="text-stone-400 ml-1">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-right whitespace-nowrap">
+                        <a href="{% url 'gestao_funcionario_detalhe' f.pk %}"
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-stone-300 text-[9px] uppercase tracking-[0.2em] text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            </svg>
+                            Ver mais
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr id="row-vazio-inicial">
+                    <td colspan="10" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum funcionário registado ainda.
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- Linha "sem resultados" (oculta por defeito) -->
+                <tr id="row-sem-resultados" class="hidden">
+                    <td colspan="10" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum funcionário encontrado para os filtros aplicados.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    var pesquisaInput = document.getElementById('pesquisa');
+    var contador = document.getElementById('contador');
+    var semResultados = document.getElementById('row-sem-resultados');
+    var rows = Array.from(document.querySelectorAll('.func-row'));
+
+    var filtroCargo = '';
+    var filtroEstado = '';
+
+    function normalizar(str) {
+        return str.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function aplicarFiltros() {
+        var termo = normalizar(pesquisaInput.value.trim());
+        var visiveis = 0;
+
+        rows.forEach(function (row) {
+            var nome = normalizar(row.dataset.nome || '');
+            var bi = normalizar(row.dataset.bi || '');
+            var tel = row.dataset.telefone || '';
+            var util = normalizar(row.dataset.utilizador || '');
+            var cargo = row.dataset.cargo || '';
+            var estado = row.dataset.estado || '';
+
+            var matchTexto = !termo ||
+                nome.includes(termo) ||
+                bi.includes(termo) ||
+                tel.includes(termo) ||
+                util.includes(termo);
+
+            var matchCargo = !filtroCargo || cargo === filtroCargo;
+            var matchEstado = !filtroEstado || estado === filtroEstado;
+
+            if (matchTexto && matchCargo && matchEstado) {
+                row.classList.remove('hidden');
+                visiveis++;
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+
+        // Linha "sem resultados"
+        if (visiveis === 0) {
+            semResultados.classList.remove('hidden');
+        } else {
+            semResultados.classList.add('hidden');
+        }
+
+        // Actualiza contador
+        contador.textContent = visiveis + ' funcionário' + (visiveis !== 1 ? 's' : '') + ' encontrado' + (visiveis !== 1 ? 's' : '');
+    }
+
+    // Pesquisa em tempo real
+    pesquisaInput.addEventListener('input', aplicarFiltros);
+
+    // Filtros de cargo
+    document.querySelectorAll('.filtro-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filtro-btn').forEach(function (b) {
+                b.classList.remove('activo', 'bg-stone-800', 'text-white', 'border-stone-800');
+                b.classList.add('border-stone-200', 'text-stone-500');
+            });
+            btn.classList.add('activo', 'bg-stone-800', 'text-white', 'border-stone-800');
+            btn.classList.remove('border-stone-200', 'text-stone-500');
+            filtroCargo = btn.dataset.valor;
+            aplicarFiltros();
+        });
+    });
+
+    // Filtros de estado
+    document.querySelectorAll('.filtro-estado').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filtro-estado').forEach(function (b) {
+                b.classList.remove('activo-estado', 'bg-stone-800', 'text-white', 'border-stone-800');
+                b.classList.add('border-stone-200', 'text-stone-500');
+            });
+            btn.classList.add('activo-estado', 'bg-stone-800', 'text-white', 'border-stone-800');
+            btn.classList.remove('border-stone-200', 'text-stone-500');
+            filtroEstado = btn.dataset.valor;
+            aplicarFiltros();
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}Fatura #{{ encomenda.pk }}{% endblock %}
+{% block page_title %}Fatura / Recibo{% endblock %}
+
+{% block content %}
+<!-- Botões de acção (não imprimem) -->
+<div class="no-print flex items-center gap-3 mb-6 max-w-2xl mx-auto">
+    <a href="{% url 'gestao_venda_nova' %}"
+       class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+        + Nova Venda
+    </a>
+    <button onclick="window.print()"
+            class="flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z"/>
+        </svg>
+        Imprimir
+    </button>
+    <a href="{% url 'gestao_vendas' %}"
+
+       class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
+        ← Ver Todas as Vendas
+    </a>
+</div>
+
+<!-- Fatura imprimível -->
+<div id="fatura" class="max-w-xs mx-auto bg-white border border-stone-200 p-2 shadow-sm print:shadow-none print:border-none print:p-1">
+
+    <!-- Cabeçalho -->
+    <div class="flex items-start justify-between border-b border-stone-200 pb-2 mb-2">
+        <div>
+            <h1 class="text-base tracking-[0.1em] uppercase font-semibold text-stone-900 font-serif">
+                Decent Privé
+            </h1>
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Além do Essencial</p>
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Banild - Comércio e Serviços</p>
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">NIF: 5002884747</p>
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Tel: +244 940 385 564</p>
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Huambo, Angola</p>
+           
+        </div>
+        <div class="text-right">
+            <div class="inline-block bg-amber-800 text-white px-1.5 py-0.5 text-[7px] uppercase tracking-[0.15em] mb-1">
+                Fatura / Recibo
+            </div>
+            <p class="text-base font-bold text-stone-800 font-mono">#{{ encomenda.pk|stringformat:"05d" }}</p>
+            <p class="text-[10px] text-stone-400 mt-1 uppercase tracking-widest">
+                {{ encomenda.criado_em|date:"d/m/Y" }} às {{ encomenda.criado_em|date:"H:i" }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Dados do cliente e operador -->
+    <div class="grid grid-cols-2 gap-2 mb-2">
+        <div>
+            <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-2">Cliente</p>
+            <p class="text-[10px] font-semibold text-stone-800">{{ encomenda.nome_cliente }}</p>
+            {% if encomenda.telefone and encomenda.telefone != '—' %}
+            <p class="text-[9px] text-stone-500 mt-0.5">{{ encomenda.telefone }}</p>
+            {% endif %}
+            {% if encomenda.email %}
+            <p class="text-[9px] text-stone-500">{{ encomenda.email }}</p>
+            {% endif %}
+            {% if encomenda.morada %}
+            <p class="text-[9px] text-stone-500 mt-0.5">{{ encomenda.morada }}</p>
+            {% endif %}
+        </div>
+        <div class="text-right">
+            <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-2">Atendido por</p>
+            <p class="text-[9px] text-stone-700 font-medium">{{ operador }}</p>
+            <p class="text-[10px] text-stone-400 mt-2 uppercase tracking-widest">Estado</p>
+            <span class="inline-block mt-1 px-3 py-0.5 text-[9px] uppercase tracking-widest
+                {% if encomenda.status == 'finalizada' %}bg-green-100 text-green-800
+                {% elif encomenda.status == 'em_curso' %}bg-yellow-100 text-yellow-700
+                {% else %}bg-stone-100 text-stone-700{% endif %}">
+                {{ encomenda.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Tabela de itens -->
+    <table class="w-full text-[9px] mb-2">
+        <thead>
+            <tr class="border-b-2 border-stone-800">
+                <th class="text-left pb-2 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold w-8">#</th>
+                <th class="text-left pb-2 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Produto</th>
+                <th class="text-right pb-2 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold" style="padding-right: 0.5rem;">Qtd.</th>
+                <th class="text-right pb-2 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Preço Unit.</th>
+                <th class="text-right pb-2 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100">
+            {% for item in itens %}
+            <tr>
+                <td class="py-1 text-stone-400">{{ forloop.counter }}</td>
+                <td class="py-1 text-stone-800 font-medium">
+                    {{ item.nome_produto }}
+                    {% if item.produto and item.produto.marca %}
+                    <span class="text-stone-400 font-normal ml-1">— {{ item.produto.marca }}</span>
+                    {% endif %}
+                    {% if item.produto and item.produto.quantidade %}
+                    <span class="text-stone-400 font-normal text-[10px] ml-1">{{ item.produto.quantidade }}</span>
+                    {% endif %}
+                </td>
+                <td class="py-1 text-right text-stone-600">{{ item.quantidade }}</td>
+                <td class="py-1 text-right text-stone-600">{{ item.preco_unitario|floatformat:0|intcomma }} Kz</td>
+                <td class="py-1 text-right font-semibold text-stone-800">{{ item.subtotal|floatformat:0|intcomma }} Kz</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Total e Pagamento -->
+    <div class="border-t-2 border-stone-800 pt-1 flex flex-col items-end gap-0.5">
+        <div class="flex justify-between w-full max-w-[120px]">
+            <span class="text-[10px] uppercase tracking-widest text-stone-400">Subtotal</span>
+            <span class="text-xs text-stone-600 whitespace-nowrap">{{ total|floatformat:0|intcomma }} Kz</span>
+        </div>
+        <div class="flex justify-between w-full max-w-[120px]">
+            <span class="text-[10px] uppercase tracking-widest text-stone-400">IVA (0%)</span>
+            <span class="text-xs text-stone-400 whitespace-nowrap">—</span>
+        </div>
+        <div class="flex justify-between w-full max-w-[120px] mt-0.5 border-t border-stone-200 pt-0.5">
+            <span class="text-[10px] uppercase tracking-widest font-bold text-stone-800">Total</span>
+            <span class="text-sm font-bold text-stone-900 font-mono whitespace-nowrap">{{ total|floatformat:0|intcomma }} Kz</span>
+        </div>
+    </div>
+
+    {% if encomenda.forma_pagamento == 'parcelado' %}
+    <div class="mt-2 border-t border-stone-100 pt-1 w-full max-w-[180px] text-right self-end">
+        <p class="text-[9px] uppercase tracking-widest text-stone-500 mb-1">Pagamento Parcelado (2x)</p>
+        <div class="flex justify-between items-center">
+            <span class="text-[9px] text-stone-400">1ª Parcela:</span>
+            <span class="text-[9px] text-stone-800 font-semibold">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</span>
+            {% if encomenda.parcela1_paga %}
+                <span class="ml-2 text-green-600 text-[9px]">Paga</span>
+            {% else %}
+                <span class="ml-2 text-red-500 text-[9px]">Pendente</span>
+            {% endif %}
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-[9px] text-stone-400">2ª Parcela:</span>
+            <span class="text-[9px] text-stone-800 font-semibold">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</span>
+            {% if encomenda.parcela2_paga %}
+                <span class="ml-2 text-green-600 text-[9px]">Paga</span>
+            {% else %}
+                <span class="ml-2 text-red-500 text-[9px]">Pendente</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Notas -->
+    {% if encomenda.notas %}
+    <div class="mt-2 border-t border-stone-100 pt-1">
+        <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-1">Observações</p>
+        <p class="text-[9px] text-stone-500 leading-relaxed">{{ encomenda.notas }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Rodapé -->
+    <div class="mt-3 pt-1 border-t border-stone-100 text-center">
+        <p class="text-[7px] uppercase tracking-[0.15em] text-stone-400">Obrigado pela sua preferência</p>
+        <p class="text-[7px] text-stone-300 mt-0.5 tracking-wide">Decent Privé · Além do Essencial · Huambo, Angola</p>
+    </div>
+
+</div>
+
+<!-- Estilos de impressão -->
+<style>
+@media print {
+    /* Esconde toda a interface da gestão */
+    nav, aside, header, .no-print,
+    [class*="sidebar"], [class*="topbar"] {
+        display: none !important;
+    }
+    body { background: white !important; }
+    #fatura {
+        max-width: 58mm !important;
+        font-size: 9px !important;
+        padding: 0.5mm !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    @page {
+        margin: 15mm 15mm 15mm 15mm;
+        size: A4 portrait;
+    }
+}
+</style>
+{% endblock %}

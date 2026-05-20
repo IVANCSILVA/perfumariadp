@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Sistema de Gestão</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .bg-aura {
+            background:
+                radial-gradient(ellipse 60% 50% at 50% 0%, rgba(217,161,79,0.10), transparent 70%),
+                radial-gradient(ellipse 60% 50% at 50% 100%, rgba(120,53,15,0.18), transparent 70%),
+                #0c0a09;
+        }
+        .logo-dourado {
+            height: 220px;
+            width: auto;
+            margin: 0 auto;
+            display: block;
+            filter: drop-shadow(0 0 28px rgba(217, 161, 79, 0.75));
+        }
+    </style>
+</head>
+<body class="bg-aura min-h-screen flex items-center justify-center px-4 py-8">
+    {% load static %}
+
+    <div class="w-full max-w-sm">
+
+        <!-- Card (logo + form dentro) -->
+        <div class="bg-stone-800/80 backdrop-blur border border-amber-600/40 rounded-2xl shadow-2xl shadow-black/50 ring-1 ring-amber-500/10 overflow-hidden">
+
+            <!-- Brand -->
+            <div class="text-center px-8 pt-4 pb-3 border-b border-stone-700/60">
+                <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="logo-dourado">
+                <p class="text-amber-400 text-[10px] uppercase tracking-[0.4em] mt-1">Painel de Login</p>
+            </div>
+
+            <div class="px-8 py-7">
+                {% if erro %}
+                <div class="bg-red-900/40 border border-red-700/70 text-red-300 text-xs px-4 py-3 mb-5 rounded-md tracking-wide flex items-start gap-2">
+                    <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                    <span>{{ erro }}</span>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'gestao_login' %}" class="space-y-5">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="username" class="block text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-1.5">Utilizador</label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <input
+                                id="username"
+                                type="text"
+                                name="username"
+                                autofocus
+                                required
+                                autocomplete="username"
+                                placeholder="nome de utilizador"
+                                class="w-full bg-stone-900/70 border border-stone-700 text-stone-100 text-sm rounded-md pl-10 pr-3 py-3 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 placeholder-stone-600 transition"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-1.5">Senha</label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c1.1 0 2 .9 2 2v3a2 2 0 11-4 0v-3c0-1.1.9-2 2-2zM6 11V8a6 6 0 1112 0v3"/>
+                            </svg>
+                            <input
+                                id="password"
+                                type="password"
+                                name="password"
+                                required
+                                autocomplete="current-password"
+                                placeholder="••••••••"
+                                class="w-full bg-stone-900/70 border border-stone-700 text-stone-100 text-sm rounded-md pl-10 pr-10 py-3 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 placeholder-stone-600 transition"
+                            >
+                            <button type="button" onclick="togglePwd()" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-400 p-1" aria-label="Mostrar/ocultar senha">
+                                <svg id="pwd-eye" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                                    <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex justify-end mt-1.5">
+                            <a href="{% url 'gestao_password_reset' %}" class="text-[10px] uppercase tracking-[0.25em] text-stone-400 hover:text-amber-400 transition-colors">
+                                Esqueci a senha?
+                            </a>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white text-[11px] uppercase tracking-[0.35em] font-semibold py-3.5 rounded-md shadow-lg shadow-amber-900/30 transition-all duration-200 mt-2"
+                    >
+                        Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center text-[10px] uppercase tracking-[0.35em] mt-6">
+            <a href="{% url 'home' %}" class="text-amber-400/90 hover:text-amber-300 transition-colors">← Voltar à loja</a>
+        </p>
+    </div>
+
+    <script>
+        function togglePwd() {
+            const i = document.getElementById('password');
+            i.type = i.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+
+</body>
+</html>
+

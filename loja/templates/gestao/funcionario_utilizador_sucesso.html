@@ -1,0 +1,160 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Utilizador Criado — {{ funcionario.nome }}{% endblock %}
+{% block page_title %}Utilizador Criado{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+    <a href="{% url 'gestao_funcionario_detalhe' funcionario.pk %}"
+       class="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 mb-6">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Voltar ao Funcionário
+    </a>
+
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-stone-100 bg-gradient-to-r from-emerald-50 via-white to-white">
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </span>
+                <div>
+                    <h2 class="font-serif italic text-2xl text-stone-800 leading-tight">Utilizador criado com sucesso</h2>
+                    <p class="text-xs text-stone-500 mt-0.5">Para <strong class="text-stone-700">{{ funcionario.nome }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credenciais -->
+        <div class="px-6 py-6 space-y-5">
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                </svg>
+                <div class="flex-1">
+                    <p class="text-xs font-semibold text-amber-900 uppercase tracking-wider mb-1">Atenção</p>
+                    <p class="text-[11px] text-amber-800 leading-relaxed">
+                        A senha só é mostrada nesta página. Anote-a ou confirme o envio antes de sair.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Dados -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="bg-stone-50 border border-stone-200 rounded-lg p-3">
+                    <p class="text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1">Utilizador</p>
+                    <p class="text-sm font-mono text-stone-800 break-all">{{ username }}</p>
+                </div>
+                <div class="bg-stone-50 border border-stone-200 rounded-lg p-3">
+                    <p class="text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1">Senha</p>
+                    <p class="text-sm font-mono text-stone-800 break-all">{{ password }}</p>
+                </div>
+                <div class="bg-stone-50 border border-stone-200 rounded-lg p-3">
+                    <p class="text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1">Nível</p>
+                    <p class="text-sm text-stone-800 capitalize">{{ nivel }}</p>
+                </div>
+            </div>
+
+            <!-- Mensagem enviada -->
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">Mensagem</p>
+                <pre id="mensagem" class="bg-stone-900 text-stone-100 text-[12px] leading-relaxed font-mono whitespace-pre-wrap p-4 rounded-lg overflow-x-auto">{{ mensagem }}</pre>
+                <button type="button" onclick="copiarMensagem()"
+                        class="mt-2 text-[10px] uppercase tracking-[0.25em] text-stone-500 hover:text-stone-800 inline-flex items-center gap-1.5 transition">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span id="copiar-label">Copiar mensagem</span>
+                </button>
+            </div>
+
+            <!-- Estado dos envios -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-stone-100">
+                <!-- EMAIL -->
+                <div class="border rounded-lg p-3
+                    {% if email_status == 'enviado' %}border-emerald-200 bg-emerald-50
+                    {% elif email_status == 'erro' %}border-red-200 bg-red-50
+                    {% else %}border-stone-200 bg-stone-50{% endif %}">
+                    <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-4 h-4
+                            {% if email_status == 'enviado' %}text-emerald-700
+                            {% elif email_status == 'erro' %}text-red-700
+                            {% else %}text-stone-500{% endif %}"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-[10px] uppercase tracking-[0.25em] font-semibold text-stone-700">Email</p>
+                    </div>
+                    {% if email_destino %}
+                        <p class="text-xs text-stone-600 break-all mb-1">{{ email_destino }}</p>
+                        {% if email_status == 'enviado' %}
+                            <p class="text-[11px] text-emerald-700 font-semibold">✓ Enviado</p>
+                        {% elif email_status == 'erro' %}
+                            <p class="text-[11px] text-red-700">Falha: {{ email_erro }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-[11px] text-stone-500 italic">Funcionário sem email registado.</p>
+                    {% endif %}
+                </div>
+
+                <!-- SMS -->
+                <div class="border rounded-lg p-3
+                    {% if sms_status == 'enviado' %}border-emerald-200 bg-emerald-50
+                    {% elif sms_status == 'erro' %}border-red-200 bg-red-50
+                    {% elif sms_status == 'simulado' %}border-amber-200 bg-amber-50
+                    {% else %}border-stone-200 bg-stone-50{% endif %}">
+                    <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-4 h-4
+                            {% if sms_status == 'enviado' %}text-emerald-700
+                            {% elif sms_status == 'erro' %}text-red-700
+                            {% elif sms_status == 'simulado' %}text-amber-700
+                            {% else %}text-stone-500{% endif %}"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <p class="text-[10px] uppercase tracking-[0.25em] font-semibold text-stone-700">SMS</p>
+                    </div>
+                    {% if telefone_destino %}
+                        <p class="text-xs text-stone-600 mb-1 font-mono">{{ telefone_destino }}</p>
+                        {% if sms_status == 'enviado' %}
+                            <p class="text-[11px] text-emerald-700 font-semibold">✓ Enviado</p>
+                        {% elif sms_status == 'simulado' %}
+                            <p class="text-[11px] text-amber-700">Gateway SMS não configurado — mensagem registada nos logs do servidor.</p>
+                        {% elif sms_status == 'erro' %}
+                            <p class="text-[11px] text-red-700">Falha: {{ sms_erro }}</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-[11px] text-stone-500 italic">Funcionário sem telefone registado.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Acções -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">
+                <a href="{% url 'gestao_funcionario_detalhe' funcionario.pk %}"
+                   class="bg-stone-900 hover:bg-stone-800 text-white text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 rounded-lg shadow-sm transition">
+                    Concluir
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copiarMensagem() {
+        const txt = document.getElementById('mensagem').innerText;
+        navigator.clipboard.writeText(txt).then(() => {
+            const lbl = document.getElementById('copiar-label');
+            const original = lbl.textContent;
+            lbl.textContent = 'Copiado!';
+            setTimeout(() => { lbl.textContent = original; }, 1500);
+        });
+    }
+</script>
+{% endblock %}

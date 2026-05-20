@@ -1,0 +1,291 @@
+{% extends 'gestao/base.html' %}
+{% block title %}{% if instancia %}Editar{% else %}Novo{% endif %} Produto{% endblock %}
+{% block page_title %}{% if instancia %}Editar Produto{% else %}Novo Produto{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[10px] uppercase tracking-widest text-stone-400">
+        <a href="{% url 'gestao_produtos' %}" class="hover:text-amber-700 transition-colors">Produtos</a>
+        <span>/</span>
+        <span class="text-stone-600">Novo Registo</span>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Informação do Produto -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Informação do Produto</h2>
+            </div>
+            <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- Nome -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
+                        Nome <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="nome" maxlength="200"
+                           value="{{ post.nome|default:'' }}"
+                           placeholder="Ex: Sauvage Elixir"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border {% if erros.nome %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    {% if erros.nome %}<p class="mt-1 text-[9px] text-red-500">{{ erros.nome }}</p>{% endif %}
+                </div>
+
+                <!-- Marca -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
+                        Marca <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="marca" maxlength="100"
+                           value="{{ post.marca|default:'' }}"
+                           placeholder="Ex: Dior"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border {% if erros.marca %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    {% if erros.marca %}<p class="mt-1 text-[9px] text-red-500">{{ erros.marca }}</p>{% endif %}
+                </div>
+
+                <!-- Volume -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Volume</label>
+                    <input type="text" name="quantidade" maxlength="20"
+                           value="{{ post.quantidade|default:'' }}"
+                           placeholder="Ex: 100ml"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    <p class="mt-1 text-[9px] text-stone-400">Volume da embalagem (ex: 50ml, 100ml)</p>
+                </div>
+
+                <!-- Código de Barras -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Código de Barras</label>
+                    <div class="flex gap-2">
+                        <input id="input-codigo-barras" type="text" name="codigo_barras" maxlength="100"
+                               value="{{ post.codigo_barras|default:'' }}"
+                               placeholder="Leia com scanner USB ou introduza manualmente…"
+                               class="flex-1 px-3 py-2.5 text-xs bg-stone-50 border {% if erros.codigo_barras %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors font-mono tracking-wider">
+                        <button type="button" id="btn-camara-produto"
+                                class="flex items-center gap-1.5 bg-stone-700 hover:bg-stone-600 text-white text-[9px] uppercase tracking-widest px-4 py-2 transition-colors whitespace-nowrap">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+                            </svg>
+                            Câmara
+                        </button>
+                    </div>
+
+                    <!-- Feedback -->
+                    <div id="barcode-feedback-produto" class="hidden mt-2 px-4 py-2.5 text-xs border"></div>
+
+                    <!-- Câmara -->
+                    <div id="camara-produto-container" class="hidden mt-3 border border-stone-200 bg-stone-900 relative overflow-hidden" style="max-width:400px;">
+                        <video id="video-produto" autoplay playsinline muted class="w-full block"></video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="border-2 border-amber-400 opacity-70" style="width:220px;height:80px;"></div>
+                        </div>
+                        <button type="button" id="btn-fechar-camara-produto"
+                                class="absolute top-2 right-2 bg-stone-800 hover:bg-stone-700 text-white text-[9px] uppercase tracking-widest px-3 py-1.5 transition-colors">
+                            Fechar
+                        </button>
+                        <p class="text-[9px] text-stone-400 text-center py-2 bg-stone-900">Aponte a câmara para o código de barras</p>
+                    </div>
+
+                    {% if erros.codigo_barras %}<p class="mt-1 text-[9px] text-red-500">{{ erros.codigo_barras }}</p>{% endif %}
+                    <p class="mt-1 text-[9px] text-stone-400">EAN-13, Code 128, QR — leia com scanner USB ou use a câmara.</p>
+                </div>
+
+                <!-- Descrição -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Descrição</label>
+                    <textarea name="descricao" rows="3"
+                              placeholder="Breve descrição do produto…"
+                              class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors resize-none">{{ post.descricao|default:'' }}</textarea>
+                </div>
+
+                <!-- Essência / Notas Olfativas -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Essência / Notas Olfativas</label>
+                    <textarea name="essencia" rows="3"
+                              placeholder="Ex: Topo — Bergamota, Pimenta Rosa · Coração — Jasmim, Rosa · Fundo — Sândalo, Âmbar, Almíscar"
+                              class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors resize-none">{{ post.essencia|default:'' }}</textarea>
+                    <p class="mt-1 text-[9px] text-stone-400">Descreva as notas de topo, coração e fundo do perfume.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Classificação e Preço -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Classificação e Preço</h2>
+            </div>
+            <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- Categoria -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Categoria</label>
+                    <select name="categoria"
+                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors appearance-none">
+                        <option value="">— Sem categoria —</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.pk }}" {% if post.categoria == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Tipo -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
+                        Tipo <span class="text-red-500">*</span>
+                    </label>
+                    <select name="tipo"
+                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors appearance-none">
+                        {% for val, label in tipo_choices %}
+                        <option value="{{ val }}" {% if post.tipo == val or not post and val == 'unissex' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Preço de Venda -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
+                        Preço de Venda (Kz) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="preco_venda"
+                           value="{{ post.preco_venda|default:'' }}"
+                           placeholder="Ex: 15000"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border {% if erros.preco_venda %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    {% if erros.preco_venda %}<p class="mt-1 text-[9px] text-red-500">{{ erros.preco_venda }}</p>{% endif %}
+                </div>
+
+                <!-- Preço de Compra -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
+                        Preço de Compra (Kz)
+                    </label>
+                    <input type="text" name="preco_compra"
+                           value="{{ post.preco_compra|default:'0' }}"
+                           placeholder="Ex: 9000"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border {% if erros.preco_compra %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    {% if erros.preco_compra %}<p class="mt-1 text-[9px] text-red-500">{{ erros.preco_compra }}</p>{% else %}<p class="mt-1 text-[9px] text-stone-400">Custo ao fornecedor — usado para cálculo de lucro.</p>{% endif %}
+                </div>
+
+                <!-- Stock -->
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Stock Inicial</label>
+                    <input type="number" name="stock" min="0"
+                           value="{{ post.stock|default:'0' }}"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+
+                <!-- Disponível -->
+                <div class="md:col-span-2 flex items-center gap-3 pt-1">
+                    <input type="checkbox" name="disponivel" id="disponivel"
+                           {% if not post or post.disponivel == 'on' %}checked{% endif %}
+                           class="w-4 h-4 accent-amber-700">
+                    <label for="disponivel" class="text-xs text-stone-600 cursor-pointer select-none">
+                        Produto disponível para venda
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Imagem -->
+        <div class="bg-white border border-stone-200 mb-6">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Imagem</h2>
+            </div>
+            <div class="px-6 py-6">
+                <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Fotografia do Produto</label>
+                <input type="file" name="imagem" accept="image/*"
+                       class="w-full text-xs text-stone-600 bg-stone-50 border border-stone-200 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-[9px] file:uppercase file:tracking-widest file:bg-stone-800 file:text-white file:cursor-pointer hover:file:bg-stone-700 transition-colors">
+                <p class="mt-1.5 text-[9px] text-stone-400">Formatos aceites: JPG, PNG, WEBP. Tamanho máximo recomendado: 2MB.</p>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex items-center justify-between pb-4">
+            <a href="{% url 'gestao_produtos' %}"
+               class="bg-black hover:bg-stone-800 text-white text-[10px] uppercase tracking-widest px-6 py-3 transition-colors duration-150">
+                ← Cancelar
+            </a>
+            <button type="submit"
+                    class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-3 transition-colors duration-150">
+                {% if instancia %}Guardar Alterações{% else %}Registar Produto{% endif %}
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+(function () {
+    var inputCB      = document.getElementById('input-codigo-barras');
+    var feedbackEl   = document.getElementById('barcode-feedback-produto');
+    var btnCamara    = document.getElementById('btn-camara-produto');
+    var btnFechar    = document.getElementById('btn-fechar-camara-produto');
+    var camaraBox    = document.getElementById('camara-produto-container');
+    var videoEl      = document.getElementById('video-produto');
+    var cameraStream = null;
+    var cameraInterval = null;
+
+    function mostrarFeedback(msg, tipo) {
+        feedbackEl.textContent = msg;
+        feedbackEl.className = 'mt-2 px-4 py-2.5 text-xs border ';
+        if (tipo === 'ok')   feedbackEl.className += 'bg-emerald-50 border-emerald-300 text-emerald-800';
+        else if (tipo === 'erro') feedbackEl.className += 'bg-red-50 border-red-200 text-red-700';
+        else                 feedbackEl.className += 'bg-amber-50 border-amber-200 text-amber-700';
+        feedbackEl.classList.remove('hidden');
+        clearTimeout(feedbackEl._t);
+        feedbackEl._t = setTimeout(function () { feedbackEl.classList.add('hidden'); }, 3500);
+    }
+
+    // Scanner USB: quando o input perde foco ou Enter é premido com valor
+    inputCB.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (inputCB.value.trim()) mostrarFeedback('Código registado: ' + inputCB.value.trim(), 'ok');
+        }
+    });
+
+    // Câmara
+    btnCamara.addEventListener('click', function () {
+        if (!('BarcodeDetector' in window)) {
+            mostrarFeedback('BarcodeDetector não suportado neste browser. Use Chrome ou Edge.', 'aviso');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function (stream) {
+                cameraStream = stream;
+                videoEl.srcObject = stream;
+                camaraBox.classList.remove('hidden');
+                var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'qr_code', 'upc_a', 'upc_e', 'code_39'] });
+                cameraInterval = setInterval(function () {
+                    if (videoEl.readyState < 2) return;
+                    detector.detect(videoEl).then(function (codes) {
+                        if (codes.length > 0) {
+                            var codigo = codes[0].rawValue.trim();
+                            inputCB.value = codigo;
+                            mostrarFeedback('Código lido: ' + codigo, 'ok');
+                            fecharCamara();
+                        }
+                    }).catch(function () {});
+                }, 300);
+            })
+            .catch(function () {
+                mostrarFeedback('Não foi possível aceder à câmara.', 'erro');
+            });
+    });
+
+    function fecharCamara() {
+        clearInterval(cameraInterval);
+        if (cameraStream) { cameraStream.getTracks().forEach(function (t) { t.stop(); }); cameraStream = null; }
+        videoEl.srcObject = null;
+        camaraBox.classList.add('hidden');
+    }
+
+    btnFechar.addEventListener('click', fecharCamara);
+})();
+</script>
+{% endblock %}

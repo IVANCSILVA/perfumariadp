@@ -1,0 +1,185 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+
+{% block title %}Encomendas — Decent Privé{% endblock %}
+{% block page_title %}Encomendas (Pedidos Online){% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+
+    <!-- Resumo -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        <div class="bg-stone-900 border border-stone-800 rounded p-4">
+            <p class="text-xs uppercase tracking-widest text-stone-300 font-semibold">Total em curso</p>
+            <p class="font-serif italic text-3xl text-amber-400 mt-2">{{ total_abertas }}</p>
+        </div>
+        <div class="bg-stone-900 border border-stone-800 rounded p-4">
+            <p class="text-xs uppercase tracking-widest text-stone-300 font-semibold">Em Curso</p>
+            <p class="font-serif italic text-3xl text-yellow-400 mt-2">{{ contadores.em_curso|default:0 }}</p>
+        </div>
+    </div>
+
+    <!-- Cabeçalho + pesquisa -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <div>
+            <h2 class="font-serif italic text-2xl text-stone-100">Pedidos a processar</h2>
+            <p class="text-xs text-stone-500 mt-1">Encomendas recebidas pelo site, à espera de preparação ou entrega.</p>
+        </div>
+        <input type="text" id="pesquisa" placeholder="Pesquisar por nome, telefone, nº…"
+               style="color:#f5f5f4;"
+               class="bg-stone-800 border border-stone-600 rounded px-3 py-2 text-sm placeholder-stone-300 w-full md:w-72 focus:outline-none focus:border-amber-500">
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex flex-wrap gap-2 mb-4 text-[11px] uppercase tracking-widest">
+        <button data-filtro="todos" class="filtro-btn px-3 py-1.5 rounded border border-amber-700 bg-amber-800 text-white">Todas</button>
+        <button data-filtro="em_curso" class="filtro-btn px-3 py-1.5 rounded border border-stone-700 text-stone-400 hover:border-amber-700">Em Curso</button>
+    </div>
+
+    {% if encomendas %}
+    <div class="space-y-3" id="lista-encomendas">
+        {% for enc in encomendas %}
+        <details class="enc-row bg-stone-900 border border-stone-800 rounded group"
+                 data-cliente="{{ enc.nome_cliente|lower }}"
+                 data-telefone="{{ enc.telefone }}"
+                 data-id="{{ enc.pk }}"
+                 data-status="{{ enc.status }}">
+            <summary class="cursor-pointer px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2 list-none">
+                <div class="flex items-center gap-4">
+                    <span class="font-mono text-xs text-amber-400">#{{ enc.pk|stringformat:"05d" }}</span>
+                    <div>
+                        <p class="text-sm text-stone-100">{{ enc.nome_cliente }}</p>
+                        <p class="text-[11px] text-stone-500">{{ enc.telefone }} · {{ enc.criado_em|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-stone-300">{{ enc.itens.count }} item{{ enc.itens.count|pluralize:"s" }}</span>
+                    <span class="font-serif italic text-base text-amber-400">{{ enc.total|floatformat:0|intcomma }} Kz</span>
+                    {% if enc.status == 'em_curso' %}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-yellow-900/40 text-yellow-300 border border-yellow-800">Em Curso</span>
+                    {% endif %}
+                    <svg class="w-4 h-4 text-stone-500 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                </div>
+            </summary>
+
+            <div class="border-t border-stone-800 px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Cliente -->
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-2">Cliente</p>
+                    <p class="text-sm text-stone-200">{{ enc.nome_cliente }}</p>
+                    <p class="text-xs text-stone-400 mt-1">{{ enc.telefone }}</p>
+                    {% if enc.email %}<p class="text-xs text-stone-400">{{ enc.email }}</p>{% endif %}
+                    {% if enc.morada %}
+                        <p class="text-[10px] uppercase tracking-widest text-stone-500 mt-3 mb-1">Morada</p>
+                        <p class="text-xs text-stone-300 whitespace-pre-line">{{ enc.morada }}</p>
+                    {% endif %}
+                    {% if enc.notas %}
+                        <p class="text-[10px] uppercase tracking-widest text-stone-500 mt-3 mb-1">Notas</p>
+                        <p class="text-xs text-stone-300 italic whitespace-pre-line">{{ enc.notas }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Itens -->
+                <div class="lg:col-span-2">
+                    <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-2">Itens</p>
+                    <table class="w-full text-xs">
+                        <thead class="text-stone-500 border-b border-stone-800">
+                            <tr>
+                                <th class="text-left py-1.5">Produto</th>
+                                <th class="text-right py-1.5 w-16">Qtd.</th>
+                                <th class="text-right py-1.5 w-28">Preço Unit.</th>
+                                <th class="text-right py-1.5 w-28">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-800/60">
+                            {% for item in enc.itens.all %}
+                            <tr>
+                                <td class="py-2 text-stone-200">{{ item.nome_produto }}</td>
+                                <td class="py-2 text-right text-stone-300">{{ item.quantidade }}</td>
+                                <td class="py-2 text-right text-stone-300">{{ item.preco_unitario|floatformat:0|intcomma }}</td>
+                                <td class="py-2 text-right text-amber-400">{{ item.subtotal|floatformat:0|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t border-stone-700">
+                                <td colspan="3" class="py-2 text-right text-[10px] uppercase tracking-widest text-stone-500">Total</td>
+                                <td class="py-2 text-right font-serif italic text-base text-amber-400">{{ enc.total|floatformat:0|intcomma }} Kz</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Acções -->
+                    <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-stone-800">
+                        <form method="post" class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="encomenda_id" value="{{ enc.pk }}">
+                            <select name="status" class="bg-stone-950 border border-stone-700 rounded px-2 py-1.5 text-xs text-stone-200">
+                                {% for valor, rotulo in status_choices %}
+                                    <option value="{{ valor }}" {% if valor == enc.status %}selected{% endif %}>{{ rotulo }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="bg-amber-800 hover:bg-amber-700 text-white text-[11px] uppercase tracking-widest px-3 py-1.5 rounded">
+                                Actualizar
+                            </button>
+                        </form>
+                        <a href="{% url 'gestao_fatura' enc.pk %}"
+                           class="ml-auto inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-stone-300 hover:text-amber-400 border border-stone-700 hover:border-amber-700 px-3 py-1.5 rounded">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/>
+                            </svg>
+                            Fatura
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </details>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-stone-900 border border-stone-800 rounded p-12 text-center">
+        <p class="font-serif italic text-2xl text-stone-100">Sem encomendas em curso.</p>
+        <p class="text-xs text-stone-300 mt-2 uppercase tracking-widest">Todos os pedidos online foram processados.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+(function() {
+    const pesquisa = document.getElementById('pesquisa');
+    const botoes = document.querySelectorAll('.filtro-btn');
+    const linhas = document.querySelectorAll('.enc-row');
+    let filtroActivo = 'todos';
+
+    function aplicar() {
+        const termo = (pesquisa.value || '').toLowerCase().trim();
+        linhas.forEach(l => {
+            const cliente = l.dataset.cliente || '';
+            const tel = l.dataset.telefone || '';
+            const id = l.dataset.id || '';
+            const status = l.dataset.status || '';
+            const matchTermo = !termo || cliente.includes(termo) || tel.includes(termo) || id.includes(termo);
+            const matchStatus = filtroActivo === 'todos' || status === filtroActivo;
+            l.style.display = (matchTermo && matchStatus) ? '' : 'none';
+        });
+    }
+
+    pesquisa.addEventListener('input', aplicar);
+    botoes.forEach(b => {
+        b.addEventListener('click', () => {
+            botoes.forEach(x => {
+                x.classList.remove('bg-amber-800', 'text-white', 'border-amber-700');
+                x.classList.add('border-stone-700', 'text-stone-400');
+            });
+            b.classList.remove('border-stone-700', 'text-stone-400');
+            b.classList.add('bg-amber-800', 'text-white', 'border-amber-700');
+            filtroActivo = b.dataset.filtro;
+            aplicar();
+        });
+    });
+})();
+</script>
+{% endblock %}

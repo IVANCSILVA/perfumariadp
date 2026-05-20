@@ -1,0 +1,199 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}Produtos{% endblock %}
+{% block page_title %}Produtos{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ produtos|length }} produto(s) registado(s)</p>
+        {% if not is_operador %}
+        <a href="{% url 'gestao_produto_criar' %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150">
+            + Adicionar
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Barra de pesquisa + filtros -->
+    <div class="bg-white border border-stone-200 px-5 py-4 mb-0 rounded-t-xl shadow-sm flex flex-wrap items-center gap-3">
+
+        <!-- Campo de pesquisa -->
+        <div class="relative flex-1 min-w-[200px]">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+            </svg>
+            <input id="pesquisa" type="text"
+                   placeholder="Pesquisar por nome ou marca…"
+                   class="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-700 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+        </div>
+
+        <!-- Filtro tipo -->
+        <div class="flex items-center gap-1 flex-wrap">
+            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Tipo:</span>
+            <button data-valor="" class="filtro-tipo activo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
+            <button data-valor="masculino" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-blue-500 hover:text-blue-700">Masculino</button>
+            <button data-valor="feminino" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-pink-500 hover:text-pink-700">Feminino</button>
+            <button data-valor="unissex" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Unissex</button>
+            <button data-valor="nicho" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-violet-500 hover:text-violet-700">Nicho</button>
+        </div>
+
+        <!-- Filtro disponibilidade -->
+        <div class="flex items-center gap-1">
+            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Estado:</span>
+            <button data-disp="" class="filtro-disp activo-disp text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
+            <button data-disp="sim" class="filtro-disp text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Disponível</button>
+            <button data-disp="nao" class="filtro-disp text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-red-400 hover:text-red-600">Indisponível</button>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="bg-white border border-t-0 border-stone-200 overflow-x-auto rounded-b-xl shadow-sm">
+        <table class="w-full text-xs gestao-table">
+            <thead class="bg-stone-50 border-b border-stone-200">
+                <tr>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Nome</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Marca</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Categoria</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Tipo</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Volume</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Essência</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Preço (Kz)</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Stock</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Cód. Barras</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Estado</th>
+                    <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Acções</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-produtos" class="divide-y divide-stone-100">
+                {% for p in produtos %}
+                <tr class="prod-row hover:bg-stone-50 transition-colors duration-100"
+                    data-nome="{{ p.nome|lower }}"
+                    data-marca="{{ p.marca|lower }}"
+                    data-tipo="{{ p.tipo }}"
+                    data-disp="{% if p.disponivel %}sim{% else %}nao{% endif %}"
+                    data-barcode="{{ p.codigo_barras|lower|default:'' }}">
+                    <td class="px-5 py-3 font-medium text-stone-800">
+                        <a href="/gestao/admin/loja/produto/{{ p.pk }}/change/" target="_blank"
+                           class="hover:text-amber-700 transition-colors">{{ p.nome }}</a>
+                    </td>
+                    <td class="px-5 py-3 text-stone-500">{{ p.marca }}</td>
+                    <td class="px-5 py-3 text-stone-500">{{ p.categoria|default:"—" }}</td>
+                    <td class="px-5 py-3">
+                        <span class="inline-block px-2 py-0.5 text-[9px] uppercase tracking-wider
+                            {% if p.tipo == 'masculino' %}bg-blue-100 text-blue-800
+                            {% elif p.tipo == 'feminino' %}bg-pink-100 text-pink-800
+                            {% elif p.tipo == 'nicho' %}bg-violet-100 text-violet-800
+                            {% else %}bg-emerald-100 text-emerald-800{% endif %}">
+                            {{ p.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-3 text-stone-500">{{ p.quantidade|default:"—" }}</td>
+                    <td class="px-5 py-3 text-stone-400 max-w-[180px]">
+                        {% if p.essencia %}
+                        <span class="block truncate" title="{{ p.essencia }}">{{ p.essencia }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-right text-stone-700 font-medium">{{ p.preco|floatformat:0|intcomma }}</td>
+                    <td class="px-5 py-3 text-right">
+                        <span class="{% if p.stock == 0 %}text-red-600 font-semibold{% elif p.stock < 5 %}text-amber-600 font-semibold{% else %}text-stone-600{% endif %}">
+                            {{ p.stock }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-3 font-mono text-stone-400 text-[10px]">{{ p.codigo_barras|default:"—" }}</td>
+                    <td class="px-5 py-3">
+                        {% if p.disponivel %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-emerald-700 ml-1">Disponível</span>
+                        {% else %}
+                        <span class="inline-block w-2 h-2 rounded-full bg-stone-300"></span>
+                        <span class="text-stone-400 ml-1">Indisp.</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-3 text-right whitespace-nowrap">
+                        <a href="{% url 'gestao_produto_detalhe' p.pk %}"
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-stone-300 text-[9px] uppercase tracking-[0.2em] text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            </svg>
+                            Ver mais
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr id="row-vazio">
+                    <td colspan="11" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum produto registado ainda.
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr id="row-sem-resultados" class="hidden">
+                    <td colspan="11" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum produto encontrado para os filtros aplicados.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    var pesquisa = document.getElementById('pesquisa');
+    var contador = document.getElementById('contador');
+    var semRes = document.getElementById('row-sem-resultados');
+    var rows = Array.from(document.querySelectorAll('.prod-row'));
+
+    var filtroTipo = '';
+    var filtroDisp = '';
+
+    function norm(s) {
+        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function aplicar() {
+        var termo = norm(pesquisa.value.trim());
+        var vis = 0;
+        rows.forEach(function (r) {
+            var ok = (!termo || norm(r.dataset.nome).includes(termo) || norm(r.dataset.marca).includes(termo) || norm(r.dataset.barcode || '').includes(termo))
+                  && (!filtroTipo || r.dataset.tipo === filtroTipo)
+                  && (!filtroDisp || r.dataset.disp === filtroDisp);
+            r.classList.toggle('hidden', !ok);
+            if (ok) vis++;
+        });
+        semRes.classList.toggle('hidden', vis > 0);
+        contador.textContent = vis + ' produto' + (vis !== 1 ? 's' : '') + ' encontrado' + (vis !== 1 ? 's' : '');
+    }
+
+    pesquisa.addEventListener('input', aplicar);
+
+    document.querySelectorAll('.filtro-tipo').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filtro-tipo').forEach(function (b) {
+                b.className = b.className.replace('border-stone-800 bg-stone-800 text-white', 'border-stone-200 text-stone-500');
+            });
+            btn.classList.remove('border-stone-200', 'text-stone-500');
+            btn.classList.add('border-stone-800', 'bg-stone-800', 'text-white');
+            filtroTipo = btn.dataset.valor;
+            aplicar();
+        });
+    });
+
+    document.querySelectorAll('.filtro-disp').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filtro-disp').forEach(function (b) {
+                b.className = b.className.replace('border-stone-800 bg-stone-800 text-white', 'border-stone-200 text-stone-500');
+            });
+            btn.classList.remove('border-stone-200', 'text-stone-500');
+            btn.classList.add('border-stone-800', 'bg-stone-800', 'text-white');
+            filtroDisp = btn.dataset.disp;
+            aplicar();
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,465 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Nova Venda{% endblock %}
+{% block page_title %}Efectuar Venda{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-6 text-[10px] uppercase tracking-widest text-stone-400">
+        <a href="{% url 'gestao_vendas' %}" class="hover:text-amber-700 transition-colors">Vendas e Faturação</a>
+        <span>/</span>
+        <span class="text-stone-600">Nova Venda</span>
+    </div>
+
+    <form method="post" novalidate id="form-venda">
+        {% csrf_token %}
+
+        <!-- Dados do Cliente -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Dados do Cliente</h2>
+            </div>
+            <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Nome do Cliente</label>
+                    <input type="text" name="nome_cliente"
+                           value="{{ post.nome_cliente|default:'' }}"
+                           placeholder="Ex: João Silva  (deixe vazio para Balcão)"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    <p class="mt-1 text-[9px] text-stone-400">Se vazio, regista como "Cliente Balcão".</p>
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Telefone</label>
+                    <input type="text" name="telefone"
+                           value="{{ post.telefone|default:'' }}"
+                           placeholder="Ex: 923 456 789"
+                           class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Notas</label>
+                    <textarea name="notas" rows="2" placeholder="Observações sobre a venda…"
+                              class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors resize-none">{{ post.notas|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scanner de Código de Barras -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Scanner de Código de Barras</h2>
+                <button type="button" id="btn-camara"
+                        class="flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-stone-500 hover:text-amber-700 border border-stone-200 hover:border-amber-400 px-3 py-1 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+                    </svg>
+                    Câmara
+                </button>
+            </div>
+            <div class="px-6 py-4">
+                <!-- Input para leitor USB (foco automático) -->
+                <div class="flex gap-3 items-center">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"/>
+                        </svg>
+                        <input id="input-barcode" type="text" autocomplete="off"
+                               placeholder="Aponte o leitor ou escreva o código e prima Enter…"
+                               class="w-full pl-10 pr-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors font-mono tracking-wider">
+                    </div>
+                    <button type="button" id="btn-lookup-barcode"
+                            class="bg-stone-800 hover:bg-stone-700 text-white text-[9px] uppercase tracking-widest px-4 py-2.5 transition-colors whitespace-nowrap">
+                        Adicionar
+                    </button>
+                </div>
+                <!-- Feedback barcode -->
+                <div id="barcode-feedback" class="hidden mt-2 px-4 py-2.5 text-xs border"></div>
+
+                <!-- Área de câmara -->
+                <div id="camara-container" class="hidden mt-4">
+                    <div class="relative bg-black rounded overflow-hidden" style="max-height:240px;">
+                        <video id="video-scanner" class="w-full" autoplay playsinline muted style="max-height:240px;object-fit:cover;"></video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="w-64 h-24 border-2 border-amber-400 rounded opacity-70"></div>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-[9px] text-stone-400 text-center">Aponte a câmara para o código de barras do produto.</p>
+                    <button type="button" id="btn-fechar-camara"
+                            class="mt-2 w-full text-[9px] uppercase tracking-widest text-stone-500 hover:text-red-600 border border-stone-200 hover:border-red-300 py-1.5 transition-colors">
+                        Fechar Câmara
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produtos da Venda -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Produtos</h2>
+                <button type="button" id="btn-add-linha"
+                        class="text-[9px] uppercase tracking-widest text-amber-700 hover:text-amber-900 border border-amber-300 hover:border-amber-600 px-3 py-1 transition-colors">
+                    + Linha Manual
+                </button>
+            </div>
+
+            {% if erros.itens %}
+            <div class="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-xs">{{ erros.itens }}</div>
+            {% endif %}
+
+            <!-- Cabeçalho da tabela -->
+            <div class="px-6 pt-4 pb-1 grid grid-cols-[1fr_80px_130px_60px_30px] gap-3 text-[9px] uppercase tracking-widest text-stone-400">
+                <span>Produto</span>
+                <span class="text-right">Qtd.</span>
+                <span class="text-right">Preço Unit. (Kz)</span>
+                <span class="text-right">Subtotal</span>
+                <span></span>
+            </div>
+
+            <div id="linhas-produtos" class="px-6 pb-4 flex flex-col gap-2">
+                <!-- Linhas adicionadas dinamicamente -->
+            </div>
+
+            <!-- Total -->
+            <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-end gap-4">
+                <span class="text-[9px] uppercase tracking-widest text-stone-400">Total da Venda</span>
+                <span id="total-venda" class="text-lg font-bold text-stone-800 font-mono">0 Kz</span>
+            </div>
+        </div>
+
+        <!-- Pagamento -->
+        <div class="bg-white border border-stone-200 mb-4">
+            <div class="px-6 py-3 border-b border-stone-100 bg-stone-50">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Pagamento</h2>
+            </div>
+            <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Forma de Pagamento</label>
+                    <select name="forma_pagamento" id="forma_pagamento" class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                        <option value="avista">À Vista</option>
+                        <option value="parcelado">Parcelado (2x)</option>
+                    </select>
+                </div>
+                <div id="parcelas-container" class="hidden md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Valor 1ª Parcela</label>
+                        <input type="number" name="valor_parcela1" id="valor_parcela1" min="0" step="0.01" class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                        <p class="mt-1 text-[9px] text-stone-400">Mínimo 50% do total.</p>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Valor 2ª Parcela</label>
+                        <input type="number" name="valor_parcela2" id="valor_parcela2" min="0" step="0.01" class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex items-center justify-between pb-4">
+            <a href="{% url 'gestao_vendas' %}"
+               class="bg-black hover:bg-stone-800 text-white text-[10px] uppercase tracking-widest px-6 py-3 transition-colors duration-150">
+                ← Cancelar
+            </a>
+            <button type="submit"
+                    class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-3 transition-colors duration-150">
+                Registar Venda
+            </button>
+        </div>
+    </form>
+<script>
+// Exibe campos de parcelas se parcelado
+document.addEventListener('DOMContentLoaded', function() {
+    var select = document.getElementById('forma_pagamento');
+    var parcelas = document.getElementById('parcelas-container');
+    var totalVenda = function() {
+        var el = document.getElementById('total-venda');
+        if (!el) return 0;
+        var txt = el.textContent.replace(/[^\d,\.]/g, '').replace(',', '.');
+        return parseFloat(txt) || 0;
+    };
+    function updateParcelas() {
+        if (select.value === 'parcelado') {
+            parcelas.classList.remove('hidden');
+            // Sugere valores automáticos
+            var total = totalVenda();
+            var p1 = Math.max(Math.round(total * 0.5), 0);
+            var p2 = total - p1;
+            document.getElementById('valor_parcela1').value = p1;
+            document.getElementById('valor_parcela2').value = p2;
+        } else {
+            parcelas.classList.add('hidden');
+            document.getElementById('valor_parcela1').value = '';
+            document.getElementById('valor_parcela2').value = '';
+        }
+    }
+    select.addEventListener('change', updateParcelas);
+    // Atualiza valores das parcelas ao mudar produtos
+    var observer = new MutationObserver(updateParcelas);
+    observer.observe(document.getElementById('linhas-produtos'), {childList:true, subtree:true});
+    updateParcelas();
+});
+</script>
+</div>
+
+<!-- Dados dos produtos (JSON) -->
+<script>
+var PRODUTOS = {{ produtos_json|safe }};
+// Mapa código de barras → id
+var BARCODE_MAP = {};
+Object.keys(PRODUTOS).forEach(function(id) {
+    var cb = PRODUTOS[id].codigo_barras;
+    if (cb) BARCODE_MAP[cb] = id;
+});
+
+var linhasContainer = document.getElementById('linhas-produtos');
+var totalEl         = document.getElementById('total-venda');
+var btnAdd          = document.getElementById('btn-add-linha');
+var inputBarcode    = document.getElementById('input-barcode');
+var feedbackEl      = document.getElementById('barcode-feedback');
+var btnLookup       = document.getElementById('btn-lookup-barcode');
+var btnCamara       = document.getElementById('btn-camara');
+var btnFecharCamara = document.getElementById('btn-fechar-camara');
+var camaraContainer = document.getElementById('camara-container');
+var videoEl         = document.getElementById('video-scanner');
+var cameraStream    = null;
+var cameraInterval  = null;
+
+// ── Utilitários ──────────────────────────────────────────────────────────────
+
+function formatKz(n) {
+    return n.toLocaleString('pt-PT', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' Kz';
+}
+
+function recalcTotal() {
+    var total = 0;
+    linhasContainer.querySelectorAll('.linha-produto').forEach(function(row) {
+        var qty   = parseFloat(row.querySelector('.input-qty').value) || 0;
+        var preco = parseFloat(row.querySelector('.input-preco').value) || 0;
+        var sub   = row.querySelector('.subtotal');
+        var s = qty * preco;
+        sub.textContent = s > 0 ? formatKz(s) : '—';
+        total += s;
+    });
+    totalEl.textContent = formatKz(total);
+}
+
+function mostrarFeedback(msg, tipo) {
+    feedbackEl.textContent = msg;
+    feedbackEl.className = 'mt-2 px-4 py-2.5 text-xs border ';
+    if (tipo === 'ok') {
+        feedbackEl.className += 'bg-emerald-50 border-emerald-300 text-emerald-800';
+    } else if (tipo === 'erro') {
+        feedbackEl.className += 'bg-red-50 border-red-200 text-red-700';
+    } else {
+        feedbackEl.className += 'bg-amber-50 border-amber-200 text-amber-700';
+    }
+    feedbackEl.classList.remove('hidden');
+    clearTimeout(feedbackEl._timer);
+    feedbackEl._timer = setTimeout(function() { feedbackEl.classList.add('hidden'); }, 3500);
+}
+
+// ── Criar linha de produto ────────────────────────────────────────────────────
+
+function criarLinha(prodId, quantidade) {
+    var div = document.createElement('div');
+    div.className = 'linha-produto grid grid-cols-[1fr_80px_130px_60px_30px] gap-3 items-center';
+
+    // Select produto
+    var sel = document.createElement('select');
+    sel.name = 'produto_id';
+    sel.className = 'w-full px-2 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors appearance-none';
+    var opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = '— Seleccione —';
+    sel.appendChild(opt0);
+    Object.keys(PRODUTOS).forEach(function(id) {
+        var p = PRODUTOS[id];
+        var opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = p.nome + ' — ' + p.marca + ' (' + p.stock + ' em stock)';
+        opt.dataset.preco = p.preco;
+        opt.dataset.stock = p.stock;
+        sel.appendChild(opt);
+    });
+    if (prodId) sel.value = prodId;
+
+    // Quantidade
+    var inputQty = document.createElement('input');
+    inputQty.type = 'number';
+    inputQty.name = 'quantidade';
+    inputQty.min = '1';
+    inputQty.value = quantidade || '1';
+    inputQty.className = 'input-qty w-full px-2 py-2 text-xs text-right bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors';
+
+    // Preço unitário
+    var inputPreco = document.createElement('input');
+    inputPreco.type = 'number';
+    inputPreco.name = 'preco_unitario';
+    inputPreco.min = '0';
+    inputPreco.step = '0.01';
+    inputPreco.value = prodId && PRODUTOS[prodId] ? PRODUTOS[prodId].preco.toFixed(2) : '0';
+    inputPreco.className = 'input-preco w-full px-2 py-2 text-xs text-right bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors';
+
+    // Subtotal
+    var subDiv = document.createElement('div');
+    subDiv.className = 'subtotal text-[10px] text-stone-400 text-right';
+    subDiv.textContent = '—';
+
+    // Botão remover
+    var btnRem = document.createElement('button');
+    btnRem.type = 'button';
+    btnRem.textContent = '✕';
+    btnRem.className = 'text-stone-300 hover:text-red-500 text-xs transition-colors leading-none';
+    btnRem.addEventListener('click', function() { div.remove(); recalcTotal(); });
+
+    div.appendChild(sel);
+    div.appendChild(inputQty);
+    div.appendChild(inputPreco);
+    div.appendChild(subDiv);
+    div.appendChild(btnRem);
+
+    // Stock máx na linha
+    if (prodId && PRODUTOS[prodId]) inputQty.max = PRODUTOS[prodId].stock;
+
+    sel.addEventListener('change', function() {
+        var opt = sel.options[sel.selectedIndex];
+        if (opt.dataset.preco) {
+            inputPreco.value = parseFloat(opt.dataset.preco).toFixed(2);
+            inputQty.max = parseInt(opt.dataset.stock) || 9999;
+        } else {
+            inputPreco.value = '0';
+            inputQty.removeAttribute('max');
+        }
+        recalcTotal();
+    });
+    inputQty.addEventListener('input', recalcTotal);
+    inputPreco.addEventListener('input', recalcTotal);
+
+    linhasContainer.appendChild(div);
+    recalcTotal();
+    return div;
+}
+
+// ── Lookup por barcode ────────────────────────────────────────────────────────
+
+function processarBarcode(codigo) {
+    codigo = codigo.trim();
+    if (!codigo) return;
+
+    // Procura no mapa local primeiro (evita request)
+    var idLocal = BARCODE_MAP[codigo];
+    if (idLocal) {
+        var p = PRODUTOS[idLocal];
+        // Se já existe linha com este produto, incrementa qty
+        var existente = null;
+        linhasContainer.querySelectorAll('.linha-produto').forEach(function(row) {
+            var sel = row.querySelector('select');
+            if (sel && sel.value === String(idLocal)) existente = row;
+        });
+        if (existente) {
+            var qtyInput = existente.querySelector('.input-qty');
+            var novaQty = parseInt(qtyInput.value) + 1;
+            var maxStock = parseInt(qtyInput.max) || 9999;
+            if (novaQty > maxStock) {
+                mostrarFeedback('Stock insuficiente para "' + p.nome + '" (max: ' + maxStock + ').', 'erro');
+                return;
+            }
+            qtyInput.value = novaQty;
+            recalcTotal();
+            mostrarFeedback('Qty actualizada: ' + p.nome + ' × ' + novaQty, 'ok');
+        } else {
+            criarLinha(String(idLocal), 1);
+            mostrarFeedback('Adicionado: ' + p.nome + ' — ' + p.marca, 'ok');
+        }
+        inputBarcode.value = '';
+        return;
+    }
+
+    // Fallback: consulta API
+    mostrarFeedback('A procurar produto…', 'info');
+    fetch('/gestao/api/barcode/?codigo=' + encodeURIComponent(codigo))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.encontrado) {
+                // Adicionar ao mapa local
+                PRODUTOS[data.id] = {nome: data.nome, marca: data.marca, preco: data.preco, stock: data.stock, codigo_barras: codigo};
+                BARCODE_MAP[codigo] = String(data.id);
+                criarLinha(String(data.id), 1);
+                mostrarFeedback('Adicionado: ' + data.nome + ' — ' + data.marca, 'ok');
+            } else {
+                mostrarFeedback('Produto não encontrado: ' + codigo, 'erro');
+            }
+        })
+        .catch(function() {
+            mostrarFeedback('Erro ao comunicar com o servidor.', 'erro');
+        });
+    inputBarcode.value = '';
+}
+
+// Input manual + leitor USB (digita rápido e envia Enter)
+var barcodeBuffer = '';
+var barcodeTimer  = null;
+inputBarcode.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        processarBarcode(inputBarcode.value);
+        inputBarcode.value = '';
+        return;
+    }
+    // Detecção de leitor USB: caracteres chegam em < 50ms
+    clearTimeout(barcodeTimer);
+    barcodeTimer = setTimeout(function() {
+        // Nenhuma acção automática — aguarda Enter
+    }, 100);
+});
+
+btnLookup.addEventListener('click', function() {
+    processarBarcode(inputBarcode.value);
+});
+
+// ── Câmara (BarcodeDetector API) ─────────────────────────────────────────────
+
+btnCamara.addEventListener('click', function() {
+    if (!('BarcodeDetector' in window)) {
+        mostrarFeedback('O seu browser não suporta leitura por câmara. Use um leitor USB.', 'erro');
+        return;
+    }
+    camaraContainer.classList.remove('hidden');
+    navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment'}})
+        .then(function(stream) {
+            cameraStream = stream;
+            videoEl.srcObject = stream;
+            var detector = new BarcodeDetector({formats: ['ean_13','ean_8','code_128','code_39','qr_code','upc_a','upc_e']});
+            cameraInterval = setInterval(function() {
+                if (videoEl.readyState !== videoEl.HAVE_ENOUGH_DATA) return;
+                detector.detect(videoEl).then(function(barcodes) {
+                    if (barcodes.length > 0) {
+                        var code = barcodes[0].rawValue;
+                        pararCamara();
+                        processarBarcode(code);
+                    }
+                }).catch(function() {});
+            }, 300);
+        })
+        .catch(function() {
+            mostrarFeedback('Não foi possível aceder à câmara.', 'erro');
+            camaraContainer.classList.add('hidden');
+        });
+});
+
+function pararCamara() {
+    if (cameraInterval) { clearInterval(cameraInterval); cameraInterval = null; }
+    if (cameraStream) { cameraStream.getTracks().forEach(function(t) { t.stop(); }); cameraStream = null; }
+    camaraContainer.classList.add('hidden');
+}
+
+btnFecharCamara.addEventListener('click', pararCamara);
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+btnAdd.addEventListener('click', function() { criarLinha(null, 1); });
+criarLinha(null, 1);
+inputBarcode.focus();
+</script>
+{% endblock %}

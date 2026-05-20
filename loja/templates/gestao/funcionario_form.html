@@ -1,0 +1,252 @@
+{% extends 'gestao/base.html' %}
+{% block title %}{% if instancia %}Editar{% else %}Novo{% endif %} Funcionário{% endblock %}
+{% block page_title %}{% if instancia %}Editar Funcionário{% else %}Novo Funcionário{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-[9px] uppercase tracking-widest text-stone-400 mb-6">
+        <a href="{% url 'gestao_funcionarios' %}" class="hover:text-stone-600 transition-colors">Funcionários</a>
+        <span>/</span>
+        <span class="text-stone-600">{% if instancia %}Editar{% else %}Novo Registo{% endif %}</span>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="space-y-6">
+
+            <!-- Dados Pessoais -->
+            <div class="bg-white border border-stone-200">
+                <div class="px-6 py-4 border-b border-stone-100">
+                    <h2 class="text-[9px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Dados Pessoais</h2>
+                </div>
+                <div class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <!-- Foto -->
+                    <div class="md:col-span-2">
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Foto</label>
+                        <div class="flex items-center gap-5">
+                            <div class="shrink-0 w-20 h-20 rounded-full overflow-hidden bg-stone-100 border border-stone-200 flex items-center justify-center">
+                                {% if instancia and instancia.foto %}
+                                    <img id="preview-foto" src="{{ instancia.foto.url }}" alt="{{ instancia.nome }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <img id="preview-foto" src="" alt="" class="w-full h-full object-cover hidden">
+                                    <svg id="preview-placeholder" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" name="foto" id="input-foto" accept="image/*"
+                                       class="block w-full text-xs text-stone-600 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-[10px] file:uppercase file:tracking-widest file:bg-stone-900 file:text-white hover:file:bg-amber-800 file:cursor-pointer cursor-pointer">
+                                <p class="text-[9px] text-stone-400 mt-1.5">JPG ou PNG. Recomendado: imagem quadrada.</p>
+                                {% if instancia and instancia.foto %}
+                                <label class="inline-flex items-center gap-2 mt-2 text-[10px] text-red-600 cursor-pointer">
+                                    <input type="checkbox" name="foto_remover" value="1" class="accent-red-600">
+                                    Remover foto actual
+                                </label>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nome -->
+                    <div class="md:col-span-2">
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">
+                            Nome completo <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="nome" value="{{ post.nome|default:'' }}"
+                               class="w-full bg-stone-50 border {% if erros.nome %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                        {% if erros.nome %}<p class="text-red-500 text-[9px] mt-1">{{ erros.nome }}</p>{% endif %}
+                    </div>
+
+                    <!-- BI -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">
+                            Nº BI <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="input-bi" name="bi" value="{{ post.bi|default:'' }}"
+                               maxlength="14" placeholder="003456789LA045"
+                               class="w-full bg-stone-50 border {% if erros.bi %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors font-mono uppercase tracking-widest">
+                        <p class="text-[9px] text-stone-400 mt-1">9 dígitos + 2 letras + 3 dígitos</p>
+                        {% if erros.bi %}<p class="text-red-500 text-[9px] mt-1">{{ erros.bi }}</p>{% endif %}
+                    </div>
+
+                    <!-- Telefone -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">
+                            Telefone <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" id="input-telefone" name="telefone" value="{{ post.telefone|default:'' }}"
+                               maxlength="13" placeholder="923 456 789"
+                               class="w-full bg-stone-50 border {% if erros.telefone %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors font-mono tracking-wider">
+                        <p class="text-[9px] text-stone-400 mt-1">Formato Angola: 9XX XXX XXX</p>
+                        {% if erros.telefone %}<p class="text-red-500 text-[9px] mt-1">{{ erros.telefone }}</p>{% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="md:col-span-2">
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Email</label>
+                        <input type="email" name="email" value="{{ post.email|default:'' }}"
+                               class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Função -->
+            <div class="bg-white border border-stone-200">
+                <div class="px-6 py-4 border-b border-stone-100">
+                    <h2 class="text-[9px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Função</h2>
+                </div>
+                <div class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <!-- Cargo -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Cargo</label>
+                        <select name="cargo"
+                                class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                            {% for val, label in cargo_choices %}
+                            <option value="{{ val }}" {% if post.cargo == val or not post and val == 'operador' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Turno -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Turno</label>
+                        <select name="turno"
+                                class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                            {% for val, label in turno_choices %}
+                            <option value="{{ val }}" {% if post.turno == val or not post and val == 'integral' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Salário -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Salário (Kz)</label>
+                        <input type="number" name="salario" value="{{ post.salario|default:'' }}" min="0" step="0.01"
+                               placeholder="ex: 150000"
+                               class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+
+                    <!-- Data de nascimento -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">Data de Nascimento</label>
+                        <input type="date" name="data_nascimento" value="{{ post.data_nascimento|default:'' }}"
+                               class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+
+                    <!-- Data de admissão -->
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-[0.25em] text-stone-500 mb-1.5">
+                            Data de Admissão <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="data_admissao" value="{{ post.data_admissao|default:'' }}"
+                               class="w-full bg-stone-50 border {% if erros.data_admissao %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                        {% if erros.data_admissao %}<p class="text-red-500 text-[9px] mt-1">{{ erros.data_admissao }}</p>{% endif %}
+                    </div>
+
+                    <!-- Estado activo -->
+                    <div class="md:col-span-2 flex items-center gap-3">
+                        <input type="checkbox" name="activo" id="activo"
+                               {% if not instancia or post.activo == 'on' %}checked{% endif %}
+                               class="w-4 h-4 accent-amber-700 cursor-pointer">
+                        <label for="activo" class="text-xs text-stone-600 cursor-pointer select-none">Funcionário activo</label>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Notas -->
+            <div class="bg-white border border-stone-200">
+                <div class="px-6 py-4 border-b border-stone-100">
+                    <h2 class="text-[9px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Observações</h2>
+                </div>
+                <div class="px-6 py-5">
+                    <textarea name="notas" rows="3" placeholder="Notas internas sobre o funcionário…"
+                              class="w-full bg-stone-50 border border-stone-200 text-stone-800 text-sm px-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors resize-none">{{ post.notas|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex items-center justify-between pb-4">
+                <a href="{% url 'gestao_funcionarios' %}"
+                   class="bg-black hover:bg-stone-800 text-white text-[10px] uppercase tracking-widest px-6 py-3 transition-colors duration-150">
+                    ← Cancelar
+                </a>
+                <button type="submit"
+                        class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-3 transition-colors duration-150">
+                    {% if instancia %}Guardar Alterações{% else %}Registar Funcionário{% endif %}
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    /* ── M\u00e1scara BI Angola: 000000000XX000 ── */
+    var biInput = document.getElementById('input-bi');
+    if (biInput) {
+        biInput.addEventListener('input', function () {
+            var raw = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            var out = '';
+            for (var i = 0; i < raw.length && i < 14; i++) {
+                if (i < 9) {
+                    // posi\u00e7\u00f5es 0-8: apenas d\u00edgitos
+                    if (/\d/.test(raw[i])) out += raw[i];
+                } else if (i < 11) {
+                    // posi\u00e7\u00f5es 9-10: apenas letras
+                    if (/[A-Z]/.test(raw[i])) out += raw[i];
+                } else {
+                    // posi\u00e7\u00f5es 11-13: apenas d\u00edgitos
+                    if (/\d/.test(raw[i])) out += raw[i];
+                }
+            }
+            this.value = out;
+        });
+        biInput.addEventListener('blur', function () {
+            this.value = this.value.toUpperCase();
+        });
+    }
+
+    /* ── M\u00e1scara Telefone Angola: 9XX XXX XXX ── */
+    var telInput = document.getElementById('input-telefone');
+    if (telInput) {
+        telInput.addEventListener('input', function () {
+            var digits = this.value.replace(/\D/g, '').slice(0, 9);
+            var out = '';
+            for (var i = 0; i < digits.length; i++) {
+                if (i === 3 || i === 6) out += ' ';
+                out += digits[i];
+            }
+            this.value = out;
+        });
+    }
+
+    /* ── Preview da foto ── */
+    var fotoInput = document.getElementById('input-foto');
+    var preview = document.getElementById('preview-foto');
+    var placeholder = document.getElementById('preview-placeholder');
+    if (fotoInput && preview) {
+        fotoInput.addEventListener('change', function () {
+            var f = this.files && this.files[0];
+            if (!f) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(f);
+        });
+    }
+})();
+</script>
+
+{% endblock %}

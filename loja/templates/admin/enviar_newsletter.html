@@ -1,0 +1,9 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+  <h1>Enviar E-mail para Inscritos na Newsletter</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Enviar</button>
+    <a href=".." class="button">Cancelar</a>
+  </form>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}Lucro{% endblock %}
+{% block page_title %}Análise de Lucro{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Filtro de Período -->
+    <div class="bg-white border border-stone-200 px-5 py-4 flex flex-wrap items-center gap-3">
+        <span class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold mr-2">Período:</span>
+        {% for val, label in periodos|default_if_none:"" %}{% endfor %}
+        <a href="?periodo=hoje"   class="text-[10px] uppercase tracking-widest px-3 py-1.5 border {% if periodo == 'hoje' %}border-amber-700 bg-amber-700 text-white{% else %}border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700{% endif %} transition-colors">Hoje</a>
+        <a href="?periodo=semana" class="text-[10px] uppercase tracking-widest px-3 py-1.5 border {% if periodo == 'semana' %}border-amber-700 bg-amber-700 text-white{% else %}border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700{% endif %} transition-colors">7 Dias</a>
+        <a href="?periodo=mes"    class="text-[10px] uppercase tracking-widest px-3 py-1.5 border {% if periodo == 'mes'    %}border-amber-700 bg-amber-700 text-white{% else %}border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700{% endif %} transition-colors">Mês Actual</a>
+        <a href="?periodo=todos"  class="text-[10px] uppercase tracking-widest px-3 py-1.5 border {% if periodo == 'todos'  %}border-amber-700 bg-amber-700 text-white{% else %}border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700{% endif %} transition-colors">Tudo</a>
+    </div>
+
+    {% if itens_sem_custo %}
+    <div class="bg-amber-50 border border-amber-200 px-5 py-3 text-[11px] text-amber-800">
+        <strong>{{ itens_sem_custo }}</strong> {{ itens_sem_custo|pluralize:"item,itens" }} de venda sem snapshot do preço de compra — o lucro real pode estar superestimado. Defina o preço de compra dos produtos para uma análise precisa.
+    </div>
+    {% endif %}
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-stone-200 p-5">
+            <p class="text-[9px] uppercase tracking-widest text-stone-500">Receita Total</p>
+            <p class="text-2xl font-bold text-stone-800 font-mono mt-1">{{ receita_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-[10px] text-stone-400 mt-1">{{ qtd_total|intcomma }} unidade(s) vendida(s)</p>
+        </div>
+        <div class="bg-white border border-stone-200 p-5">
+            <p class="text-[9px] uppercase tracking-widest text-red-700">Custo Total</p>
+            <p class="text-2xl font-bold text-red-700 font-mono mt-1">{{ custo_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-[10px] text-stone-400 mt-1">Mercadoria vendida</p>
+        </div>
+        <div class="bg-white border border-stone-200 p-5">
+            <p class="text-[9px] uppercase tracking-widest text-green-700">Lucro Bruto</p>
+            <p class="text-2xl font-bold text-green-700 font-mono mt-1">{{ lucro_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-[10px] text-stone-400 mt-1">Receita − Custo</p>
+        </div>
+        <div class="bg-white border border-stone-200 p-5">
+            <p class="text-[9px] uppercase tracking-widest text-amber-700">Margem</p>
+            <p class="text-2xl font-bold text-amber-700 font-mono mt-1">{{ margem_pct|floatformat:1 }}<span class="text-sm font-normal">%</span></p>
+            <p class="text-[10px] text-stone-400 mt-1">Lucro / Receita</p>
+        </div>
+    </div>
+
+    <!-- Top Produtos por Lucro -->
+    <div class="bg-white border border-stone-200">
+        <div class="px-6 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Top 15 Produtos por Lucro</h2>
+            <span class="text-[10px] text-stone-400">Lucro médio por unidade: <span class="font-mono font-semibold text-stone-700">{{ ticket_lucro|floatformat:0|intcomma }} Kz</span></span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="bg-stone-50 border-b border-stone-200">
+                    <tr class="text-[9px] uppercase tracking-widest text-stone-500">
+                        <th class="px-5 py-3 text-left">Produto</th>
+                        <th class="px-5 py-3 text-center">Qtd</th>
+                        <th class="px-5 py-3 text-right">Receita</th>
+                        <th class="px-5 py-3 text-right">Custo</th>
+                        <th class="px-5 py-3 text-right">Lucro</th>
+                        <th class="px-5 py-3 text-right">Margem</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    {% for p in top_produtos %}
+                    <tr class="hover:bg-stone-50">
+                        <td class="px-5 py-3">
+                            <p class="text-stone-800 font-medium">{{ p.nome }}</p>
+                            {% if p.marca %}<p class="text-[9px] text-stone-400 uppercase tracking-widest">{{ p.marca }}</p>{% endif %}
+                        </td>
+                        <td class="px-5 py-3 text-center font-mono text-stone-600">{{ p.qty|intcomma }}</td>
+                        <td class="px-5 py-3 text-right font-mono text-stone-700">{{ p.receita|floatformat:0|intcomma }}</td>
+                        <td class="px-5 py-3 text-right font-mono text-red-600">{{ p.custo|floatformat:0|intcomma }}</td>
+                        <td class="px-5 py-3 text-right font-mono font-bold text-green-700">{{ p.lucro|floatformat:0|intcomma }}</td>
+                        <td class="px-5 py-3 text-right">
+                            <span class="text-[10px] font-semibold {% if p.margem >= 30 %}text-green-700{% elif p.margem >= 10 %}text-amber-700{% else %}text-red-600{% endif %}">
+                                {{ p.margem|floatformat:1 }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-5 py-12 text-center text-stone-400 text-[10px] uppercase tracking-widest">
+                            Sem vendas finalizadas no período seleccionado
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

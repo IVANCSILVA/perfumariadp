@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Encomendas</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    {% load static %}
+
+    <!-- Navbar -->
+    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
+        <a href="{% url 'home' %}" class="-mt-16">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="h-56 w-auto">
+        </a>
+        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
+            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-950 font-semibold px-3 py-1 border-b border-amber-800 transition-all duration-200">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="bg-stone-50 border-b border-stone-200 py-14 text-center px-8">
+        <p class="text-[10px] uppercase tracking-[0.35em] text-amber-800 mb-3">Decent Privé</p>
+        <h1 class="text-5xl font-serif italic text-stone-900 mb-4">Fazer Encomenda</h1>
+        <p class="text-stone-500 text-xs uppercase tracking-widest max-w-md mx-auto">Preencha o formulário e entraremos em contacto para confirmar a sua encomenda</p>
+    </section>
+
+    <!-- Mensagens de erro -->
+    {% if messages %}
+    <div class="max-w-2xl mx-auto mt-6 px-8">
+        {% for msg in messages %}
+        <div class="bg-red-50 border border-red-200 text-red-700 text-xs px-5 py-3 tracking-wide">
+            {{ msg }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulário -->
+    <section class="py-16 px-8">
+        <form method="POST" action="{% url 'encomendas' %}" class="max-w-2xl mx-auto space-y-6" id="encomenda-form">
+            {% csrf_token %}
+            <input type="hidden" name="itens_json" id="itens_json" value="[]">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nome -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Nome Completo <span class="text-amber-700">*</span></label>
+                    <input
+                        type="text"
+                        name="nome"
+                        value="{{ form_data.nome|default:'' }}"
+                        required
+                        placeholder="O seu nome"
+                        class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                    >
+                </div>
+                <!-- Telefone -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Telefone / WhatsApp <span class="text-amber-700">*</span></label>
+                    <input
+                        type="tel"
+                        name="telefone"
+                        value="{{ form_data.telefone|default:'' }}"
+                        required
+                        placeholder="+244 9XX XXX XXX"
+                        class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                    >
+                </div>
+                <!-- Email -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Email <span class="text-stone-400">(opcional)</span></label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ form_data.email|default:'' }}"
+                        placeholder="email@exemplo.com"
+                        class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                    >
+                </div>
+                <!-- Morada -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Bairro / Morada <span class="text-stone-400">(opcional)</span></label>
+                    <input
+                        type="text"
+                        name="morada"
+                        value="{{ form_data.morada|default:'' }}"
+                        placeholder="Ex: Bairro Popular, Huambo"
+                        class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200"
+                    >
+                </div>
+            </div>
+
+            <!-- Notas / Produtos desejados -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Produtos / Observações</label>
+                <textarea
+                    name="notas"
+                    rows="5"
+                    placeholder="Descreva os produtos que pretende encomendar, quantidades, ou outras observações..."
+                    class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200 resize-none"
+                >{{ form_data.notas|default:'' }}</textarea>
+            </div>
+
+            <!-- Resumo do carrinho (se existir) -->
+            <div id="cart-summary" class="hidden border border-stone-200 bg-stone-50 p-5">
+                <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-3">Itens do Carrinho</p>
+                <div id="cart-items-list" class="space-y-2 text-sm text-stone-700"></div>
+            </div>
+
+            <!-- Botão -->
+            <div class="pt-2">
+                <button
+                    type="submit"
+                    class="w-full bg-amber-800 hover:bg-amber-700 text-white text-xs uppercase tracking-[0.3em] py-4 transition-colors duration-200"
+                >
+                    Enviar Encomenda
+                </button>
+            </div>
+
+            <p class="text-[10px] text-stone-400 tracking-wide text-center">
+                Após submissão, entraremos em contacto via WhatsApp ou email para confirmar a disponibilidade e o pagamento.
+            </p>
+        </form>
+    </section>
+
+    <!-- Footer simples -->
+    <footer class="border-t border-stone-200 py-8 text-center">
+        <p class="text-[10px] text-stone-400 uppercase tracking-widest">© 2026 Decent Privé — Huambo, Angola</p>
+    </footer>
+
+    <script>
+        // Carrega itens do carrinho (localStorage) e preenche o campo hidden + resumo
+        document.addEventListener('DOMContentLoaded', function () {
+            const raw = localStorage.getItem('dp_cart');
+            if (!raw) return;
+            let cart;
+            try { cart = JSON.parse(raw); } catch(e) { return; }
+            if (!cart || !cart.length) return;
+
+            // Preenche campo hidden
+            document.getElementById('itens_json').value = JSON.stringify(
+                cart.map(item => ({
+                    name: item.name || '',
+                    price: item.price || 0,
+                    qty: item.qty || 1,
+                }))
+            );
+
+            // Mostra resumo visual
+            const summary = document.getElementById('cart-summary');
+            const list = document.getElementById('cart-items-list');
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between';
+                div.innerHTML = `<span>${item.qty || 1}× ${item.name}</span><span class="text-stone-500">${Number(item.price).toLocaleString('pt-AO')} Kz</span>`;
+                list.appendChild(div);
+            });
+            summary.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

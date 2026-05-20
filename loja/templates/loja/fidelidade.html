@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decent Privé | Fidelidade</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    {% load static %}
+    <!-- Navbar -->
+    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
+        <a href="{% url 'home' %}" class="-mt-16">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Prive" class="h-56 w-auto">
+        </a>
+        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
+            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-950 font-semibold px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-8 py-20 text-center">
+        <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Programa</span>
+        <h1 class="font-serif italic text-4xl md:text-5xl text-stone-800 mt-3 mb-6">Programa de Fidelidade</h1>
+        <div class="w-16 h-px bg-amber-700 mx-auto mb-10"></div>
+        <p class="text-stone-500 text-sm leading-relaxed max-w-xl mx-auto tracking-wide">
+            Junte-se ao nosso programa de fidelidade e acumule pontos em cada compra. Quanto mais comprar, mais benefícios exclusivos desbloqueia — descontos especiais, acesso antecipado a novas colecções e ofertas personalizadas.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            <div class="border border-stone-200 p-8">
+                <div class="text-amber-700 text-3xl mb-4">&#9733;</div>
+                <h3 class="font-serif italic text-xl text-stone-800 mb-3">Bronze</h3>
+                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir da 1.ª compra. Acesso a promoções exclusivas para membros.</p>
+            </div>
+            <div class="border border-amber-700 p-8 bg-amber-50">
+                <div class="text-amber-700 text-3xl mb-4">&#9733;&#9733;</div>
+                <h3 class="font-serif italic text-xl text-stone-800 mb-3">Prata</h3>
+                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir de 5 compras. Desconto de 10% em todos os artigos.</p>
+            </div>
+            <div class="border border-stone-800 p-8 bg-stone-900">
+                <div class="text-amber-400 text-3xl mb-4">&#9733;&#9733;&#9733;</div>
+                <h3 class="font-serif italic text-xl text-amber-400 mb-3">Ouro</h3>
+                <p class="text-xs text-stone-300 leading-relaxed tracking-wide">A partir de 12 compras. Desconto de 20%, acesso VIP e brindes exclusivos.</p>
+            </div>
+        </div>
+
+        <div class="mt-16">
+            <a href="{% url 'encomendas' %}" class="border border-amber-800 text-amber-800 text-[10px] uppercase tracking-[0.4em] px-10 py-3 hover:bg-amber-800 hover:text-white transition-all duration-300">
+                Fazer uma Encomenda
+            </a>
+        </div>
+    </main>
+
+    <!-- Rodapé simples -->
+    <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-20">
+        &copy; 2026 Decent Privé. Todos os direitos reservados.
+    </footer>
+</body>
+</html>
