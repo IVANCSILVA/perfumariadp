@@ -40,7 +40,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock
 from .forms import NewsletterInscricaoForm
 # ---------------------------------------------------------------------------
 # Newsletter - Cadastro de e-mails
@@ -198,6 +198,7 @@ def encomendas(request):
             email=email,
             morada=morada,
             notas=notas,
+            origem='online',
         )
 
         try:
@@ -315,10 +316,12 @@ def gestao_dashboard(request):
         'pendentes': Encomenda.objects.filter(status='em_curso').count(),
         'encomendas_hoje': Encomenda.objects.filter(criado_em__date=hoje).count(),
         'total_produtos': Produto.objects.count(),
-        'stock_baixo': Produto.objects.filter(stock__lt=5).count(),
+        'total_produtos': Produto.objects.count(),
+        'stock_baixo': Produto.objects.filter(stock__lt=5).count() if Produto.objects.exists() else None,
         'total_clientes': Cliente.objects.count(),
         'ultimas_encomendas': Encomenda.objects.order_by('-criado_em')[:8],
         'produtos_stock_baixo': Produto.objects.filter(stock__lt=5).order_by('stock')[:6],
+        'ultimos_movimentos_stock': MovimentoStock.objects.select_related('produto', 'criado_por').order_by('-criado_em')[:15],
         # Chart data (JSON)
         'grafico_dias_labels': _json.dumps(grafico_dias_labels),
         'grafico_vendas_data': _json.dumps(grafico_vendas_data),
@@ -333,16 +336,6 @@ def gestao_dashboard(request):
 
 @staff_member_required(login_url='/gestao/login/')
 def gestao_vendas(request):
-    if request.method == 'POST':
-        enc_id = request.POST.get('encomenda_id')
-        novo_status = request.POST.get('status')
-        if enc_id and novo_status:
-            enc = get_object_or_404(Encomenda, pk=enc_id)
-            enc.status = novo_status
-            enc.save(update_fields=['status', 'atualizado_em'])
-            if novo_status == 'finalizada':
-                _registar_venda_no_caixa(enc, request.user)
-        return redirect('gestao_vendas')
 
     encomendas = Encomenda.objects.prefetch_related('itens').select_related('vendido_por').order_by('-criado_em')
 
@@ -354,7 +347,6 @@ def gestao_vendas(request):
     return render(request, 'gestao/vendas.html', {
         'active_page': 'vendas',
         'encomendas': encomendas,
-        'status_choices': Encomenda.STATUS_CHOICES,
         'contadores': contadores,
         'total_registos': len(encomendas),
     })
@@ -381,9 +373,35 @@ def gestao_produtos(request):
     })
 
 
+
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_registar_pagamento_parcela2(request, pk):
+    """Registar o pagamento da 2ª parcela e finalizar a encomenda."""
+    encomenda = get_object_or_404(Encomenda, pk=pk)
+    
+    if request.method == 'POST':
+        encomenda.parcela2_paga = True
+        encomenda.status = 'finalizada'
+        encomenda.save(update_fields=['parcela2_paga', 'status', 'atualizado_em'])
+        _registar_venda_no_caixa(encomenda, request.user)
+        messages.success(request, f'Encomenda #{pk} - 2ª parcela registada e venda finalizada.')
+        return redirect('gestao_fatura', pk=pk)
+    
+    return render(request, 'gestao/confirmar_pagamento_parcela2.html', {
+        'active_page': 'vendas',
+        'encomenda': encomenda,
+    })
+
+
 @staff_member_required(login_url='/gestao/login/')
 def gestao_fatura(request, pk):
     encomenda = get_object_or_404(Encomenda.objects.prefetch_related('itens__produto'), pk=pk)
+    
+    # Bloquear acesso a fatura se pagamento à vista e não finalizada
+    if encomenda.forma_pagamento == 'avista' and encomenda.status != 'finalizada':
+        messages.error(request, 'Fatura não pode ser gerada. Venda à vista deve ser finalizada automaticamente.')
+        return redirect('gestao_vendas')
     itens = encomenda.itens.all()
     total = sum(item.subtotal() for item in itens)
     operador = request.user.get_full_name() or request.user.username
@@ -393,6 +411,82 @@ def gestao_fatura(request, pk):
         'itens': itens,
         'total': total,
         'operador': operador,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_venda_detalhe(request, pk):
+    """Exibe os detalhes completos de uma venda/encomenda."""
+    encomenda = get_object_or_404(Encomenda.objects.prefetch_related('itens__produto'), pk=pk)
+    
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        
+        if acao == 'finalizar' and encomenda.status == 'em_curso':
+            # Se está em curso e não é parcelado, pode finalizar
+            encomenda.status = 'finalizada'
+            encomenda.save(update_fields=['status', 'atualizado_em'])
+            _registar_venda_no_caixa(encomenda, request.user)
+            messages.success(request, f'Venda #{encomenda.pk} finalizada com sucesso.')
+            return redirect('gestao_venda_detalhe', pk=pk)
+        
+        elif acao == 'cancelar' and encomenda.status == 'em_curso':
+            motivo = request.POST.get('motivo_cancelamento', '').strip()
+            if not motivo:
+                messages.error(request, 'Motivo do cancelamento é obrigatório.')
+            else:
+                encomenda.status = 'cancelada'
+                encomenda.motivo_cancelamento = motivo
+                encomenda.save(update_fields=['status', 'motivo_cancelamento', 'atualizado_em'])
+                
+                # Reverter stock dos itens
+                for item in encomenda.itens.all():
+                    if item.produto:
+                        item.produto.stock += item.quantidade
+                        item.produto.save(update_fields=['stock'])
+                        # Registar movimento de devolução
+                        MovimentoStock.objects.create(
+                            produto=item.produto,
+                            tipo='devolucao',
+                            quantidade=item.quantidade,
+                            descricao=f'Cancelamento de Venda #{encomenda.pk}',
+                            encomenda=encomenda,
+                            criado_por=request.user if request.user.is_authenticated else None,
+                        )
+                
+                messages.success(request, f'Venda #{encomenda.pk} cancelada. Stock revertido.')
+                return redirect('gestao_vendas')
+        
+        elif acao == 'eliminar':
+            # Reverter stock dos itens
+            for item in encomenda.itens.all():
+                if item.produto:
+                    item.produto.stock += item.quantidade
+                    item.produto.save(update_fields=['stock'])
+            
+            # Eliminar movimentos de stock relacionados
+            MovimentoStock.objects.filter(encomenda=encomenda).delete()
+            
+            # Eliminar itens
+            encomenda.itens.all().delete()
+            
+            # Eliminar a encomenda
+            venda_id = encomenda.pk
+            encomenda.delete()
+            
+            messages.success(request, f'Venda #{venda_id} eliminada com sucesso. Stock revertido.')
+            return redirect('gestao_vendas')
+    
+    itens = encomenda.itens.all()
+    total = sum(item.subtotal() for item in itens)
+    movimentos = encomenda.movimentos_stock.all().order_by('-criado_em')
+    
+    return render(request, 'gestao/venda_detalhe.html', {
+        'active_page': 'vendas',
+        'encomenda': encomenda,
+        'itens': itens,
+        'total': total,
+        'movimentos': movimentos,
     })
 
 
@@ -461,15 +555,32 @@ def gestao_venda_nova(request):
             valor_parcela2 = None
 
         if not erros:
+            # Determinar status e parcelas
+            if forma_pagamento == 'parcelado':
+                status = 'em_curso'
+                parcela1_paga = True  # 1ª parcela paga na hora
+                parcela2_paga = False
+                from datetime import timedelta
+                data_proxima_parcela = timezone.now().date() + timedelta(days=30)
+            else:
+                status = 'finalizada'
+                parcela1_paga = False
+                parcela2_paga = False
+                data_proxima_parcela = None
+
             encomenda = Encomenda.objects.create(
                 nome_cliente=nome_cliente,
                 telefone=telefone or '—',
                 notas=notas,
-                status='finalizada',
+                status=status,
+                origem='balcao',
                 vendido_por=request.user if request.user.is_authenticated else None,
                 forma_pagamento=forma_pagamento,
                 valor_parcela1=valor_parcela1,
                 valor_parcela2=valor_parcela2,
+                parcela1_paga=parcela1_paga,
+                parcela2_paga=parcela2_paga,
+                data_proxima_parcela=data_proxima_parcela,
             )
             for item in itens_validos:
                 p = item['produto']
@@ -483,8 +594,20 @@ def gestao_venda_nova(request):
                 )
                 p.stock -= item['qty']
                 p.save(update_fields=['stock'])
+                # Registar movimento de saída de stock
+                MovimentoStock.objects.create(
+                    produto=p,
+                    tipo='saida',
+                    quantidade=-item['qty'],  # Negativo para saída
+                    descricao=f'Venda: Encomenda #{encomenda.pk}',
+                    encomenda=encomenda,
+                    criado_por=request.user if request.user.is_authenticated else None,
+                )
             _registar_venda_no_caixa(encomenda, request.user)
-            messages.success(request, f'Venda #{encomenda.pk} registada com sucesso.')
+            if forma_pagamento == 'parcelado':
+                messages.success(request, f'Venda parcelada #{encomenda.pk} criada. 1ª parcela paga. Próximo pagamento: {encomenda.data_proxima_parcela.strftime("%d/%m/%Y")}')
+            else:
+                messages.success(request, f'Venda #{encomenda.pk} finalizada com sucesso. Stock actualizado.')
             return redirect('gestao_fatura', pk=encomenda.pk)
 
     import json as _json
@@ -505,6 +628,42 @@ def gestao_venda_nova(request):
         'produtos_json': produtos_json,
         'erros': erros,
         'post': request.POST,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_cancelar_encomenda(request, pk):
+    """Cancelar uma encomenda finalizada e reverter stock."""
+    encomenda = get_object_or_404(Encomenda, pk=pk)
+    
+    if encomenda.status != 'finalizada':
+        messages.error(request, 'Apenas encomendas finalizadas podem ser canceladas.')
+        return redirect('gestao_vendas')
+    
+    if request.method == 'POST':
+        encomenda.status = 'cancelada'
+        encomenda.save(update_fields=['status', 'atualizado_em'])
+        
+        # Devolver stock ao cancelar
+        for item in encomenda.itens.select_related('produto').all():
+            if item.produto:
+                item.produto.stock += item.quantidade
+                item.produto.save(update_fields=['stock'])
+                # Registar movimento de devolução
+                MovimentoStock.objects.create(
+                    produto=item.produto,
+                    tipo='devolucao',
+                    quantidade=item.quantidade,
+                    descricao=f'Devolução: Encomenda #{encomenda.pk} cancelada',
+                    encomenda=encomenda,
+                    criado_por=request.user if request.user.is_authenticated else None,
+                )
+        messages.success(request, f'Encomenda #{pk} cancelada com sucesso. Stock devolvido.')
+        return redirect('gestao_vendas')
+    
+    return render(request, 'gestao/confirmar_cancelamento.html', {
+        'active_page': 'vendas',
+        'encomenda': encomenda,
     })
 
 
@@ -981,9 +1140,66 @@ def gestao_produto_apagar(request, pk):
 @staff_member_required(login_url='/gestao/login/')
 def gestao_produto_detalhe(request, pk):
     produto = get_object_or_404(Produto, pk=pk)
+    movimentos = MovimentoStock.objects.filter(produto=produto).order_by('-criado_em')[:50]
     return render(request, 'gestao/produto_detalhe.html', {
         'active_page': 'produtos',
         'produto': produto,
+        'movimentos': movimentos,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_produto_entrada_stock(request, pk):
+    """Adicionar entrada manual de stock (recebimento de fornecedor)."""
+    produto = get_object_or_404(Produto, pk=pk)
+    erros = {}
+    
+    if request.method == 'POST':
+        quantidade_raw = request.POST.get('quantidade', '').strip()
+        descricao = request.POST.get('descricao', '').strip()
+        
+        if not quantidade_raw:
+            erros['quantidade'] = 'Quantidade obrigatória.'
+        else:
+            try:
+                quantidade = int(quantidade_raw)
+                if quantidade <= 0:
+                    erros['quantidade'] = 'A quantidade deve ser positiva.'
+            except ValueError:
+                erros['quantidade'] = 'Quantidade inválida.'
+        
+        if not descricao:
+            erros['descricao'] = 'Descrição obrigatória (ex: "Recebimento fornecedor" ou "Ajuste manual").'
+        
+        if not erros:
+            # Actualizar stock do produto
+            produto.stock += quantidade
+            produto.save(update_fields=['stock'])
+            
+            # Registar movimento
+            MovimentoStock.objects.create(
+                produto=produto,
+                tipo='entrada',
+                quantidade=quantidade,
+                descricao=descricao,
+                criado_por=request.user if request.user.is_authenticated else None,
+            )
+            
+            messages.success(
+                request, 
+                f'Stock de "{produto.nome}" aumentado em {quantidade} unidades. '
+                f'Total agora: {produto.stock}'
+            )
+            return redirect('gestao_produto_detalhe', pk=pk)
+    
+    movimentos = MovimentoStock.objects.filter(produto=produto).order_by('-criado_em')[:20]
+    
+    return render(request, 'gestao/produto_entrada_stock.html', {
+        'active_page': 'produtos',
+        'produto': produto,
+        'movimentos': movimentos,
+        'erros': erros,
+        'post': request.POST if request.method == 'POST' else {},
     })
 
 

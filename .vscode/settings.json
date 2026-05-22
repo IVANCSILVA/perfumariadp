@@ -1,3 +1,4 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe"
+    "html.validate.scripts": false,
+    "javascript.validate.enable": false
 }

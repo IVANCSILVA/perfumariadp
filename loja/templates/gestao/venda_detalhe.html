@@ -1,0 +1,331 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}Detalhe da Venda #{{ encomenda.pk }}{% endblock %}
+{% block page_title %}Detalhe da Venda{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+    <!-- Botões de acção -->
+    <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <a href="{% url 'gestao_fatura' encomenda.pk %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+            📄 Ver Fatura
+        </a>
+        {% if encomenda.status == 'em_curso' %}
+        <form method="POST" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="finalizar">
+            <button type="submit" class="bg-green-700 hover:bg-green-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+                ✓ Finalizar Venda
+            </button>
+        </form>
+        <button type="button" onclick="document.getElementById('modal_cancelar').style.display='flex'"
+           class="bg-red-700 hover:bg-red-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+            ✕ Cancelar Venda
+        </button>
+        {% endif %}
+        <button type="button" onclick="document.getElementById('modal_eliminar').style.display='flex'"
+           class="bg-stone-700 hover:bg-stone-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+            🗑 Eliminar Venda
+        </button>
+        <a href="{% url 'gestao_vendas' %}"
+           class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
+            ← Voltar às Vendas
+        </a>
+    </div>
+
+    <!-- Cabeçalho da Venda -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-6 mb-6">
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-stone-900">Venda #{{ encomenda.pk|stringformat:"05d" }}</h1>
+                <p class="text-sm text-stone-500 mt-1">{{ encomenda.criado_em|date:"d \d\e F \d\e Y \à\s H:i" }}</p>
+            </div>
+            <div class="text-right">
+                <span class="inline-block px-3 py-1.5 text-[9px] uppercase tracking-widest rounded-sm
+                    {% if encomenda.status == 'finalizada' %}bg-green-100 text-green-800
+                    {% elif encomenda.status == 'em_curso' %}bg-yellow-100 text-yellow-700
+                    {% elif encomenda.status == 'cancelada' %}bg-red-100 text-red-700
+                    {% endif %}">
+                    {{ encomenda.get_status_display }}
+                </span>
+                <span class="inline-block ml-2 px-3 py-1.5 text-[9px] uppercase tracking-widest rounded-sm
+                    {% if encomenda.origem == 'balcao' %}bg-amber-100 text-amber-800
+                    {% elif encomenda.origem == 'online' %}bg-blue-100 text-blue-800
+                    {% endif %}">
+                    {{ encomenda.get_origem_display }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Dados do Cliente -->
+        <div class="grid grid-cols-2 gap-6 border-t border-stone-100 pt-6">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Cliente</p>
+                <p class="text-lg font-semibold text-stone-900">{{ encomenda.nome_cliente }}</p>
+                {% if encomenda.telefone and encomenda.telefone != '—' %}
+                <p class="text-sm text-stone-600 mt-1">{{ encomenda.telefone }}</p>
+                {% endif %}
+                {% if encomenda.email %}
+                <p class="text-sm text-stone-600">{{ encomenda.email }}</p>
+                {% endif %}
+                {% if encomenda.morada %}
+                <p class="text-sm text-stone-600">{{ encomenda.morada }}</p>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Vendido por</p>
+                <p class="text-lg font-semibold text-stone-900">
+                    {% if encomenda.vendido_por %}
+                        {{ encomenda.vendido_por.get_full_name|default:encomenda.vendido_por.username }}
+                    {% else %}
+                        <span class="text-stone-400">—</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens da Venda -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-stone-100">
+            <h2 class="text-lg font-semibold text-stone-900">Produtos</h2>
+        </div>
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-stone-100 bg-stone-50">
+                    <th class="px-6 py-3 text-left text-xs uppercase tracking-widest text-stone-600">Produto</th>
+                    <th class="px-6 py-3 text-right text-xs uppercase tracking-widest text-stone-600">Qtd.</th>
+                    <th class="px-6 py-3 text-right text-xs uppercase tracking-widest text-stone-600">Preço Unit.</th>
+                    <th class="px-6 py-3 text-right text-xs uppercase tracking-widest text-stone-600">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+                {% for item in itens %}
+                <tr class="hover:bg-stone-50 transition-colors">
+                    <td class="px-6 py-3">
+                        <p class="font-medium text-stone-900">{{ item.nome_produto }}</p>
+                        {% if item.produto.marca %}
+                        <p class="text-xs text-stone-500 mt-0.5">{{ item.produto.marca }}</p>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 text-right text-stone-700">{{ item.quantidade }}</td>
+                    <td class="px-6 py-3 text-right text-stone-700">{{ item.preco_unitario|floatformat:0|intcomma }} Kz</td>
+                    <td class="px-6 py-3 text-right font-semibold text-stone-900">{{ item.subtotal|floatformat:0|intcomma }} Kz</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <div class="px-6 py-4 border-t border-stone-200 bg-stone-50">
+            <div class="flex justify-end">
+                <div class="text-right">
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Total da Venda</p>
+                    <p class="text-3xl font-bold text-amber-700">{{ total|floatformat:0|intcomma }} Kz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações de Pagamento -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-stone-900 mb-4">Pagamento</h2>
+        
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Forma de Pagamento</p>
+                <p class="text-base font-semibold text-stone-900">{{ encomenda.get_forma_pagamento_display }}</p>
+            </div>
+            {% if encomenda.forma_pagamento == 'parcelado' %}
+            <div class="text-right">
+                <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Próximo Pagamento</p>
+                <p class="text-base font-semibold text-stone-900">
+                    {% if encomenda.data_proxima_parcela %}
+                        {{ encomenda.data_proxima_parcela|date:"d/m/Y" }}
+                    {% else %}
+                        <span class="text-stone-400">—</span>
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if encomenda.forma_pagamento == 'parcelado' %}
+        <div class="border-t border-stone-100 mt-6 pt-6">
+            <table class="w-full text-sm">
+                <tr class="border-b border-stone-100">
+                    <td class="py-2 text-stone-700">1ª Parcela</td>
+                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</td>
+                    <td class="py-2 text-right">
+                        {% if encomenda.parcela1_paga %}
+                        <span class="text-xs font-semibold text-green-700 uppercase tracking-widest">✓ Paga</span>
+                        {% else %}
+                        <span class="text-xs font-semibold text-red-700 uppercase tracking-widest">Pendente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-stone-700">2ª Parcela</td>
+                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</td>
+                    <td class="py-2 text-right">
+                        {% if encomenda.parcela2_paga %}
+                        <span class="text-xs font-semibold text-green-700 uppercase tracking-widest">✓ Paga</span>
+                        {% else %}
+                        <span class="text-xs font-semibold text-red-700 uppercase tracking-widest">Pendente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Histórico de Movimentos de Stock -->
+    {% if movimentos %}
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-stone-900 mb-4">Movimentos de Stock</h2>
+        <div class="space-y-3">
+            {% for mov in movimentos %}
+            <div class="flex items-center justify-between p-3 rounded border {% if mov.tipo == 'saida' %}bg-red-50 border-red-100{% elif mov.tipo == 'entrada' %}bg-green-50 border-green-100{% elif mov.tipo == 'devolucao' %}bg-blue-50 border-blue-100{% else %}bg-stone-50 border-stone-100{% endif %}">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-stone-900">
+                        {% if mov.tipo == 'saida' %}
+                        Saída
+                        {% elif mov.tipo == 'entrada' %}
+                        Entrada
+                        {% elif mov.tipo == 'devolucao' %}
+                        Devolução
+                        {% else %}
+                        Ajuste
+                        {% endif %}
+                    </p>
+                    {% if mov.produto %}
+                    <p class="text-xs text-stone-600 mt-1">{{ mov.produto.nome }}</p>
+                    {% endif %}
+                    <p class="text-xs text-stone-500 mt-1">{{ mov.descricao }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold {% if mov.tipo == 'saida' or mov.tipo == 'devolucao' %}text-red-700{% else %}text-green-700{% endif %}">
+                        {% if mov.tipo == 'saida' or mov.tipo == 'devolucao' %}
+                        {{ mov.quantidade }} un.
+                        {% else %}
+                        +{{ mov.quantidade }} un.
+                        {% endif %}
+                    </p>
+                    <p class="text-xs text-stone-500 mt-1">{{ mov.criado_em|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if encomenda.notas %}
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-6 mt-6">
+        <h2 class="text-lg font-semibold text-stone-900 mb-4">Notas</h2>
+        <p class="text-stone-700 whitespace-pre-wrap">{{ encomenda.notas }}</p>
+    </div>
+    {% endif %}
+
+    {% if encomenda.motivo_cancelamento %}
+    <div class="bg-red-50 border border-red-200 rounded-xl shadow-sm p-6 mt-6">
+        <h2 class="text-lg font-semibold text-red-900 mb-4">Motivo do Cancelamento</h2>
+        <p class="text-red-800 whitespace-pre-wrap">{{ encomenda.motivo_cancelamento }}</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Modal de Cancelamento -->
+<div id="modal_cancelar" style="display:none" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-stone-200">
+            <h2 class="text-lg font-semibold text-stone-900">Cancelar Venda</h2>
+            <p class="text-sm text-stone-500 mt-1">Venda #{{ encomenda.pk|stringformat:"05d" }}</p>
+        </div>
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="cancelar">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-stone-900 mb-2">Motivo do Cancelamento *</label>
+                <textarea name="motivo_cancelamento" required
+                          class="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:border-amber-500 text-sm"
+                          rows="5"
+                          placeholder="Explique o motivo do cancelamento (ex: Cliente desistiu, Produto sem stock, etc)"></textarea>
+                <p class="text-xs text-stone-500 mt-1">Este campo é obrigatório</p>
+            </div>
+
+            <div class="bg-red-50 border border-red-200 rounded p-3 mb-4">
+                <p class="text-xs text-red-800">
+                    <strong>Aviso:</strong> O stock de todos os produtos será revertido automaticamente.
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="document.getElementById('modal_cancelar').style.display='none'"
+                        class="flex-1 px-4 py-2 border border-stone-300 rounded-lg text-stone-700 hover:bg-stone-50 transition-colors text-sm font-medium">
+                    Não, Manter Venda
+                </button>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium">
+                    Sim, Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Eliminação -->
+<div id="modal_eliminar" style="display:none" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
+        <div class="px-6 py-4 border-b border-stone-200">
+            <h2 class="text-lg font-semibold text-stone-900">Eliminar Venda</h2>
+            <p class="text-sm text-stone-500 mt-1">Venda #{{ encomenda.pk|stringformat:"05d" }}</p>
+        </div>
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="eliminar">
+            
+            <div class="bg-red-50 border border-red-200 rounded p-4 mb-4">
+                <p class="text-sm text-red-900 font-semibold mb-2">⚠️ Atenção!</p>
+                <ul class="text-xs text-red-800 space-y-1">
+                    <li>• Esta ação <strong>não pode ser desfeita</strong></li>
+                    <li>• A venda será eliminada completamente</li>
+                    <li>• O stock dos produtos será revertido</li>
+                    <li>• Todos os movimentos de stock serão removidos</li>
+                </ul>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="document.getElementById('modal_eliminar').style.display='none'"
+                        class="flex-1 px-4 py-2 border border-stone-300 rounded-lg text-stone-700 hover:bg-stone-50 transition-colors text-sm font-medium">
+                    Não, Manter Venda
+                </button>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded-lg transition-colors text-sm font-medium">
+                    Sim, Eliminar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Fechar modal ao clicar fora
+document.getElementById('modal_cancelar').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+document.getElementById('modal_eliminar').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+</script>
+
+{% endblock %}

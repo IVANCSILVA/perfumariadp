@@ -236,11 +236,7 @@
 
     <script>
         let current = 0;
-        {% if promocoes_carrossel %}
-        const total = Number('{{ promocoes_carrossel|length }}');
-        {% else %}
-        const total = 4;
-        {% endif %}
+      const total = {% if promocoes_carrossel %}{{ promocoes_carrossel|length }}{% else %}4{% endif %};
         const slidesEl = document.getElementById('slides');
         const dots = document.querySelectorAll('.dot');
 

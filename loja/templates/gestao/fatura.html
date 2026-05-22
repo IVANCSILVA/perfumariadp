@@ -18,10 +18,17 @@
         Imprimir
     </button>
     <a href="{% url 'gestao_vendas' %}"
-
        class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
         ← Ver Todas as Vendas
     </a>
+    {% if encomenda.forma_pagamento == 'parcelado' and not encomenda.parcela2_paga %}
+    <form method="POST" action="{% url 'gestao_registar_pagamento_parcela2' encomenda.pk %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
+            ✓ Registar 2ª Parcela
+        </button>
+    </form>
+    {% endif %}
 </div>
 
 <!-- Fatura imprimível -->
@@ -76,6 +83,13 @@
                 {% else %}bg-stone-100 text-stone-700{% endif %}">
                 {{ encomenda.get_status_display }}
             </span>
+            <p class="text-[10px] text-stone-400 mt-2 uppercase tracking-widest">Origem</p>
+            <span class="inline-block mt-1 px-3 py-0.5 text-[9px] uppercase tracking-widest
+                {% if encomenda.origem == 'balcao' %}bg-amber-100 text-amber-800
+                {% elif encomenda.origem == 'online' %}bg-blue-100 text-blue-800
+                {% else %}bg-stone-100 text-stone-700{% endif %}">
+                {{ encomenda.get_origem_display }}
+            </span>
         </div>
     </div>
 
@@ -128,26 +142,46 @@
     </div>
 
     {% if encomenda.forma_pagamento == 'parcelado' %}
-    <div class="mt-2 border-t border-stone-100 pt-1 w-full max-w-[180px] text-right self-end">
-        <p class="text-[9px] uppercase tracking-widest text-stone-500 mb-1">Pagamento Parcelado (2x)</p>
-        <div class="flex justify-between items-center">
-            <span class="text-[9px] text-stone-400">1ª Parcela:</span>
-            <span class="text-[9px] text-stone-800 font-semibold">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</span>
-            {% if encomenda.parcela1_paga %}
-                <span class="ml-2 text-green-600 text-[9px]">Paga</span>
-            {% else %}
-                <span class="ml-2 text-red-500 text-[9px]">Pendente</span>
+    <div class="mt-2 border-t border-stone-100 pt-1">
+        <p class="text-[9px] uppercase tracking-widest text-stone-500 mb-2">Pagamento Parcelado (2x)</p>
+        <table class="w-full text-[9px]">
+            <tr class="border-b border-stone-100">
+                <td class="text-stone-400 py-1">1ª Parcela</td>
+                <td class="text-right text-stone-800 font-semibold py-1">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</td>
+                <td class="text-right py-1">
+                    {% if encomenda.parcela1_paga %}
+                        <span class="text-green-600 font-semibold">✓ Paga</span>
+                    {% else %}
+                        <span class="text-red-500 font-semibold">Pendente</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="border-b border-stone-100">
+                <td class="text-stone-400 py-1">2ª Parcela</td>
+                <td class="text-right text-stone-800 font-semibold py-1">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</td>
+                <td class="text-right py-1">
+                    {% if encomenda.parcela2_paga %}
+                        <span class="text-green-600 font-semibold">✓ Paga</span>
+                    {% else %}
+                        <span class="text-red-500 font-semibold">Pendente</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if not encomenda.parcela2_paga %}
+            <tr>
+                <td class="text-stone-500 py-1 text-[8px]">Valor em Falta</td>
+                <td class="text-right text-amber-700 font-bold py-1">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</td>
+                <td></td>
+            </tr>
+            {% if encomenda.data_proxima_parcela %}
+            <tr>
+                <td class="text-stone-500 py-1 text-[8px]">Próximo Pagamento</td>
+                <td class="text-right text-amber-700 font-semibold py-1">{{ encomenda.data_proxima_parcela|date:"d/m/Y" }}</td>
+                <td></td>
+            </tr>
             {% endif %}
-        </div>
-        <div class="flex justify-between items-center">
-            <span class="text-[9px] text-stone-400">2ª Parcela:</span>
-            <span class="text-[9px] text-stone-800 font-semibold">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</span>
-            {% if encomenda.parcela2_paga %}
-                <span class="ml-2 text-green-600 text-[9px]">Paga</span>
-            {% else %}
-                <span class="ml-2 text-red-500 text-[9px]">Pendente</span>
             {% endif %}
-        </div>
+        </table>
     </div>
     {% endif %}
 

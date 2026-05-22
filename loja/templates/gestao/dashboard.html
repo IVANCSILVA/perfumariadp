@@ -24,7 +24,12 @@
     </div>
     <div class="bg-white border {% if stock_baixo > 0 %}border-red-200{% else %}border-stone-200{% endif %} p-5">
         <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Stock Baixo</p>
-        <p class="text-3xl font-semibold {% if stock_baixo > 0 %}text-red-600{% else %}text-stone-800{% endif %}">{{ stock_baixo }}</p>
+        <p class="text-3xl font-semibold {% if stock_baixo > 0 %}text-red-600{% else %}text-stone-800{% endif %}">
+            {% if stock_baixo is None %}
+                    —
+            {% else %}
+            {{ stock_baixo }}
+            {% endif %}</p>
     </div>
     <div class="bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md transition p-5">
         <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-3">Clientes</p>
@@ -86,6 +91,7 @@
                     <tr class="border-b border-stone-100 text-[9px] uppercase tracking-widest text-stone-400">
                         <th class="px-6 py-3 text-left">#</th>
                         <th class="px-6 py-3 text-left">Cliente</th>
+                        <th class="px-6 py-3 text-left">Origem</th>
                         <th class="px-6 py-3 text-left">Telefone</th>
                         <th class="px-6 py-3 text-left">Status</th>
                         <th class="px-6 py-3 text-left">Data</th>
@@ -96,6 +102,14 @@
                     <tr class="hover:bg-stone-50 transition-colors">
                         <td class="px-6 py-3 text-stone-400">#{{ enc.pk }}</td>
                         <td class="px-6 py-3 text-stone-800 font-medium">{{ enc.nome_cliente }}</td>
+                        <td class="px-6 py-3">
+                            <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm
+                                {% if enc.origem == 'balcao' %}bg-amber-100 text-amber-700
+                                {% elif enc.origem == 'online' %}bg-blue-100 text-blue-700
+                                {% endif %}">
+                                {{ enc.get_origem_display }}
+                            </span>
+                        </td>
                         <td class="px-6 py-3 text-stone-500">{{ enc.telefone }}</td>
                         <td class="px-6 py-3">
                             <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm
@@ -109,7 +123,7 @@
                         <td class="px-6 py-3 text-stone-400">{{ enc.criado_em|date:"d/m/Y H:i" }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="5" class="px-6 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">Nenhuma encomenda ainda</td></tr>
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">Nenhuma encomenda ainda</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -145,6 +159,56 @@
         {% endif %}
     </div>
 
+</div>
+
+<!-- Últimos Movimentos de Stock -->
+<div class="mt-8">
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-stone-100 flex items-center justify-between">
+            <p class="text-[10px] uppercase tracking-widest text-stone-600 font-semibold">Últimos Movimentos de Stock</p>
+            <a href="{% url 'gestao_produtos' %}" class="text-[9px] uppercase tracking-widest text-emerald-700 hover:text-emerald-600">Ver histórico completo →</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-stone-100 text-[9px] uppercase tracking-widest text-stone-400">
+                        <th class="px-6 py-3 text-left">Produto</th>
+                        <th class="px-6 py-3 text-left">Tipo</th>
+                        <th class="px-6 py-3 text-right">Qtd.</th>
+                        <th class="px-6 py-3 text-left">Descrição</th>
+                        <th class="px-6 py-3 text-left">Utilizador</th>
+                        <th class="px-6 py-3 text-left">Data/Hora</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-50">
+                    {% for mov in ultimos_movimentos_stock %}
+                    <tr class="hover:bg-stone-50 transition-colors">
+                        <td class="px-6 py-3 text-stone-800 font-medium">{{ mov.produto.nome }}</td>
+                        <td class="px-6 py-3">
+                            <span class="px-2 py-0.5 text-[8px] uppercase tracking-widest rounded-sm
+                                {% if mov.tipo == 'entrada' %}bg-emerald-100 text-emerald-700
+                                {% elif mov.tipo == 'saida' %}bg-red-100 text-red-700
+                                {% elif mov.tipo == 'devolucao' %}bg-blue-100 text-blue-700
+                                {% else %}bg-stone-100 text-stone-700{% endif %}">
+                                {{ mov.get_tipo_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3 text-right font-semibold {% if mov.quantidade > 0 %}text-emerald-600{% else %}text-red-600{% endif %}">
+                            {% if mov.quantidade > 0 %}+{% endif %}{{ mov.quantidade }}
+                        </td>
+                        <td class="px-6 py-3 text-stone-500 text-[9px]">{{ mov.descricao }}</td>
+                        <td class="px-6 py-3 text-stone-600 text-[9px]">
+                            {% if mov.criado_por %}{{ mov.criado_por.username }}{% else %}—{% endif %}
+                        </td>
+                        <td class="px-6 py-3 text-stone-400 text-[9px]">{{ mov.criado_em|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">Nenhum movimento registado</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

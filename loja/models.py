@@ -117,11 +117,26 @@ class Produto(models.Model):
             return self.preco_venda - self.preco_compra
         return 0
 
+    def calcular_stock_atual(self):
+        """
+        Calcula o stock actual com base nos movimentos registados.
+        Fonte de verdade: MovimentoStock
+        """
+        from django.db.models import Sum, F
+        resultado = self.movimentos_stock.aggregate(
+            total=Sum('quantidade')
+        )
+        return resultado['total'] or 0
+
 
 class Encomenda(models.Model):
     PAGAMENTO_CHOICES = [
         ('avista', 'À Vista'),
         ('parcelado', 'Parcelado (2x)')
+    ]
+    ORIGEM_CHOICES = [
+        ('balcao', 'Balcão'),
+        ('online', 'Online')
     ]
 
     forma_pagamento = models.CharField(
@@ -141,6 +156,11 @@ class Encomenda(models.Model):
     )
     parcela1_paga = models.BooleanField(default=False, verbose_name='1ª Parcela Paga')
     parcela2_paga = models.BooleanField(default=False, verbose_name='2ª Parcela Paga')
+    data_proxima_parcela = models.DateField(
+        null=True, blank=True,
+        verbose_name='Data da Próxima Parcela',
+        help_text='Data prevista para o pagamento da próxima parcela'
+    )
 
     STATUS_CHOICES = [
         ('em_curso', 'Em Curso'),
@@ -153,11 +173,21 @@ class Encomenda(models.Model):
     email = models.EmailField(blank=True)
     morada = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='em_curso')
+    origem = models.CharField(
+        max_length=20, choices=ORIGEM_CHOICES, default='balcao',
+        verbose_name='Origem da Encomenda',
+        help_text='Indica se a venda foi feita no balcão ou online'
+    )
     vendido_por = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='vendas', verbose_name='Vendido por'
     )
     notas = models.TextField(blank=True)
+    motivo_cancelamento = models.TextField(
+        blank=True, null=True,
+        verbose_name='Motivo do Cancelamento',
+        help_text='Explicação do motivo do cancelamento da venda'
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -630,3 +660,46 @@ class FelicitacaoEnviada(models.Model):
 
     def __str__(self):
         return f'{self.get_tipo_display()} {self.nome} — {self.ano} ({self.canal})'
+
+
+class MovimentoStock(models.Model):
+    """Registo de todas as movimentações de stock (entrada, saída, ajuste)."""
+    
+    TIPO_CHOICES = [
+        ('entrada', 'Entrada (Compra/Recebimento)'),
+        ('saida', 'Saída (Venda)'),
+        ('devolucao', 'Devolução'),
+        ('ajuste', 'Ajuste Manual'),
+    ]
+    
+    produto = models.ForeignKey(
+        Produto, on_delete=models.CASCADE, related_name='movimentos_stock'
+    )
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    quantidade = models.IntegerField(help_text='Positivo para entrada, negativo para saída')
+    descricao = models.CharField(max_length=255)
+    encomenda = models.ForeignKey(
+        'Encomenda', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='movimentos_stock'
+    )
+    criado_por = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='movimentos_stock'
+    )
+    criado_em = models.DateTimeField(auto_now_add=True, db_index=True)
+    
+    class Meta:
+        verbose_name = 'Movimento de Stock'
+        verbose_name_plural = 'Movimentos de Stock'
+        ordering = ['-criado_em']
+    
+    def __str__(self):
+        return f'{self.get_tipo_display()}: {self.quantidade} × {self.produto.nome}'
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        total = self.produto.movimentos_stock.aggregate(
+        total=models.Sum('quantidade')
+        )['total'] or 0
+        self.produto.stock = total
+        self.produto.save(update_fields=['stock'])

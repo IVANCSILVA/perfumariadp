@@ -17,6 +17,13 @@
         </a>
         <div class="flex items-center gap-2">
             {% if not is_operador %}
+            <a href="{% url 'gestao_produto_entrada_stock' produto.pk %}"
+               class="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                </svg>
+                Adicionar Stock
+            </a>
             <a href="{% url 'gestao_produto_editar' produto.pk %}"
                class="group inline-flex items-center gap-2 bg-stone-900 hover:bg-amber-800 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-200 shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -120,6 +127,45 @@
             </dl>
         </div>
     </div>
+
+    <!-- Histórico de movimentos de stock -->
+    {% if movimentos %}
+    <div class="mt-6 bg-white border border-stone-200">
+        <div class="p-6 border-b border-stone-100">
+            <h3 class="text-sm font-semibold text-stone-900">Histórico de Movimentos de Stock</h3>
+        </div>
+        
+        <div class="divide-y divide-stone-100">
+            {% for mov in movimentos %}
+            <div class="p-4 hover:bg-stone-50 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-stone-900">
+                            {% if mov.tipo == 'entrada' %}
+                                <span class="text-emerald-600 font-semibold">+ {{ mov.quantidade }}</span>
+                            {% elif mov.tipo == 'saida' %}
+                                <span class="text-red-600 font-semibold">{{ mov.quantidade }}</span>
+                            {% elif mov.tipo == 'devolucao' %}
+                                <span class="text-blue-600 font-semibold">↩ {{ mov.quantidade }}</span>
+                            {% else %}
+                                <span class="text-stone-600 font-semibold">{{ mov.quantidade }}</span>
+                            {% endif %}
+                            <span class="text-stone-600 font-normal">— {{ mov.get_tipo_display }}</span>
+                        </p>
+                        <p class="text-[9px] text-stone-500 mt-1">{{ mov.descricao }}</p>
+                    </div>
+                    <p class="text-[9px] text-stone-400 text-right ml-4">
+                        {{ mov.criado_em|date:"d/m/Y H:i" }}
+                        {% if mov.criado_por %}
+                        <br><span class="text-stone-400">{{ mov.criado_por.get_full_name|default:mov.criado_por.username }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}
