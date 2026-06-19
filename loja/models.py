@@ -1,7 +1,7 @@
-
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+
 
 class NewsletterInscricao(models.Model):
     email = models.EmailField(unique=True, verbose_name='E-mail')
@@ -13,7 +13,6 @@ class NewsletterInscricao(models.Model):
         verbose_name = 'Inscrição na Newsletter'
         verbose_name_plural = 'Inscrições na Newsletter'
         ordering = ['-data_inscricao']
-
 
     def __str__(self):
         return f"{self.email} ({self.nome})" if self.nome else self.email
