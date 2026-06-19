@@ -40,21 +40,15 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao
 from .forms import NewsletterInscricaoForm
-# ---------------------------------------------------------------------------
-# Newsletter - Cadastro de e-mails
-# ---------------------------------------------------------------------------
-from django.views.decorators.http import require_POST
-
-@require_POST
-def newsletter_inscrever(request):
-    form = NewsletterInscricaoForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return JsonResponse({'success': True, 'message': 'Inscrição realizada com sucesso!'}), 201
-    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 from django.contrib.auth.models import User, Group
+from .utils.auth import is_operador
+from .utils.validators import limpar_bi, limpar_telefone, BI_REGEX, TELEFONE_REGEX
+from .utils.stock import reverter_stock_encomenda
+from .utils.promotions import get_promocoes_activas
+from .utils.encomenda import contar_por_status
+from .utils.slug import gerar_slug_unico
 
 
 # ---------------------------------------------------------------------------
@@ -63,12 +57,7 @@ from django.contrib.auth.models import User, Group
 
 def _is_operador(user):
     """Verifica se o utilizador pertence ao grupo Operador (acesso restrito)."""
-    return bool(
-        user
-        and user.is_authenticated
-        and not user.is_superuser
-        and user.groups.filter(name='Operador').exists()
-    )
+    return is_operador(user)
 
 
 def _block_operador(view_func):
@@ -136,14 +125,7 @@ def home(request):
 
     total_visitas = VisitaSite.objects.count()
 
-    # Promoções activas (em curso) marcadas para landing/carrossel
-    from .models import Promocao
-    from datetime import date as _date
-    hoje = _date.today()
-    activas = [p for p in Promocao.objects.filter(activo=True).prefetch_related('produtos')
-               if p.esta_decorrer(hoje)]
-    promocoes_carrossel = [p for p in activas if p.mostrar_carrossel]
-    promocoes_landing = [p for p in activas if p.mostrar_landing]
+    _activas, promocoes_carrossel, promocoes_landing = get_promocoes_activas()
 
     return render(request, 'loja/index.html', {
         'total_visitas': total_visitas,
@@ -152,20 +134,13 @@ def home(request):
     })
 
 def colecoes(request):
-    from .models import Promocao
-    from datetime import date as _date
-    hoje = _date.today()
-    promocoes_publicas = [
-        p for p in Promocao.objects.filter(activo=True, mostrar_landing=True).prefetch_related('produtos')
-        if p.esta_decorrer(hoje)
-    ]
+    _activas, _carrossel, promocoes_publicas = get_promocoes_activas()
     return render(request, 'loja/colecoes.html', {
         'promocoes_publicas': promocoes_publicas,
     })
 
 
 def promocao_publica(request, slug):
-    from .models import Promocao
     promo = get_object_or_404(Promocao, slug=slug, activo=True)
     produtos = list(promo.produtos.filter(disponivel=True).order_by('tipo', 'nome'))
     desc = promo.desconto_percentagem or 0
@@ -339,10 +314,7 @@ def gestao_vendas(request):
 
     encomendas = Encomenda.objects.prefetch_related('itens').select_related('vendido_por').order_by('-criado_em')
 
-    contadores = {'em_curso': 0, 'finalizada': 0, 'cancelada': 0}
-    for e in encomendas:
-        if e.status in contadores:
-            contadores[e.status] += 1
+    contadores = contar_por_status(encomendas)
 
     return render(request, 'gestao/vendas.html', {
         'active_page': 'vendas',
@@ -438,22 +410,7 @@ def gestao_venda_detalhe(request, pk):
                 encomenda.status = 'cancelada'
                 encomenda.motivo_cancelamento = motivo
                 encomenda.save(update_fields=['status', 'motivo_cancelamento', 'atualizado_em'])
-                
-                # Reverter stock dos itens
-                for item in encomenda.itens.all():
-                    if item.produto:
-                        item.produto.stock += item.quantidade
-                        item.produto.save(update_fields=['stock'])
-                        # Registar movimento de devolução
-                        MovimentoStock.objects.create(
-                            produto=item.produto,
-                            tipo='devolucao',
-                            quantidade=item.quantidade,
-                            descricao=f'Cancelamento de Venda #{encomenda.pk}',
-                            encomenda=encomenda,
-                            criado_por=request.user if request.user.is_authenticated else None,
-                        )
-                
+                reverter_stock_encomenda(encomenda, request.user, descricao_prefixo='Cancelamento')
                 messages.success(request, f'Venda #{encomenda.pk} cancelada. Stock revertido.')
                 return redirect('gestao_vendas')
         
@@ -643,21 +600,7 @@ def gestao_cancelar_encomenda(request, pk):
     if request.method == 'POST':
         encomenda.status = 'cancelada'
         encomenda.save(update_fields=['status', 'atualizado_em'])
-        
-        # Devolver stock ao cancelar
-        for item in encomenda.itens.select_related('produto').all():
-            if item.produto:
-                item.produto.stock += item.quantidade
-                item.produto.save(update_fields=['stock'])
-                # Registar movimento de devolução
-                MovimentoStock.objects.create(
-                    produto=item.produto,
-                    tipo='devolucao',
-                    quantidade=item.quantidade,
-                    descricao=f'Devolução: Encomenda #{encomenda.pk} cancelada',
-                    encomenda=encomenda,
-                    criado_por=request.user if request.user.is_authenticated else None,
-                )
+        reverter_stock_encomenda(encomenda, request.user, descricao_prefixo='Devolução')
         messages.success(request, f'Encomenda #{pk} cancelada com sucesso. Stock devolvido.')
         return redirect('gestao_vendas')
     
@@ -695,8 +638,8 @@ def gestao_funcionario_criar(request, pk=None):
         if not bi:
             erros['bi'] = 'Nº BI obrigatório.'
         else:
-            bi_limpo = bi.replace(' ', '').upper()
-            if not re.fullmatch(r'\d{9}[A-Z]{2}\d{3}', bi_limpo):
+            bi_limpo = limpar_bi(bi)
+            if not re.fullmatch(BI_REGEX, bi_limpo):
                 erros['bi'] = 'BI inválido. Formato: 9 dígitos + 2 letras + 3 dígitos (ex: 003456789LA045).'
             else:
                 qs_bi = Funcionario.objects.filter(bi=bi_limpo)
@@ -709,12 +652,8 @@ def gestao_funcionario_criar(request, pk=None):
         if not telefone:
             erros['telefone'] = 'Telefone obrigatório.'
         else:
-            tel_limpo = re.sub(r'[\s\-\(\)]', '', telefone)
-            if tel_limpo.startswith('+244'):
-                tel_limpo = tel_limpo[4:]
-            elif tel_limpo.startswith('244') and len(tel_limpo) == 12:
-                tel_limpo = tel_limpo[3:]
-            if not re.fullmatch(r'9\d{8}', tel_limpo):
+            tel_limpo = limpar_telefone(telefone)
+            if not re.fullmatch(TELEFONE_REGEX, tel_limpo):
                 erros['telefone'] = 'Telefone inválido. Formato: 9XX XXX XXX (ex: 923 456 789).'
         if not data_admissao:
             erros['data_admissao'] = 'Data de admissão obrigatória.'
@@ -1406,12 +1345,7 @@ def gestao_categorias(request):
         if not nome:
             erros['nome'] = 'Nome obrigatório.'
         else:
-            slug_base = slugify(nome)
-            slug = slug_base
-            n = 1
-            while Categoria.objects.filter(slug=slug).exists():
-                slug = f'{slug_base}-{n}'
-                n += 1
+            slug = gerar_slug_unico(Categoria, nome)
             Categoria.objects.create(nome=nome, slug=slug)
             messages.success(request, f'Categoria "{nome}" criada.')
             return redirect('gestao_categorias')
@@ -1720,8 +1654,6 @@ def gestao_lucro(request):
 # ---------------------------------------------------------------------------
 # Promoções / Épocas Promocionais
 # ---------------------------------------------------------------------------
-
-from .models import Promocao  # noqa: E402
 
 
 @staff_member_required(login_url='/gestao/login/')
@@ -2115,7 +2047,6 @@ def gestao_aniversariante_enviar(request, tipo, pk):
 # Newsletter
 # ---------------------------------------------------------------------------
 
-from .models import NewsletterInscricao
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
