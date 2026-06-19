@@ -29,6 +29,7 @@ def enviar_email_newsletter(assunto, mensagem, destinatarios=None):
         destinatarios,
         fail_silently=False,
     )
+import logging
 import re
 import json
 from django.db import models
@@ -42,6 +43,8 @@ from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
 from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock
 from .forms import NewsletterInscricaoForm
+
+logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Newsletter - Cadastro de e-mails
 # ---------------------------------------------------------------------------
@@ -214,8 +217,12 @@ def encomendas(request):
                         preco_unitario=preco,
                         quantidade=qty,
                     )
-        except (json.JSONDecodeError, ValueError, TypeError):
-            pass
+        except (json.JSONDecodeError, ValueError, TypeError) as exc:
+            logger.warning('Erro ao processar itens da encomenda #%s: %s', encomenda.pk, exc)
+            if not encomenda.itens.exists():
+                encomenda.delete()
+                messages.error(request, 'Dados dos produtos inválidos. Por favor, tente novamente.')
+                return render(request, 'loja/encomendas.html', {'form_data': request.POST})
 
         return redirect('encomenda_sucesso')
 
@@ -379,7 +386,17 @@ def gestao_produtos(request):
 def gestao_registar_pagamento_parcela2(request, pk):
     """Registar o pagamento da 2ª parcela e finalizar a encomenda."""
     encomenda = get_object_or_404(Encomenda, pk=pk)
-    
+
+    if encomenda.forma_pagamento != 'parcelado':
+        messages.error(request, 'Esta encomenda não é parcelada.')
+        return redirect('gestao_venda_detalhe', pk=pk)
+    if encomenda.parcela2_paga:
+        messages.warning(request, 'A 2ª parcela já foi registada anteriormente.')
+        return redirect('gestao_fatura', pk=pk)
+    if encomenda.status == 'cancelada':
+        messages.error(request, 'Não é possível registar pagamento de uma encomenda cancelada.')
+        return redirect('gestao_vendas')
+
     if request.method == 'POST':
         encomenda.parcela2_paga = True
         encomenda.status = 'finalizada'
@@ -726,7 +743,19 @@ def gestao_funcionario_criar(request, pk=None):
                 try:
                     utilizador = User.objects.get(pk=utilizador_id)
                 except User.DoesNotExist:
-                    pass
+                    logger.warning('Utilizador ID %s não encontrado ao criar/editar funcionário.', utilizador_id)
+                    erros['utilizador'] = 'Utilizador seleccionado não existe.'
+            if erros:
+                post = request.POST
+                return render(request, 'gestao/funcionario_form.html', {
+                    'active_page': 'funcionarios',
+                    'utilizadores': utilizadores_disponiveis,
+                    'cargo_choices': Funcionario.CARGO_CHOICES,
+                    'turno_choices': Funcionario.TURNO_CHOICES,
+                    'erros': erros,
+                    'post': post,
+                    'instancia': instancia,
+                })
 
             if instancia:
                 instancia.nome = nome
@@ -894,6 +923,7 @@ def gestao_funcionario_criar_utilizador(request, pk):
                 except Exception as exc:
                     email_status = 'erro'
                     email_erro = str(exc)
+                    logger.exception('Falha ao enviar email de credenciais a %s: %s', funcionario.email, exc)
 
             # --- ENVIO POR SMS ---
             sms_status = 'nao_enviado'
@@ -929,6 +959,7 @@ def gestao_funcionario_criar_utilizador(request, pk):
                 except Exception as exc:
                     sms_status = 'erro'
                     sms_erro = str(exc)
+                    logger.exception('Falha ao enviar SMS de credenciais a %s: %s', funcionario.telefone, exc)
 
             messages.success(
                 request,
@@ -1055,7 +1086,10 @@ def gestao_produto_criar(request, pk=None):
         if not erros:
             try:
                 stock = int(stock_raw) if stock_raw else 0
+                if stock < 0:
+                    erros['stock'] = 'Stock não pode ser negativo.'
             except ValueError:
+                erros['stock'] = 'Valor de stock inválido.'
                 stock = 0
 
             categoria = None
@@ -1063,7 +1097,17 @@ def gestao_produto_criar(request, pk=None):
                 try:
                     categoria = Categoria.objects.get(pk=categoria_id)
                 except Categoria.DoesNotExist:
-                    pass
+                    logger.warning('Categoria ID %s não encontrada ao criar/editar produto.', categoria_id)
+                    erros['categoria'] = 'Categoria seleccionada não existe.'
+            if erros:
+                return render(request, 'gestao/produto_form.html', {
+                    'active_page': 'produtos',
+                    'categorias': categorias,
+                    'tipo_choices': tipo_choices,
+                    'erros': erros,
+                    'post': post,
+                    'instancia': instancia,
+                })
 
             imagem = request.FILES.get('imagem') or None
 
@@ -1209,12 +1253,17 @@ def gestao_encomendas(request):
     if request.method == 'POST':
         enc_id = request.POST.get('encomenda_id')
         novo_status = request.POST.get('status')
+        status_validos = {s[0] for s in Encomenda.STATUS_CHOICES}
         if enc_id and novo_status:
+            if novo_status not in status_validos:
+                messages.error(request, f'Estado "{novo_status}" inválido.')
+                return redirect('gestao_encomendas')
             enc = get_object_or_404(Encomenda, pk=enc_id)
             enc.status = novo_status
             enc.save(update_fields=['status', 'atualizado_em'])
             if novo_status == 'finalizada':
                 _registar_venda_no_caixa(enc, request.user)
+            messages.success(request, f'Encomenda #{enc.pk} actualizada para "{enc.get_status_display()}".')
         return redirect('gestao_encomendas')
 
     # Pedidos em curso (não finalizados nem cancelados)
@@ -1585,8 +1634,9 @@ def _financeiro_listar(request, tipo):
 
         try:
             valor = float(valor_raw)
-        except ValueError:
+        except (ValueError, TypeError):
             valor = 0
+            erros['valor'] = 'Valor inválido. Introduza um número.'
 
         if not descricao:
             erros['descricao'] = 'Descrição obrigatória.'
@@ -1813,8 +1863,9 @@ def gestao_promocao_criar(request, pk=None):
         df = request.POST.get('data_fim') or ''
         try:
             desc_pct = int(request.POST.get('desconto_percentagem') or 0)
-        except ValueError:
+        except (ValueError, TypeError):
             desc_pct = 0
+            erros.append('Percentagem de desconto inválida.')
         desc_pct = max(0, min(100, desc_pct))
         recorrente = request.POST.get('recorrente_anual') == 'on'
         activo = request.POST.get('activo') == 'on'
@@ -2012,8 +2063,7 @@ def _enviar_felicitacao(pessoa, tipo, config, canal_forcado=None):
             elif canal == 'sms':
                 gateway = getattr(_settings, 'SMS_GATEWAY_URL', '') or ''
                 if not gateway:
-                    # log apenas — útil em desenvolvimento
-                    print(f'[SMS/WhatsApp DEV → {pessoa.telefone}]\n{mensagem}\n')
+                    logger.info('SMS (dev) para %s: %s', pessoa.telefone, mensagem[:100])
                 else:
                     import requests as _req
                     payload = {
@@ -2031,6 +2081,7 @@ def _enviar_felicitacao(pessoa, tipo, config, canal_forcado=None):
         except Exception as exc:
             sucesso = False
             erro = str(exc)[:300]
+            logger.exception('Falha ao enviar felicitação via %s para %s (pk=%s): %s', canal, pessoa.nome, pessoa.pk, exc)
 
         log = FelicitacaoEnviada.objects.create(
             tipo=tipo, pessoa_id=pessoa.pk, nome=pessoa.nome,
@@ -2048,6 +2099,7 @@ def gestao_aniversarios_config(request):
     config = ConfigAniversario.get_solo()
     if request.method == 'POST':
         from datetime import datetime as _dt
+        tem_erros = False
         config.mensagem_cliente = (request.POST.get('mensagem_cliente') or '').strip() or config.mensagem_cliente
         config.mensagem_funcionario = (request.POST.get('mensagem_funcionario') or '').strip() or config.mensagem_funcionario
         hora_raw = (request.POST.get('hora_envio') or '10:00').strip()
@@ -2055,6 +2107,7 @@ def gestao_aniversarios_config(request):
             config.hora_envio = _dt.strptime(hora_raw, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Hora de envio inválida.')
+            tem_erros = True
         config.horario_aleatorio = request.POST.get('horario_aleatorio') == 'on'
         ji_raw = (request.POST.get('janela_inicio') or '09:00').strip()
         jf_raw = (request.POST.get('janela_fim') or '18:00').strip()
@@ -2062,17 +2115,25 @@ def gestao_aniversarios_config(request):
             config.janela_inicio = _dt.strptime(ji_raw, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Início da janela inválido.')
+            tem_erros = True
         try:
             config.janela_fim = _dt.strptime(jf_raw, '%H:%M').time()
         except ValueError:
             messages.error(request, 'Fim da janela inválido.')
-        if config.janela_fim <= config.janela_inicio:
+            tem_erros = True
+        if not tem_erros and config.janela_fim <= config.janela_inicio:
             messages.error(request, 'O fim da janela deve ser posterior ao início.')
+            tem_erros = True
         config.enviar_email = request.POST.get('enviar_email') == 'on'
         config.enviar_sms = request.POST.get('enviar_sms') == 'on'
         config.brinde_activo = request.POST.get('brinde_activo') == 'on'
         config.brinde_descricao = (request.POST.get('brinde_descricao') or '').strip()
         config.activo = request.POST.get('activo') == 'on'
+        if tem_erros:
+            return render(request, 'gestao/aniversarios_config.html', {
+                'active_page': 'promocoes',
+                'config': config,
+            })
         config.save()
         messages.success(request, 'Configuração de aniversários actualizada.')
         return redirect('gestao_aniversarios_config')
