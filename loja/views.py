@@ -42,6 +42,18 @@ from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
 from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao
 from .forms import NewsletterInscricaoForm
+# ---------------------------------------------------------------------------
+# Newsletter - Cadastro de e-mails
+# ---------------------------------------------------------------------------
+from django.views.decorators.http import require_POST
+
+@require_POST
+def newsletter_inscrever(request):
+    form = NewsletterInscricaoForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'success': True, 'message': 'Inscrição realizada com sucesso!'}, status=201)
+    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 from django.contrib.auth.models import User, Group
 from .utils.auth import is_operador
 from .utils.validators import limpar_bi, limpar_telefone, BI_REGEX, TELEFONE_REGEX
@@ -2047,18 +2059,4 @@ def gestao_aniversariante_enviar(request, tipo, pk):
 # Newsletter
 # ---------------------------------------------------------------------------
 
-from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
-def newsletter_inscrever(request):
-    if request.method == 'POST':
-        data = request.POST or json.loads(request.body.decode())
-        email = data.get('email', '').strip().lower()
-        nome = data.get('nome', '').strip()
-        if not email:
-            return JsonResponse({'ok': False, 'erro': 'E-mail obrigatório.'}, status=400)
-        if NewsletterInscricao.objects.filter(email=email).exists():
-            return JsonResponse({'ok': False, 'erro': 'Este e-mail já está inscrito.'}, status=409)
-        NewsletterInscricao.objects.create(email=email, nome=nome)
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False, 'erro': 'Método não permitido.'}, status=405)
