@@ -1,0 +1,254 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block page_title %}Gestão de Salários{% endblock %}
+
+{% block content %}
+<div class="max-w-[1200px] mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+
+        <!-- Seletor de mês/ano -->
+        <form method="GET" class="flex items-center gap-2 flex-wrap">
+            <select name="mes" class="px-3 py-2 text-xs bg-white border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                {% for num, nome in meses %}
+                <option value="{{ num }}" {% if num == mes_sel %}selected{% endif %}>{{ nome }}</option>
+                {% endfor %}
+            </select>
+            <select name="ano" class="px-3 py-2 text-xs bg-white border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                {% for a in anos %}
+                <option value="{{ a }}" {% if a == ano_sel %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="bg-stone-800 hover:bg-stone-700 text-white text-[10px] uppercase tracking-widest px-4 py-2 transition-colors">
+                Filtrar
+            </button>
+        </form>
+
+        <!-- Ações -->
+        <div class="flex items-center gap-2 flex-wrap">
+            {% if pagamentos %}
+            <!-- Exportar Excel -->
+            <a href="{% url 'gestao_salarios_exportar_excel' %}?mes={{ mes_sel }}&ano={{ ano_sel }}"
+               class="flex items-center gap-2 border border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-[10px] uppercase tracking-widest px-4 py-2 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                Excel
+            </a>
+            <!-- Recalcular -->
+            <form method="POST" onsubmit="return confirm('Recalcular apaga o processamento actual e gera novos valores. Confirmar?')">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="recalcular">
+                <input type="hidden" name="mes" value="{{ mes_sel }}">
+                <input type="hidden" name="ano" value="{{ ano_sel }}">
+                <button type="submit" class="flex items-center gap-1.5 border border-stone-400 text-stone-600 hover:bg-stone-100 text-[10px] uppercase tracking-widest px-4 py-2 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                    Recalcular
+                </button>
+            </form>
+            {% if pendentes > 0 %}
+            <!-- Marcar todos como pagos -->
+            <form method="POST" onsubmit="return confirm('Marcar todos os salários pendentes como pagos?')">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="marcar_todos_pagos">
+                <input type="hidden" name="mes" value="{{ mes_sel }}">
+                <input type="hidden" name="ano" value="{{ ano_sel }}">
+                <button type="submit" class="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] uppercase tracking-widest px-4 py-2 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                    Marcar Todos Pagos
+                </button>
+            </form>
+            {% endif %}
+            {% endif %}
+            <!-- Gerar processamento -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="gerar">
+                <input type="hidden" name="mes" value="{{ mes_sel }}">
+                <input type="hidden" name="ano" value="{{ ano_sel }}">
+                <button type="submit" class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2 transition-colors">
+                    ⚙ Gerar Processamento
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Avisos -->
+    {% if funcionarios_sem_salario %}
+    <div class="bg-orange-50 border border-orange-300 px-4 py-3 mb-4 flex items-start gap-2 text-xs text-orange-800">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+        <span>
+            <strong>Atenção:</strong> Os seguintes funcionários activos não têm salário definido e não serão processados:
+            {% for f in funcionarios_sem_salario %}<a href="{% url 'gestao_funcionario_detalhe' f.pk %}" class="underline font-semibold">{{ f.nome }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+        </span>
+    </div>
+    {% endif %}
+    {% if funcionarios_nao_processados and pagamentos %}
+    <div class="bg-yellow-50 border border-yellow-300 px-4 py-3 mb-4 flex items-start gap-2 text-xs text-yellow-800">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+        <span>
+            <strong>Funcionários com salário mas não processados neste mês:</strong>
+            {% for f in funcionarios_nao_processados %}<a href="{% url 'gestao_funcionario_detalhe' f.pk %}" class="underline font-semibold">{{ f.nome }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}.
+            Use "Recalcular" para incluí-los.
+        </span>
+    </div>
+    {% endif %}
+
+    <!-- Cards de resumo -->
+    {% if pagamentos %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+        <div class="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-stone-400">Bruto Total</p>
+            <p class="text-lg font-bold text-stone-800 font-mono mt-1">{{ total_bruto|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-stone-400 mt-0.5">Kz · base + comissão</p>
+        </div>
+        <div class="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-amber-600">Comissões</p>
+            <p class="text-lg font-bold text-amber-700 font-mono mt-1">{{ total_comissoes|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-stone-400 mt-0.5">Kz · op. caixa</p>
+        </div>
+        <div class="bg-white border border-red-100 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-red-500">INSS {{ taxa_inss }}%</p>
+            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_inss|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-stone-400 mt-0.5">Kz · trabalhador</p>
+        </div>
+        <div class="bg-white border border-red-100 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-red-500">IRT</p>
+            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_irt|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-stone-400 mt-0.5">Kz · progressivo</p>
+        </div>
+        <div class="bg-white border border-blue-100 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-blue-600">Subsídios</p>
+            <p class="text-lg font-bold text-blue-700 font-mono mt-1">{{ total_subsidios|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-stone-400 mt-0.5">Kz · alim. + transp.</p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 shadow-sm">
+            <p class="text-[9px] uppercase tracking-widest text-emerald-700">Líquido Total</p>
+            <p class="text-lg font-bold text-emerald-800 font-mono mt-1">{{ total_liquido|floatformat:0|intcomma }}</p>
+            <p class="text-[9px] text-emerald-600 mt-0.5">Kz · a pagar</p>
+        </div>
+    </div>
+
+    <!-- Custo total para a empresa -->
+    <div class="bg-stone-50 border border-stone-200 px-4 py-2.5 mb-4 flex flex-wrap items-center gap-4 text-xs text-stone-600">
+        <span class="font-semibold text-stone-700 uppercase tracking-widest text-[10px]">Custo empresa:</span>
+        <span>INSS Patronal <strong>{{ taxa_inss_patronal }}%</strong>: <span class="font-mono font-semibold text-stone-800">{{ total_custo_patronal|floatformat:0|intcomma }} Kz</span></span>
+        <span class="text-stone-300">|</span>
+        <span>Custo total (salários + INSS patronal): <span class="font-mono font-semibold text-stone-800">{{ custo_total_empresa|floatformat:0|intcomma }} Kz</span></span>
+        <span class="text-stone-300">|</span>
+        <span>{{ pendentes }} pendente(s) / {{ pagamentos|length }} total</span>
+    </div>
+    {% endif %}
+
+    <!-- Nota INSS / IRT -->
+    <div class="bg-blue-50 border border-blue-200 px-4 py-2 mb-5 flex items-start gap-2 text-xs text-blue-700">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+        <span>
+            <strong>INSS:</strong> Trabalhador {{ taxa_inss }}% · Patronal {{ taxa_inss_patronal }}% (custo empresa).
+            &nbsp;|&nbsp;
+            <strong>IRT (Tabela A):</strong> Progressivo — isento até 70.000 Kz; 10% até 100K; 13% até 150K; 16% até 200K; 18% até 300K; 19% até 500K; 20% acima.
+            &nbsp;|&nbsp;
+            <strong>Líquido = Bruto − INSS − IRT + Subsídios.</strong>
+        </span>
+    </div>
+
+    <!-- Tabela de processamento -->
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+            <div>
+                <h3 class="text-sm font-semibold text-stone-700 uppercase tracking-widest">Processamento Salarial</h3>
+                <p class="text-[10px] text-stone-400 mt-0.5">{{ pagamentos|length }} funcionário(s) · {{ pendentes }} pendente(s)</p>
+            </div>
+        </div>
+
+        {% if pagamentos %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="bg-stone-900 text-white">
+                    <tr>
+                        <th class="px-3 py-3 text-left text-[9px] uppercase tracking-[0.15em]">Funcionário</th>
+                        <th class="px-3 py-3 text-left text-[9px] uppercase tracking-[0.15em]">Cargo</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">Sal. Base</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">Comissão</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">Bruto</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">INSS {{ taxa_inss }}%</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">IRT</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">Sub. Alim.</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em]">Sub. Transp.</th>
+                        <th class="px-3 py-3 text-right text-[9px] uppercase tracking-[0.15em] bg-emerald-900">Líquido</th>
+                        <th class="px-3 py-3 text-center text-[9px] uppercase tracking-[0.15em]">Estado</th>
+                        <th class="px-3 py-3 text-center text-[9px] uppercase tracking-[0.15em]">Ação</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    {% for p in pagamentos %}
+                    <tr class="hover:bg-stone-50 transition-colors {% if p.pago %}opacity-60{% endif %}">
+                        <td class="px-3 py-2.5">
+                            <a href="{% url 'gestao_funcionario_detalhe' p.funcionario.pk %}" class="font-semibold text-stone-900 hover:text-amber-700 transition-colors">{{ p.funcionario.nome }}</a>
+                        </td>
+                        <td class="px-3 py-2.5 text-stone-500">{{ p.funcionario.get_cargo_display }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-stone-700">{{ p.salario_base|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-amber-700">
+                            {% if p.comissao_valor %}{{ p.comissao_valor|floatformat:0|intcomma }}<span class="text-[9px] text-stone-400 ml-0.5">({{ p.percentagem_comissao }}%)</span>{% else %}—{% endif %}
+                        </td>
+                        <td class="px-3 py-2.5 text-right font-mono font-semibold text-stone-900">{{ p.salario_bruto|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_inss|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_irt|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_alimentacao|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_transporte|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-700 bg-emerald-50">{{ p.salario_liquido|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-center">
+                            {% if p.pago %}
+                                <span class="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wider rounded">✓ Pago</span>
+                                {% if p.data_pagamento %}<p class="text-[9px] text-stone-400 mt-0.5">{{ p.data_pagamento|date:"d/m/Y" }}</p>{% endif %}
+                            {% else %}
+                                <span class="inline-block px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] font-bold uppercase tracking-wider rounded">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-2.5 text-center">
+                            {% if not p.pago %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="acao" value="marcar_pago">
+                                <input type="hidden" name="pk" value="{{ p.pk }}">
+                                <input type="hidden" name="mes" value="{{ mes_sel }}">
+                                <input type="hidden" name="ano" value="{{ ano_sel }}">
+                                <button type="submit" class="text-[9px] uppercase tracking-widest text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-600 px-2.5 py-1.5 transition-colors">
+                                    Pagar
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-stone-300 text-[9px]">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-stone-100 border-t-2 border-stone-300 text-[10px] font-bold text-stone-700">
+                    <tr>
+                        <td colspan="2" class="px-3 py-2.5 uppercase tracking-widest">Totais</td>
+                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-amber-700">{{ total_comissoes|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_inss|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_irt|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-700">+{{ total_subsidios|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5"></td>
+                        <td class="px-3 py-2.5 text-right font-mono text-emerald-700 bg-emerald-50">{{ total_liquido|floatformat:0|intcomma }}</td>
+                        <td colspan="2" class="px-3 py-2.5"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-5 py-12 text-center">
+            <svg class="w-10 h-10 text-stone-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185Z"/>
+            </svg>
+            <p class="text-stone-400 text-sm">Nenhum processamento para este período.</p>
+            <p class="text-stone-400 text-xs mt-1">Clique em <strong>"Gerar Processamento"</strong> para criar os registos salariais.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

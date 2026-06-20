@@ -14,18 +14,26 @@
     </style>
 </head>
 <body class="bg-white text-gray-900">
-    {% load static %}
 
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
-        <a href="{% url 'home' %}" class="-mt-16">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="h-56 w-auto">
+        <a href="{% url 'home' %}" class="-mt-8">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Privé" class="h-52 w-auto">
         </a>
-        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
-            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
-            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
-            <a href="{% url 'encomendas' %}" class="text-amber-950 font-semibold px-3 py-1 border-b border-amber-800 transition-all duration-200">Encomendas</a>
-            <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        <div class="flex items-center gap-5 pt-4">
+            <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
+                <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Início</a>
+                <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+                <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Galeria</a>
+                <a href="{% url 'encomendas' %}" class="text-amber-950 font-semibold px-3 py-1 border-b border-amber-800 transition-all duration-200">Encomendas</a>
+                <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+                <a href="{% url 'contactos' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Contactos</a>
+            </div>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-amber-800" aria-label="Menu">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/>
+                </svg>
+            </button>
         </div>
     </nav>
 
@@ -74,6 +82,7 @@
                         name="telefone"
                         value="{{ form_data.telefone|default:'' }}"
                         required
+                        pattern="[+0-9\s\-]{7,20}"
                         placeholder="+244 9XX XXX XXX"
                         class="w-full border border-stone-300 px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors duration-200"
                     >
@@ -113,6 +122,21 @@
                 >{{ form_data.notas|default:'' }}</textarea>
             </div>
 
+            <!-- Forma de Pagamento -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Forma de Pagamento</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-3 border border-stone-300 px-4 py-3 cursor-pointer hover:border-amber-700 transition-colors has-[:checked]:border-amber-700 has-[:checked]:bg-amber-50">
+                        <input type="radio" name="forma_pagamento" value="avista" class="accent-amber-700" {% if form_data.forma_pagamento != 'parcelado' %}checked{% endif %}>
+                        <span class="text-sm text-stone-700">À Vista</span>
+                    </label>
+                    <label class="flex items-center gap-3 border border-stone-300 px-4 py-3 cursor-pointer hover:border-amber-700 transition-colors has-[:checked]:border-amber-700 has-[:checked]:bg-amber-50">
+                        <input type="radio" name="forma_pagamento" value="parcelado" class="accent-amber-700" {% if form_data.forma_pagamento == 'parcelado' %}checked{% endif %}>
+                        <span class="text-sm text-stone-700">Parcelado (2×)</span>
+                    </label>
+                </div>
+            </div>
+
             <!-- Resumo do carrinho (se existir) -->
             <div id="cart-summary" class="hidden border border-stone-200 bg-stone-50 p-5">
                 <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-3">Itens do Carrinho</p>
@@ -135,12 +159,49 @@
         </form>
     </section>
 
-    <!-- Footer simples -->
-    <footer class="border-t border-stone-200 py-8 text-center">
-        <p class="text-[10px] text-stone-400 uppercase tracking-widest">© 2026 Decent Privé — Huambo, Angola</p>
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-300 border-t border-stone-800">
+        <div class="max-w-6xl mx-auto px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="font-serif italic text-amber-500 text-lg">Decent Privé</p>
+                <p class="text-xs text-stone-400 mt-1">Curadoria de fragrâncias exclusivas — Huambo, Angola</p>
+            </div>
+            <div class="flex flex-wrap gap-6 text-xs uppercase tracking-widest">
+                <a href="{% url 'home' %}" class="hover:text-amber-400 transition-colors">Início</a>
+                <a href="{% url 'colecoes' %}" class="hover:text-amber-400 transition-colors">Colecções</a>
+                <a href="{% url 'fidelidade' %}" class="hover:text-amber-400 transition-colors">Fidelidade</a>
+                <a href="{% url 'contactos' %}" class="hover:text-amber-400 transition-colors">Contactos</a>
+            </div>
+            <p class="text-xs text-stone-500">&copy; 2026 Decent Privé</p>
+        </div>
     </footer>
 
+    <!-- Menu Móvel -->
+    <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
+            <span class="font-serif italic text-amber-700 text-2xl">Decent Privé</span>
+            <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none">&times;</button>
+        </div>
+        <nav class="flex flex-col p-6 gap-1">
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-950 font-semibold bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
+            <a href="{% url 'contactos' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Contactos</a>
+        </nav>
+    </div>
+
     <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const open = menu.classList.contains('-translate-x-full');
+            menu.classList.toggle('-translate-x-full', !open);
+            overlay.classList.toggle('hidden', !open);
+        }
+
         // Carrega itens do carrinho (localStorage) e preenche o campo hidden + resumo
         document.addEventListener('DOMContentLoaded', function () {
             const raw = localStorage.getItem('dp_cart');

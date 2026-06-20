@@ -40,7 +40,6 @@
         </style>
 </head>
 <body class="bg-white text-gray-900 transition-colors duration-300">
-    {% load static %}
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
         <a href="{% url 'home' %}" class="-mt-8">
@@ -49,10 +48,12 @@
         <div class="flex flex-col items-end gap-1 pt-4">
             <div class="flex items-center gap-5">
                 <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex">
-                    <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 border-b border-amber-800 transition-all duration-200">Página Inicial</a>
+                    <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 border-b border-amber-800 transition-all duration-200">Início</a>
                     <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+                    <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Galeria</a>
                     <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
                     <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+                    <a href="{% url 'contactos' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Contactos</a>
                 </div>
                 <!-- Ícone do Carrinho -->
                 <button onclick="toggleCart()" class="relative text-amber-800 hover:text-amber-600 transition-colors duration-200" aria-label="Carrinho">
@@ -91,20 +92,7 @@
     </nav>
 
     <script>
-        const productData = [
-            { name: 'Noir Absolu', brand: 'Eau de Parfum', category: 'masculino' },
-            { name: 'Bois de Cèdre', brand: 'Eau de Toilette', category: 'masculino' },
-            { name: 'Cuir Fumé', brand: 'Extrait de Parfum', category: 'masculino' },
-            { name: 'Vétiver Royal', brand: 'Parfum', category: 'masculino' },
-            { name: 'Rose Dorée', brand: 'Eau de Parfum', category: 'feminino' },
-            { name: 'Fleur Blanche', brand: 'Eau de Toilette', category: 'feminino' },
-            { name: 'Jasmin Précieux', brand: 'Extrait de Parfum', category: 'feminino' },
-            { name: 'Musc Soyeux', brand: 'Parfum', category: 'feminino' },
-            { name: 'Oud Impérial', brand: 'Extrait de Parfum', category: 'nicho' },
-            { name: 'Ambre Précieux', brand: 'Parfum', category: 'nicho' },
-            { name: 'Encens Sacré', brand: 'Extrait de Parfum', category: 'nicho' },
-            { name: 'Iris Absolu', brand: 'Parfum', category: 'nicho' },
-        ];
+        const productData = {{ produtos_busca_json|safe }};
 
         function doSearch(query) {
             if (!query.trim()) return;
@@ -368,6 +356,7 @@
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
         </div>
 
+        {% if masculinos %}
         <!-- ── PERFUMES MASCULINOS ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
@@ -376,68 +365,34 @@
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-
+                {% for p in masculinos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image5.jpeg' %}" alt="Noir Absolu"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-20%</span>
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
+                        {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Noir Absolu</h4>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">62.500 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">50.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="Noir Absolu" data-price="50000" data-img="{% static 'loja/images/image5.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image6.jpeg' %}" alt="Bois de Cèdre"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Novo</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Toilette</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Bois de Cèdre</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">85.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">69.000 Kz</span>
-                    </div>
-                    <button data-name="Bois de Cèdre" data-price="69000" data-img="{% static 'loja/images/image6.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image7.jpeg' %}" alt="Cuir Fumé"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-15%</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Cuir Fumé</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">120.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">102.000 Kz</span>
-                    </div>
-                    <button data-name="Cuir Fumé" data-price="102000" data-img="{% static 'loja/images/image7.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image8.jpeg' %}" alt="Vétiver Royal"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Vétiver Royal</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-amber-800 font-semibold text-base">95.000 Kz</span>
-                    </div>
-                    <button data-name="Vétiver Royal" data-price="95000" data-img="{% static 'loja/images/image8.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if femininos %}
         <!-- ── PERFUMES FEMININOS ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
@@ -446,139 +401,74 @@
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-
+                {% for p in femininos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image9.jpeg' %}" alt="Rose Dorée"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-25%</span>
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-pink-50 to-stone-100 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
+                        {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Rose Dorée</h4>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">75.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">56.250 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="Rose Dorée" data-price="56250" data-img="{% static 'loja/images/image9.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image10.jpeg' %}" alt="Fleur Blanche"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Novo</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Eau de Toilette</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Fleur Blanche</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">68.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">55.000 Kz</span>
-                    </div>
-                    <button data-name="Fleur Blanche" data-price="55000" data-img="{% static 'loja/images/image10.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image11.jpeg' %}" alt="Jasmin Précieux"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Jasmin Précieux</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-amber-800 font-semibold text-base">88.000 Kz</span>
-                    </div>
-                    <button data-name="Jasmin Précieux" data-price="88000" data-img="{% static 'loja/images/image11.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image12.jpeg' %}" alt="Musc Soyeux"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-10%</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Musc Soyeux</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">110.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">99.000 Kz</span>
-                    </div>
-                    <button data-name="Musc Soyeux" data-price="99000" data-img="{% static 'loja/images/image12.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <!-- ── PERFUMES DE NICHO ── -->
+        {% if not masculinos and not femininos and not unissex %}
+        <div class="max-w-6xl mx-auto text-center py-16">
+            <p class="text-stone-400 text-sm uppercase tracking-widest">Produtos em breve. Consulte as nossas <a href="{% url 'colecoes' %}" class="text-amber-700 hover:underline">Colecções</a>.</p>
+        </div>
+        {% endif %}
+
+        {% if unissex %}
+        <!-- ── PERFUMES UNISSEX ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
                 <div class="flex-1 h-px bg-stone-200"></div>
-                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes de Nicho</h3>
+                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes Unissex</h3>
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-
+                {% for p in unissex %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image13.jpeg' %}" alt="Oud Impérial"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-30%</span>
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
+                        {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Oud Impérial</h4>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">140.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">98.000 Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="Oud Impérial" data-price="98000" data-img="{% static 'loja/images/image13.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image14.jpeg' %}" alt="Ambre Précieux"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Exclusivo</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Ambre Précieux</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">180.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">149.000 Kz</span>
-                    </div>
-                    <button data-name="Ambre Précieux" data-price="149000" data-img="{% static 'loja/images/image14.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image15.jpeg' %}" alt="Encens Sacré"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-amber-700 text-white text-[10px] uppercase tracking-widest px-2 py-1">-20%</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Extrait de Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Encens Sacré</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">220.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">176.000 Kz</span>
-                    </div>
-                    <button data-name="Encens Sacré" data-price="176000" data-img="{% static 'loja/images/image15.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
-                <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        <img loading="lazy" decoding="async" src="{% static 'loja/images/image16.jpeg' %}" alt="Iris Absolu"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <span class="absolute top-3 left-3 bg-stone-800 text-white text-[10px] uppercase tracking-widest px-2 py-1">Edição Limitada</span>
-                    </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Parfum</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">Iris Absolu</h4>
-                    <div class="flex items-center gap-3">
-                        <span class="text-stone-400 line-through text-sm">260.000 Kz</span>
-                        <span class="text-amber-800 font-semibold text-base">210.000 Kz</span>
-                    </div>
-                    <button data-name="Iris Absolu" data-price="210000" data-img="{% static 'loja/images/image16.jpeg' %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
-                </div>
-
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
 
         <!-- Botão ver todos -->
         <div class="text-center mt-4">
@@ -855,7 +745,7 @@
                 <span class="text-sm uppercase tracking-widest text-stone-300">Total</span>
                 <span id="cart-total" class="font-bold text-amber-400 text-2xl">0 Kz</span>
             </div>
-            <button class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Finalizar Encomenda</button>
+            <button onclick="finalizarEncomenda()" class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Finalizar Encomenda</button>
         </div>
     </div>
 
@@ -949,6 +839,25 @@
         }
 
         updateBadge();
+
+        function finalizarEncomenda() {
+            if (cartItems.length === 0) return;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "encomendas" %}';
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+            form.appendChild(csrf);
+            const itens = document.createElement('input');
+            itens.type = 'hidden';
+            itens.name = 'itens_json';
+            itens.value = JSON.stringify(cartItems.map(i => ({ name: i.name, price: i.price, qty: i.qty })));
+            form.appendChild(itens);
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 
     <!-- ── Menu Móvel ── -->
@@ -959,10 +868,12 @@
             <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none" aria-label="Fechar">&times;</button>
         </div>
         <nav class="flex flex-col p-6 gap-1">
-            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Página Inicial</a>
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
             <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
             <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
             <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
+            <a href="{% url 'contactos' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Contactos</a>
         </nav>
         <div class="px-6 pb-6 mt-auto">
             <div class="flex gap-2 border border-stone-300">

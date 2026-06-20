@@ -3,10 +3,48 @@
 # ---------------------------------------------------------------------------
 from django.contrib.admin.views.decorators import staff_member_required
 
-@staff_member_required
+@staff_member_required(login_url='/gestao/login/')
 def newsletter_gestao(request):
     inscritos = NewsletterInscricao.objects.all().order_by('-data_inscricao')
-    return render(request, 'gestao/newsletter_gestao.html', {'inscritos': inscritos})
+    inscritos_ativos = inscritos.filter(ativo=True).count()
+    return render(request, 'gestao/newsletter_gestao.html', {
+        'active_page': 'newsletter',
+        'inscritos': inscritos,
+        'inscritos_ativos': inscritos_ativos,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_enviar_newsletter(request):
+    """Envia um e-mail em grupo para todos os inscritos ativos na newsletter."""
+    if request.method != 'POST':
+        return redirect('newsletter_gestao')
+
+    assunto = request.POST.get('assunto', '').strip()
+    mensagem = request.POST.get('mensagem', '').strip()
+
+    if not assunto or not mensagem:
+        messages.error(request, 'Preencha o assunto e a mensagem antes de enviar.')
+        return redirect('newsletter_gestao')
+
+    destinatarios = list(
+        NewsletterInscricao.objects.filter(ativo=True).values_list('email', flat=True)
+    )
+
+    if not destinatarios:
+        messages.warning(request, 'Não existem inscritos ativos para enviar o e-mail.')
+        return redirect('newsletter_gestao')
+
+    try:
+        enviados = enviar_email_newsletter(assunto, mensagem, destinatarios)
+        messages.success(
+            request,
+            f'E-mail enviado com sucesso para {len(destinatarios)} inscrito(s).'
+        )
+    except Exception as e:
+        messages.error(request, f'Erro ao enviar e-mail: {e}')
+
+    return redirect('newsletter_gestao')
 # ---------------------------------------------------------------------------
 # Utilitário para envio de e-mails em grupo para inscritos na newsletter
 # ---------------------------------------------------------------------------
@@ -41,7 +79,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario
 from .forms import NewsletterInscricaoForm
 
 logger = logging.getLogger(__name__)
@@ -142,16 +180,37 @@ def home(request):
 
     _activas, promocoes_carrossel, promocoes_landing = get_promocoes_activas()
 
+    masculinos = list(Produto.objects.filter(disponivel=True, genero='masculino').order_by('nome')[:4])
+    femininos  = list(Produto.objects.filter(disponivel=True, genero='feminino').order_by('nome')[:4])
+    unissex    = list(Produto.objects.filter(disponivel=True, genero='unissex').order_by('nome')[:4])
+
+    import json as _json
+    produtos_busca_json = _json.dumps([
+        {'name': p.nome, 'brand': p.marca or '', 'category': p.genero}
+        for p in Produto.objects.filter(disponivel=True).only('nome', 'marca', 'genero')
+    ], ensure_ascii=False)
+
     return render(request, 'loja/index.html', {
         'total_visitas': total_visitas,
         'promocoes_carrossel': promocoes_carrossel,
         'promocoes_landing': promocoes_landing,
+        'masculinos': masculinos,
+        'femininos': femininos,
+        'unissex': unissex,
+        'produtos_busca_json': produtos_busca_json,
     })
 
 def colecoes(request):
     _activas, _carrossel, promocoes_publicas = get_promocoes_activas()
+    masculinos = Produto.objects.filter(disponivel=True, genero='masculino').order_by('marca', 'nome')
+    femininos  = Produto.objects.filter(disponivel=True, genero='feminino').order_by('marca', 'nome')
+    unissex    = Produto.objects.filter(disponivel=True, genero='unissex').order_by('marca', 'nome')
     return render(request, 'loja/colecoes.html', {
         'promocoes_publicas': promocoes_publicas,
+        'masculinos': masculinos,
+        'femininos': femininos,
+        'unissex': unissex,
+        'total': masculinos.count() + femininos.count() + unissex.count(),
     })
 
 
@@ -182,6 +241,10 @@ def encomendas(request):
             messages.error(request, 'Nome e telefone são obrigatórios.')
             return render(request, 'loja/encomendas.html', {'form_data': request.POST})
 
+        forma_pag = request.POST.get('forma_pagamento', 'avista')
+        if forma_pag not in ('avista', 'parcelado'):
+            forma_pag = 'avista'
+
         encomenda = Encomenda.objects.create(
             nome_cliente=nome,
             telefone=telefone,
@@ -189,6 +252,7 @@ def encomendas(request):
             morada=morada,
             notas=notas,
             origem='online',
+            forma_pagamento=forma_pag,
         )
 
         try:
@@ -211,12 +275,14 @@ def encomendas(request):
                 messages.error(request, 'Dados dos produtos inválidos. Por favor, tente novamente.')
                 return render(request, 'loja/encomendas.html', {'form_data': request.POST})
 
+        request.session['ultima_encomenda_id'] = encomenda.pk
         return redirect('encomenda_sucesso')
 
     return render(request, 'loja/encomendas.html')
 
 def encomenda_sucesso(request):
-    return render(request, 'loja/encomenda_sucesso.html')
+    encomenda_id = request.session.pop('ultima_encomenda_id', None)
+    return render(request, 'loja/encomenda_sucesso.html', {'encomenda_id': encomenda_id})
 
 def galeria(request):
     return render(request, 'loja/galeria.html')
@@ -335,11 +401,17 @@ def gestao_vendas(request):
 
     contadores = contar_por_status(encomendas)
 
+    receita_total = sum(
+        sum(item.subtotal() for item in enc.itens.all())
+        for enc in encomendas if enc.status == 'finalizada'
+    )
+
     return render(request, 'gestao/vendas.html', {
         'active_page': 'vendas',
         'encomendas': encomendas,
         'contadores': contadores,
         'total_registos': len(encomendas),
+        'receita_total': receita_total,
     })
 
 
@@ -484,6 +556,8 @@ def gestao_venda_nova(request):
     if request.method == 'POST':
         nome_cliente = request.POST.get('nome_cliente', '').strip() or 'Cliente Balcão'
         telefone     = request.POST.get('telefone', '').strip()
+        email        = request.POST.get('email', '').strip()
+        morada       = request.POST.get('morada', '').strip()
         notas        = request.POST.get('notas', '').strip()
         produto_ids  = request.POST.getlist('produto_id')
         quantidades  = request.POST.getlist('quantidade')
@@ -546,8 +620,12 @@ def gestao_venda_nova(request):
                 status = 'em_curso'
                 parcela1_paga = True  # 1ª parcela paga na hora
                 parcela2_paga = False
-                from datetime import timedelta
-                data_proxima_parcela = timezone.now().date() + timedelta(days=30)
+                from datetime import timedelta, date as date_type
+                data_str = request.POST.get('data_proxima_parcela', '').strip()
+                try:
+                    data_proxima_parcela = date_type.fromisoformat(data_str) if data_str else timezone.now().date() + timedelta(days=30)
+                except ValueError:
+                    data_proxima_parcela = timezone.now().date() + timedelta(days=30)
             else:
                 status = 'finalizada'
                 parcela1_paga = False
@@ -557,6 +635,8 @@ def gestao_venda_nova(request):
             encomenda = Encomenda.objects.create(
                 nome_cliente=nome_cliente,
                 telefone=telefone or '—',
+                email=email,
+                morada=morada,
                 notas=notas,
                 status=status,
                 origem='balcao',
@@ -653,9 +733,15 @@ def gestao_funcionario_criar(request, pk=None):
         bi = request.POST.get('bi', '').strip()
         telefone = request.POST.get('telefone', '').strip()
         email = request.POST.get('email', '').strip()
-        cargo = request.POST.get('cargo', 'operador')
+        cargo = request.POST.get('cargo', 'operador_caixa')
         turno = request.POST.get('turno', 'integral')
         salario_raw = request.POST.get('salario', '').strip()
+        percentagem_comissao_raw = request.POST.get('percentagem_comissao', '2').strip()
+        subsidio_alimentacao_raw = request.POST.get('subsidio_alimentacao', '0').strip()
+        subsidio_transporte_raw = request.POST.get('subsidio_transporte', '0').strip()
+        banco = request.POST.get('banco', '').strip()
+        nib_raw = request.POST.get('nib', '').strip().replace(' ', '').replace('-', '')
+        iban_raw = request.POST.get('iban', '').strip().replace(' ', '').upper()
         data_admissao = request.POST.get('data_admissao', '').strip()
         activo = request.POST.get('activo') == 'on'
         utilizador_id = request.POST.get('utilizador', '').strip()
@@ -686,6 +772,11 @@ def gestao_funcionario_criar(request, pk=None):
                 erros['telefone'] = 'Telefone inválido. Formato: 9XX XXX XXX (ex: 923 456 789).'
         if not data_admissao:
             erros['data_admissao'] = 'Data de admissão obrigatória.'
+        import re as _re
+        if nib_raw and not _re.fullmatch(r'\d{21}', nib_raw):
+            erros['nib'] = 'NIB inválido. Deve ter exactamente 21 dígitos.'
+        if iban_raw and not _re.fullmatch(r'AO\d{23}', iban_raw):
+            erros['iban'] = 'IBAN inválido. Formato: AO + 23 dígitos (total 25 caracteres).'
 
         if not erros:
             salario = salario_raw if salario_raw else None
@@ -708,6 +799,25 @@ def gestao_funcionario_criar(request, pk=None):
                     'instancia': instancia,
                 })
 
+            try:
+                percentagem_comissao = float(percentagem_comissao_raw.replace(',', '.'))
+                if not (0 <= percentagem_comissao <= 100):
+                    percentagem_comissao = 2.0
+            except (ValueError, TypeError):
+                percentagem_comissao = 2.0
+            if cargo not in Funcionario.CARGO_COM_COMISSAO:
+                percentagem_comissao = 0.0
+            try:
+                subsidio_alimentacao = float(subsidio_alimentacao_raw.replace(',', '.'))
+                subsidio_alimentacao = max(0, subsidio_alimentacao)
+            except (ValueError, TypeError):
+                subsidio_alimentacao = 0.0
+            try:
+                subsidio_transporte = float(subsidio_transporte_raw.replace(',', '.'))
+                subsidio_transporte = max(0, subsidio_transporte)
+            except (ValueError, TypeError):
+                subsidio_transporte = 0.0
+
             if instancia:
                 instancia.nome = nome
                 instancia.bi = bi
@@ -716,6 +826,12 @@ def gestao_funcionario_criar(request, pk=None):
                 instancia.cargo = cargo
                 instancia.turno = turno
                 instancia.salario = salario
+                instancia.percentagem_comissao = percentagem_comissao
+                instancia.subsidio_alimentacao = subsidio_alimentacao
+                instancia.subsidio_transporte = subsidio_transporte
+                instancia.banco = banco
+                instancia.nib = nib_raw
+                instancia.iban = iban_raw
                 instancia.data_nascimento = data_nascimento
                 instancia.data_admissao = data_admissao
                 instancia.activo = activo
@@ -732,6 +848,10 @@ def gestao_funcionario_criar(request, pk=None):
                 Funcionario.objects.create(
                     nome=nome, bi=bi, telefone=telefone, email=email,
                     cargo=cargo, turno=turno, salario=salario,
+                    percentagem_comissao=percentagem_comissao,
+                    subsidio_alimentacao=subsidio_alimentacao,
+                    subsidio_transporte=subsidio_transporte,
+                    banco=banco, nib=nib_raw, iban=iban_raw,
                     data_nascimento=data_nascimento,
                     data_admissao=data_admissao, activo=activo,
                     utilizador=utilizador, notas=notas,
@@ -747,6 +867,7 @@ def gestao_funcionario_criar(request, pk=None):
             'utilizadores': utilizadores_disponiveis,
             'cargo_choices': Funcionario.CARGO_CHOICES,
             'turno_choices': Funcionario.TURNO_CHOICES,
+            'banco_choices': Funcionario.BANCO_CHOICES,
             'erros': erros,
             'post': post,
             'instancia': instancia,
@@ -769,6 +890,7 @@ def gestao_funcionario_criar(request, pk=None):
         'utilizadores': utilizadores_disponiveis,
         'cargo_choices': Funcionario.CARGO_CHOICES,
         'turno_choices': Funcionario.TURNO_CHOICES,
+        'banco_choices': Funcionario.BANCO_CHOICES,
         'erros': erros,
         'post': initial,
         'instancia': instancia,
@@ -988,7 +1110,8 @@ def gestao_funcionario_detalhe(request, pk):
 def gestao_produto_criar(request, pk=None):
     instancia = get_object_or_404(Produto, pk=pk) if pk else None
     categorias = Categoria.objects.order_by('nome')
-    tipo_choices = Produto.TIPO_CHOICES
+    genero_choices = Produto.GENERO_CHOICES
+    concentracao_choices = Produto.CONCENTRACAO_CHOICES
     erros = {}
     post = {}
 
@@ -1001,7 +1124,8 @@ def gestao_produto_criar(request, pk=None):
         preco_compra_raw = post.get('preco_compra', '0').strip() or '0'
         quantidade = post.get('quantidade', '').strip()
         categoria_id = post.get('categoria', '').strip()
-        tipo = post.get('tipo', 'unissex')
+        genero = post.get('genero', 'unissex')
+        concentracao = post.get('concentracao', '').strip()
         stock_raw = post.get('stock', '0').strip()
         disponivel = post.get('disponivel') == 'on'
         codigo_barras = post.get('codigo_barras', '').strip() or None
@@ -1054,7 +1178,8 @@ def gestao_produto_criar(request, pk=None):
                 return render(request, 'gestao/produto_form.html', {
                     'active_page': 'produtos',
                     'categorias': categorias,
-                    'tipo_choices': tipo_choices,
+                    'genero_choices': genero_choices,
+                    'concentracao_choices': concentracao_choices,
                     'erros': erros,
                     'post': post,
                     'instancia': instancia,
@@ -1070,7 +1195,8 @@ def gestao_produto_criar(request, pk=None):
                 instancia.preco_compra = preco_compra
                 instancia.quantidade = quantidade
                 instancia.categoria = categoria
-                instancia.tipo = tipo
+                instancia.genero = genero
+                instancia.concentracao = concentracao
                 instancia.stock = stock
                 instancia.disponivel = disponivel
                 if imagem:
@@ -1088,7 +1214,8 @@ def gestao_produto_criar(request, pk=None):
                     preco_compra=preco_compra,
                     quantidade=quantidade,
                     categoria=categoria,
-                    tipo=tipo,
+                    genero=genero,
+                    concentracao=concentracao,
                     stock=stock,
                     disponivel=disponivel,
                     imagem=imagem,
@@ -1104,7 +1231,8 @@ def gestao_produto_criar(request, pk=None):
             'preco_venda': str(instancia.preco_venda), 'preco_compra': str(instancia.preco_compra),
             'quantidade': instancia.quantidade,
             'categoria': str(instancia.categoria_id) if instancia.categoria_id else '',
-            'tipo': instancia.tipo,
+            'genero': instancia.genero,
+            'concentracao': instancia.concentracao,
             'stock': str(instancia.stock),
             'disponivel': 'on' if instancia.disponivel else '',
             'codigo_barras': instancia.codigo_barras or '',
@@ -1114,7 +1242,8 @@ def gestao_produto_criar(request, pk=None):
     return render(request, 'gestao/produto_form.html', {
         'active_page': 'produtos',
         'categorias': categorias,
-        'tipo_choices': tipo_choices,
+        'genero_choices': genero_choices,
+        'concentracao_choices': concentracao_choices,
         'erros': erros,
         'post': post,
         'instancia': instancia,
@@ -2114,6 +2243,462 @@ def gestao_aniversariante_enviar(request, tipo, pk):
     for f in falhas:
         messages.error(request, f'Falha ({f.get_canal_display()}) para {pessoa.nome}: {f.erro}')
     return redirect('gestao_promocoes')
+
+
+# ---------------------------------------------------------------------------
+# Gestão de Salários
+# ---------------------------------------------------------------------------
+
+TAXA_INSS_TRABALHADOR = 3   # contribuição do trabalhador (Angola)
+TAXA_INSS_PATRONAL   = 8   # contribuição da entidade patronal (Angola)
+
+
+def _calcular_irt(bruto_mensal):
+    """IRT Angola — Tabela A (trabalhadores por conta de outrem).
+    Cálculo progressivo por escalões mensais (Lei nº 18/14 e atualizações).
+    INSS e subsídios NÃO entram na base tributável (dedução antes do IRT).
+    """
+    b = float(bruto_mensal)
+    if b <= 70000:
+        return 0.0
+    escaloes = [
+        (70000,         0,       0.00),
+        (100000,        70000,   0.10),
+        (150000,        100000,  0.13),
+        (200000,        150000,  0.16),
+        (300000,        200000,  0.18),
+        (500000,        300000,  0.19),
+        (float('inf'), 500000,  0.20),
+    ]
+    irt = 0.0
+    for limite, inicio, taxa in escaloes:
+        if b <= inicio:
+            break
+        tributavel = min(b, limite) - inicio
+        irt += tributavel * taxa
+    return round(irt, 2)
+
+
+def _calcular_vendas_funcionario(funcionario, mes, ano):
+    """Soma o total das vendas finalizadas de um funcionário num dado mês/ano."""
+    if not funcionario.utilizador:
+        return 0
+    from datetime import date
+    qs = ItemEncomenda.objects.filter(
+        encomenda__vendido_por=funcionario.utilizador,
+        encomenda__status='finalizada',
+        encomenda__criado_em__year=ano,
+        encomenda__criado_em__month=mes,
+    )
+    return float(sum(item.subtotal() for item in qs))
+
+
+def _criar_pagamento(f, mes_p, ano_p, user):
+    """Cria um PagamentoSalario para o funcionário f no mês/ano indicado."""
+    vendas = _calcular_vendas_funcionario(f, mes_p, ano_p)
+    pct = float(f.percentagem_comissao or 0) if f.cargo in Funcionario.CARGO_COM_COMISSAO else 0
+    comissao = vendas * pct / 100
+    bruto = float(f.salario) + comissao
+    desconto_inss = round(bruto * TAXA_INSS_TRABALHADOR / 100, 2)
+    desconto_irt = _calcular_irt(bruto)
+    custo_inss_patronal = round(bruto * TAXA_INSS_PATRONAL / 100, 2)
+    sub_alim = float(f.subsidio_alimentacao or 0)
+    sub_transp = float(f.subsidio_transporte or 0)
+    liquido = round(bruto - desconto_inss - desconto_irt + sub_alim + sub_transp, 2)
+    return PagamentoSalario.objects.create(
+        funcionario=f,
+        mes=mes_p, ano=ano_p,
+        salario_base=f.salario,
+        percentagem_comissao=f.percentagem_comissao,
+        total_vendas_mes=round(vendas, 2),
+        comissao_valor=round(comissao, 2),
+        salario_bruto=round(bruto, 2),
+        taxa_inss=TAXA_INSS_TRABALHADOR,
+        desconto_inss=desconto_inss,
+        desconto_irt=desconto_irt,
+        subsidio_alimentacao=round(sub_alim, 2),
+        subsidio_transporte=round(sub_transp, 2),
+        custo_inss_patronal=custo_inss_patronal,
+        salario_liquido=liquido,
+        processado_por=user,
+    )
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_salarios(request):
+    """Lista e processa o processamento salarial mensal."""
+    hoje = timezone.localdate()
+    mes_sel = int(request.GET.get('mes', hoje.month))
+    ano_sel = int(request.GET.get('ano', hoje.year))
+
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        mes_p = int(request.POST.get('mes', mes_sel))
+        ano_p = int(request.POST.get('ano', ano_sel))
+
+        # ── Gerar processamento ──────────────────────────────────────────
+        if acao == 'gerar':
+            funcionarios = Funcionario.objects.filter(activo=True)
+            criados = 0
+            for f in funcionarios:
+                if not f.salario:
+                    continue
+                if PagamentoSalario.objects.filter(funcionario=f, mes=mes_p, ano=ano_p).exists():
+                    continue
+                _criar_pagamento(f, mes_p, ano_p, request.user)
+                criados += 1
+            if criados:
+                messages.success(request, f'Processamento gerado para {criados} funcionário(s) — {mes_p:02d}/{ano_p}.')
+            else:
+                messages.warning(request, 'Processamento já existente ou sem funcionários com salário definido.')
+            return redirect(f'{request.path}?mes={mes_p}&ano={ano_p}')
+
+        # ── Recalcular (apagar e regenerar) ─────────────────────────────
+        if acao == 'recalcular':
+            apagados, _ = PagamentoSalario.objects.filter(mes=mes_p, ano=ano_p).delete()
+            funcionarios = Funcionario.objects.filter(activo=True)
+            criados = 0
+            for f in funcionarios:
+                if not f.salario:
+                    continue
+                _criar_pagamento(f, mes_p, ano_p, request.user)
+                criados += 1
+            messages.success(request, f'Processamento recalculado: {criados} funcionário(s) — {mes_p:02d}/{ano_p}.')
+            return redirect(f'{request.path}?mes={mes_p}&ano={ano_p}')
+
+        # ── Marcar todos como pagos ──────────────────────────────────────
+        if acao == 'marcar_todos_pagos':
+            atualizados = PagamentoSalario.objects.filter(
+                mes=mes_p, ano=ano_p, pago=False
+            ).update(pago=True, data_pagamento=hoje)
+            messages.success(request, f'{atualizados} salário(s) marcado(s) como pagos.')
+            return redirect(f'{request.path}?mes={mes_p}&ano={ano_p}')
+
+        # ── Marcar um como pago ──────────────────────────────────────────
+        if acao == 'marcar_pago':
+            pk = request.POST.get('pk')
+            pag = get_object_or_404(PagamentoSalario, pk=pk)
+            pag.pago = True
+            pag.data_pagamento = hoje
+            pag.save(update_fields=['pago', 'data_pagamento'])
+            messages.success(request, f'Salário de {pag.funcionario.nome} marcado como pago.')
+            return redirect(f'{request.path}?mes={mes_sel}&ano={ano_sel}')
+
+    pagamentos = PagamentoSalario.objects.filter(
+        mes=mes_sel, ano=ano_sel
+    ).select_related('funcionario').order_by('funcionario__nome')
+
+    total_bruto        = sum(float(p.salario_bruto)        for p in pagamentos)
+    total_inss         = sum(float(p.desconto_inss)        for p in pagamentos)
+    total_irt          = sum(float(p.desconto_irt)         for p in pagamentos)
+    total_subsidios    = sum(float(p.subsidio_alimentacao) + float(p.subsidio_transporte) for p in pagamentos)
+    total_liquido      = sum(float(p.salario_liquido)      for p in pagamentos)
+    total_comissoes    = sum(float(p.comissao_valor)       for p in pagamentos)
+    total_custo_patronal = sum(float(p.custo_inss_patronal) for p in pagamentos)
+
+    # Funcionários activos sem salário definido (aviso)
+    ids_processados = set(p.funcionario_id for p in pagamentos)
+    funcionarios_sem_salario = Funcionario.objects.filter(
+        activo=True, salario__isnull=True
+    )
+    funcionarios_nao_processados = Funcionario.objects.filter(
+        activo=True
+    ).exclude(
+        pk__in=ids_processados
+    ).exclude(salario__isnull=True)
+
+    pendentes = sum(1 for p in pagamentos if not p.pago)
+    anos = range(hoje.year - 2, hoje.year + 1)
+
+    return render(request, 'gestao/salarios.html', {
+        'active_page': 'salarios',
+        'pagamentos': pagamentos,
+        'mes_sel': mes_sel,
+        'ano_sel': ano_sel,
+        'anos': anos,
+        'total_bruto': total_bruto,
+        'total_inss': total_inss,
+        'total_irt': total_irt,
+        'total_subsidios': total_subsidios,
+        'total_liquido': total_liquido,
+        'total_comissoes': total_comissoes,
+        'total_custo_patronal': total_custo_patronal,
+        'custo_total_empresa': total_bruto + total_custo_patronal,
+        'pendentes': pendentes,
+        'funcionarios_sem_salario': funcionarios_sem_salario,
+        'funcionarios_nao_processados': funcionarios_nao_processados,
+        'meses': PagamentoSalario.MESES,
+        'taxa_inss': TAXA_INSS_TRABALHADOR,
+        'taxa_inss_patronal': TAXA_INSS_PATRONAL,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Exportação Excel — utilitário comum
+# ---------------------------------------------------------------------------
+
+def _excel_response(wb, filename):
+    """Devolve um HttpResponse com o workbook Excel."""
+    from django.http import HttpResponse
+    try:
+        import openpyxl  # noqa: F401
+    except ImportError:
+        from django.contrib import messages as _msg
+        # Fallback — não pode exportar
+        raise ImportError('openpyxl não está instalado. Execute: pip install openpyxl')
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+def _estilo_cabecalho(ws, row, cols):
+    """Aplica estilo de cabeçalho às colunas da linha indicada."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    fill = PatternFill('solid', fgColor='1C1917')
+    font = Font(color='FFFFFF', bold=True, size=10)
+    for col in range(1, cols + 1):
+        cell = ws.cell(row=row, column=col)
+        cell.fill = fill
+        cell.font = font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_salarios_exportar_excel(request):
+    """Exporta o processamento salarial de um mês para Excel."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from openpyxl.utils import get_column_letter
+    except ImportError:
+        messages.error(request, 'openpyxl não instalado. Execute: pip install openpyxl')
+        return redirect('gestao_salarios')
+
+    hoje = timezone.localdate()
+    mes = int(request.GET.get('mes', hoje.month))
+    ano = int(request.GET.get('ano', hoje.year))
+    nome_mes = dict(PagamentoSalario.MESES).get(mes, str(mes))
+
+    pagamentos = PagamentoSalario.objects.filter(
+        mes=mes, ano=ano
+    ).select_related('funcionario').order_by('funcionario__nome')
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f'Salários {mes:02d}-{ano}'
+
+    # Título
+    NCOLS = 14
+    ws.merge_cells(f'A1:{get_column_letter(NCOLS)}1')
+    ws[f'A1'] = f'Decent Privé — Processamento Salarial | {nome_mes} {ano}'
+    ws['A1'].font = Font(bold=True, size=13)
+    ws['A1'].alignment = Alignment(horizontal='center')
+
+    ws.merge_cells(f'A2:{get_column_letter(NCOLS)}2')
+    ws['A2'] = (
+        f'INSS Trabalhador: {TAXA_INSS_TRABALHADOR}%  |  INSS Patronal: {TAXA_INSS_PATRONAL}%  |'
+        f'  IRT: Tabela A Progressiva  |  Gerado em: {hoje.strftime("%d/%m/%Y")}'
+    )
+    ws['A2'].alignment = Alignment(horizontal='center')
+
+    # Cabeçalhos
+    headers = [
+        'Funcionário', 'Cargo', 'Sal. Base (Kz)', '% Comissão',
+        'Vendas Mês (Kz)', 'Comissão (Kz)', 'Bruto (Kz)',
+        f'INSS {TAXA_INSS_TRABALHADOR}% (Kz)', 'IRT (Kz)',
+        'Sub. Alim. (Kz)', 'Sub. Transp. (Kz)',
+        'Líquido (Kz)', f'INSS Patronal {TAXA_INSS_PATRONAL}% (Kz)', 'Situação'
+    ]
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=4, column=col, value=h)
+    _estilo_cabecalho(ws, 4, NCOLS)
+    ws.row_dimensions[4].height = 20
+
+    # Dados
+    fill_alt = PatternFill('solid', fgColor='F5F5F4')
+    fill_liq = PatternFill('solid', fgColor='D1FAE5')  # verde suave — coluna líquido
+    fmt_kz = '#,##0.00'
+    for i, p in enumerate(pagamentos):
+        row = 5 + i
+        bg = fill_alt if i % 2 == 1 else None
+        data = [
+            p.funcionario.nome,
+            p.funcionario.get_cargo_display(),
+            float(p.salario_base),
+            float(p.percentagem_comissao),
+            float(p.total_vendas_mes),
+            float(p.comissao_valor),
+            float(p.salario_bruto),
+            float(p.desconto_inss),
+            float(p.desconto_irt),
+            float(p.subsidio_alimentacao),
+            float(p.subsidio_transporte),
+            float(p.salario_liquido),
+            float(p.custo_inss_patronal),
+            'Pago' if p.pago else 'Pendente',
+        ]
+        for col, val in enumerate(data, 1):
+            cell = ws.cell(row=row, column=col, value=val)
+            if bg:
+                cell.fill = bg
+            if isinstance(val, float):
+                cell.number_format = fmt_kz
+        ws.cell(row=row, column=12).fill = fill_liq  # destaque líquido
+
+    # Totais
+    total_row = 5 + len(pagamentos)
+    ws.cell(row=total_row, column=1, value='TOTAL').font = Font(bold=True)
+    totais_cols = {
+        3: 'salario_base', 6: 'comissao_valor', 7: 'salario_bruto',
+        8: 'desconto_inss', 9: 'desconto_irt',
+        10: 'subsidio_alimentacao', 11: 'subsidio_transporte',
+        12: 'salario_liquido', 13: 'custo_inss_patronal',
+    }
+    fill_total = PatternFill('solid', fgColor='E7E5E4')
+    for col in range(1, NCOLS + 1):
+        cell = ws.cell(row=total_row, column=col)
+        cell.fill = fill_total
+        cell.font = Font(bold=True)
+    for col, attr in totais_cols.items():
+        v = sum(float(getattr(p, attr)) for p in pagamentos)
+        ws.cell(row=total_row, column=col, value=v).number_format = fmt_kz
+        ws.cell(row=total_row, column=col).font = Font(bold=True)
+        ws.cell(row=total_row, column=col).fill = fill_total
+
+    # Larguras
+    widths = [28, 16, 16, 12, 18, 16, 16, 14, 14, 14, 14, 16, 18, 12]
+    for col, width in zip(range(1, NCOLS + 1), widths):
+        ws.column_dimensions[get_column_letter(col)].width = width
+
+    return _excel_response(wb, f'salarios_{mes:02d}_{ano}.xlsx')
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_relatorio_exportar_excel(request):
+    """Exporta o relatório de vendas/produtos para Excel."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from openpyxl.utils import get_column_letter
+    except ImportError:
+        messages.error(request, 'openpyxl não instalado. Execute: pip install openpyxl')
+        return redirect('gestao_relatorio')
+
+    from django.db.models import F, FloatField, ExpressionWrapper
+    hoje = timezone.localdate()
+    periodo = request.GET.get('periodo', 'mes')
+    if periodo == 'hoje':
+        data_inicio = hoje
+        rotulo = 'Hoje'
+    elif periodo == 'semana':
+        data_inicio = hoje - timezone.timedelta(days=7)
+        rotulo = 'Últimos 7 Dias'
+    elif periodo == 'todos':
+        data_inicio = None
+        rotulo = 'Todo o Período'
+    else:
+        data_inicio = hoje.replace(day=1)
+        rotulo = f'Mês {hoje.month:02d}/{hoje.year}'
+
+    itens_qs = ItemEncomenda.objects.filter(encomenda__status='finalizada')
+    if data_inicio:
+        itens_qs = itens_qs.filter(encomenda__criado_em__date__gte=data_inicio)
+
+    top_produtos = (
+        itens_qs.values('nome_produto')
+        .annotate(
+            qty=Sum('quantidade'),
+            receita=Sum(ExpressionWrapper(F('preco_unitario') * F('quantidade'), output_field=FloatField())),
+        ).order_by('-qty')
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Top Produtos'
+
+    ws.merge_cells('A1:D1')
+    ws['A1'] = f'Decent Privé — Relatório de Vendas | {rotulo}'
+    ws['A1'].font = Font(bold=True, size=13)
+    ws['A1'].alignment = Alignment(horizontal='center')
+
+    headers = ['Produto', 'Qtd. Vendida', 'Receita (Kz)', 'Receita %']
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=3, column=col, value=h)
+    _estilo_cabecalho(ws, 3, len(headers))
+
+    total_receita = sum(p['receita'] or 0 for p in top_produtos)
+    fill_alt = PatternFill('solid', fgColor='F5F5F4')
+    for i, p in enumerate(top_produtos):
+        row = 4 + i
+        receita = float(p['receita'] or 0)
+        pct = (receita / total_receita * 100) if total_receita else 0
+        ws.cell(row=row, column=1, value=p['nome_produto'])
+        ws.cell(row=row, column=2, value=p['qty'])
+        ws.cell(row=row, column=3, value=receita)
+        ws.cell(row=row, column=4, value=round(pct, 1))
+        if i % 2 == 1:
+            for col in range(1, 5):
+                ws.cell(row=row, column=col).fill = fill_alt
+
+    for col, width in zip(range(1, 5), [40, 14, 18, 12]):
+        ws.column_dimensions[get_column_letter(col)].width = width
+
+    return _excel_response(wb, f'relatorio_{periodo}_{hoje}.xlsx')
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_caixa_exportar_excel(request):
+    """Exporta os movimentos de caixa (entradas e saídas) para Excel."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, Alignment, PatternFill
+        from openpyxl.utils import get_column_letter
+    except ImportError:
+        messages.error(request, 'openpyxl não instalado. Execute: pip install openpyxl')
+        return redirect('gestao_caixa')
+
+    hoje = timezone.localdate()
+    movimentos = MovimentoCaixa.objects.select_related('criado_por').order_by('-data')
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Movimentos de Caixa'
+
+    ws.merge_cells('A1:F1')
+    ws['A1'] = f'Decent Privé — Movimentos de Caixa | Exportado em {hoje.strftime("%d/%m/%Y")}'
+    ws['A1'].font = Font(bold=True, size=13)
+    ws['A1'].alignment = Alignment(horizontal='center')
+
+    headers = ['Data', 'Tipo', 'Categoria', 'Descrição', 'Valor (Kz)', 'Registado por']
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=3, column=col, value=h)
+    _estilo_cabecalho(ws, 3, len(headers))
+
+    fill_entrada = PatternFill('solid', fgColor='DCFCE7')
+    fill_saida = PatternFill('solid', fgColor='FEE2E2')
+    for i, m in enumerate(movimentos):
+        row = 4 + i
+        ws.cell(row=row, column=1, value=m.data.strftime('%d/%m/%Y') if m.data else '')
+        ws.cell(row=row, column=2, value=m.get_tipo_display())
+        ws.cell(row=row, column=3, value=m.get_categoria_display())
+        ws.cell(row=row, column=4, value=m.descricao)
+        ws.cell(row=row, column=5, value=float(m.valor))
+        ws.cell(row=row, column=6, value=m.criado_por.get_full_name() if m.criado_por else '')
+        fill = fill_entrada if m.tipo == 'entrada' else fill_saida
+        for col in range(1, 7):
+            ws.cell(row=row, column=col).fill = fill
+
+    for col, width in zip(range(1, 7), [14, 12, 22, 38, 16, 22]):
+        ws.column_dimensions[get_column_letter(col)].width = width
+
+    return _excel_response(wb, f'caixa_{hoje}.xlsx')
 
 
 # ---------------------------------------------------------------------------
