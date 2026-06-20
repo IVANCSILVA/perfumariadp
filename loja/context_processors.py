@@ -1,4 +1,5 @@
 from .models import Encomenda
+from .utils.auth import is_operador as _is_operador
 
 
 def encomendas_online_pendentes(request):
@@ -22,17 +23,14 @@ def nivel_acesso(request):
     if not user or not user.is_authenticated:
         return {'is_operador': False, 'is_gerente': False, 'is_admin_user': False}
     is_admin_user = bool(user.is_superuser)
-    is_operador = bool(
-        not user.is_superuser
-        and user.groups.filter(name='Operador').exists()
-    )
+    operador = _is_operador(user)
     is_gerente = bool(
         not user.is_superuser
-        and not is_operador
+        and not operador
         and user.is_staff
     )
     return {
-        'is_operador': is_operador,
+        'is_operador': operador,
         'is_gerente': is_gerente,
         'is_admin_user': is_admin_user,
     }

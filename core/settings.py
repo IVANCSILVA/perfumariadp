@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+95nr4rz5g7)a&it4(qxpck!11!)ofgao*ixf)x-y_xlj-o9mq'
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-+95nr4rz5g7)a&it4(qxpck!11!)ofgao*ixf)x-y_xlj-o9mq',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if os.environ.get('DJANGO_ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -143,13 +147,6 @@ DEFAULT_FROM_EMAIL = 'Decent Privé <noreply@decentprive.local>'
 # Se SMS_GATEWAY_URL estiver definido, será feito um POST com os campos
 # {to, message, api_key} para enviar a mensagem. Caso contrário, o conteúdo
 # do SMS é apenas registado nos logs do servidor.
-SMS_GATEWAY_URL = ''
-SMS_GATEWAY_API_KEY = ''
+SMS_GATEWAY_URL = os.environ.get('SMS_GATEWAY_URL', '')
+SMS_GATEWAY_API_KEY = os.environ.get('SMS_GATEWAY_API_KEY', '')
 SMS_SENDER = 'DecentPrive'
-
-# ---------------------------------------------------------------------------
-# Configuração de Sessão - Timeout de 5 minutos de inatividade
-# ---------------------------------------------------------------------------
-SESSION_COOKIE_AGE = 300  # 5 minutos em segundos
-SESSION_SAVE_EVERY_REQUEST = False  # Não renova em cada requisição
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira quando o navegador fecha

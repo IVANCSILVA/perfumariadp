@@ -38,11 +38,18 @@ class NewsletterInscricaoAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = EnviarNewsletterForm(request.POST)
             if form.is_valid():
-                enviados = enviar_email_newsletter(
-                    form.cleaned_data['assunto'],
-                    form.cleaned_data['mensagem']
-                )
-                self.message_user(request, f'E-mails enviados: {enviados}')
+                try:
+                    enviados = enviar_email_newsletter(
+                        form.cleaned_data['assunto'],
+                        form.cleaned_data['mensagem']
+                    )
+                    self.message_user(request, f'E-mails enviados: {enviados}')
+                except Exception as exc:
+                    self.message_user(
+                        request,
+                        f'Erro ao enviar newsletter: {exc}',
+                        level=messages.ERROR,
+                    )
                 return redirect('..')
         else:
             form = EnviarNewsletterForm()

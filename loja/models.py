@@ -1,6 +1,7 @@
-
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+
 
 class NewsletterInscricao(models.Model):
     email = models.EmailField(unique=True, verbose_name='E-mail')
@@ -13,35 +14,12 @@ class NewsletterInscricao(models.Model):
         verbose_name_plural = 'Inscrições na Newsletter'
         ordering = ['-data_inscricao']
 
-
     def __str__(self):
         return f"{self.email} ({self.nome})" if self.nome else self.email
 
-    import re
-    from django.contrib.auth.models import User
-    from django.core.exceptions import ValidationError
 
-
-def validar_bi_angola(value):
-    """BI angolano: 9 dígitos + 2 letras + 3 dígitos (ex: 003456789LA045)"""
-    limpo = value.replace(' ', '').upper()
-    if not re.fullmatch(r'\d{9}[A-Z]{2}\d{3}', limpo):
-        raise ValidationError(
-            'BI inválido. Formato esperado: 9 dígitos + 2 letras + 3 dígitos (ex: 003456789LA045).'
-        )
-
-
-def validar_telefone_angola(value):
-    """Telefone angolano: 9 dígitos começando em 9, aceita +244 e espaços"""
-    limpo = re.sub(r'[\s\-\(\)]', '', value)
-    if limpo.startswith('+244'):
-        limpo = limpo[4:]
-    elif limpo.startswith('244') and len(limpo) == 12:
-        limpo = limpo[3:]
-    if not re.fullmatch(r'9\d{8}', limpo):
-        raise ValidationError(
-            'Telefone inválido. Formato esperado: 9XX XXX XXX (ex: 923 456 789).'
-        )
+from .utils.validators import validar_bi_angola, validar_telefone_angola  # noqa: F401, E402
+from .utils.slug import gerar_slug_unico  # noqa: F401, E402
 
 
 class Categoria(models.Model):
@@ -498,14 +476,7 @@ class Promocao(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            from django.utils.text import slugify
-            base = slugify(self.nome)[:130] or 'promocao'
-            slug = base
-            n = 2
-            while Promocao.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f'{base}-{n}'
-                n += 1
-            self.slug = slug
+            self.slug = gerar_slug_unico(Promocao, self.nome, instancia=self)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
