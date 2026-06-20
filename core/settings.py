@@ -146,3 +146,10 @@ DEFAULT_FROM_EMAIL = 'Decent Privé <noreply@decentprive.local>'
 SMS_GATEWAY_URL = ''
 SMS_GATEWAY_API_KEY = ''
 SMS_SENDER = 'DecentPrive'
+
+# ---------------------------------------------------------------------------
+# Configuração de Sessão - Timeout de 5 minutos de inatividade
+# ---------------------------------------------------------------------------
+SESSION_COOKIE_AGE = 300  # 5 minutos em segundos
+SESSION_SAVE_EVERY_REQUEST = False  # Não renova em cada requisição
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira quando o navegador fecha

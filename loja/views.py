@@ -145,10 +145,18 @@ def home(request):
     promocoes_carrossel = [p for p in activas if p.mostrar_carrossel]
     promocoes_landing = [p for p in activas if p.mostrar_landing]
 
+    # Produtos por tipo (para secções de destaque)
+    produtos_masculinos = Produto.objects.filter(tipo='masculino', disponivel=True).order_by('-criado_em')[:4]
+    produtos_femininos = Produto.objects.filter(tipo='feminino', disponivel=True).order_by('-criado_em')[:4]
+    produtos_nicho = Produto.objects.filter(tipo='nicho', disponivel=True).order_by('-criado_em')[:4]
+
     return render(request, 'loja/index.html', {
         'total_visitas': total_visitas,
         'promocoes_carrossel': promocoes_carrossel,
         'promocoes_landing': promocoes_landing,
+        'produtos_masculinos': produtos_masculinos,
+        'produtos_femininos': produtos_femininos,
+        'produtos_nicho': produtos_nicho,
     })
 
 def colecoes(request):
@@ -180,6 +188,7 @@ def promocao_publica(request, slug):
     })
 
 def encomendas(request):
+    import json
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         telefone = request.POST.get('telefone', '').strip()
@@ -214,12 +223,21 @@ def encomendas(request):
                         preco_unitario=preco,
                         quantidade=qty,
                     )
-        except (json.JSONDecodeError, ValueError, TypeError):
+        except (ValueError, TypeError):
             pass
 
         return redirect('encomenda_sucesso')
 
-    return render(request, 'loja/encomendas.html')
+    else:
+        import json
+        carrinho_cookie = request.COOKIES.get('carrinho_checkout', '[]')
+        carrinho = json.loads(carrinho_cookie)
+
+        if not carrinho:
+            messages.info(request, 'O carrinho está vazio. Adicione produtos antes de fazer a encomenda!')
+            return redirect('home')
+            
+        return render(request, 'loja/encomendas.html', {'itens': carrinho})
 
 def encomenda_sucesso(request):
     return render(request, 'loja/encomenda_sucesso.html')
@@ -1455,6 +1473,18 @@ def gestao_api_barcode(request):
     except Produto.DoesNotExist:
         return JsonResponse({'encontrado': False, 'erro': 'Produto não encontrado para este código.'})
 
+
+@staff_member_required(login_url='/gestao/login/')
+def gestao_api_session_ping(request):
+    """
+    Endpoint para renovar a sessão quando o utilizador está ativo.
+    Chamado periodicamente pelo JavaScript de monitorização de atividade.
+    """
+    if request.method == 'POST':
+        # Renova a sessão modificando a data de atualização
+        request.session.modified = True
+        return JsonResponse({'status': 'ok', 'timestamp': timezone.now().isoformat()})
+    return JsonResponse({'status': 'error'}, status=405)
 
 
 @staff_member_required(login_url='/gestao/login/')
