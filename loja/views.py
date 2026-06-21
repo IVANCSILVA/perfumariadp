@@ -223,7 +223,7 @@ def colecoes(request):
 
 def promocao_publica(request, slug):
     promo = get_object_or_404(Promocao, slug=slug, activo=True)
-    produtos = list(promo.produtos.filter(disponivel=True).order_by('tipo', 'nome'))
+    produtos = list(promo.produtos.filter(disponivel=True).order_by('genero', 'nome'))
     desc = promo.desconto_percentagem or 0
     for prod in produtos:
         try:
@@ -2074,7 +2074,7 @@ def gestao_promocao_criar(request, pk=None):
         }
         produtos_selecionados_ids = []
 
-    produtos_disponiveis = Produto.objects.filter(disponivel=True).order_by('tipo', 'nome')
+    produtos_disponiveis = Produto.objects.filter(disponivel=True).order_by('genero', 'nome')
 
     return render(request, 'gestao/promocao_form.html', {
         'active_page': 'promocoes',
