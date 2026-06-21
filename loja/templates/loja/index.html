@@ -1,15 +1,15 @@
-{% load humanize %}
+﻿{% load humanize %}
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decent Privé | Além do Essencial — Huambo, Angola</title>
+    <title>Décent Privé | Além do Essencial — Huambo, Angola</title>
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
-    <meta name="description" content="Decent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rápida e segura.">
+    <meta name="description" content="Décent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rápida e segura.">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         html { scroll-behavior: smooth; }
         body {
@@ -41,19 +41,20 @@
         </style>
 </head>
 <body class="bg-white text-gray-900 transition-colors duration-300">
-    {% load static %}
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
-        <a href="{% url 'home' %}" class="-mt-8">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Prive" class="h-52 w-auto">
+        <a href="{% url 'home' %}" class="md:-mt-8">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Prive" class="h-20 md:h-52 w-auto">
         </a>
         <div class="flex flex-col items-end gap-1 pt-4">
             <div class="flex items-center gap-5">
-                <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex">
-                    <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 border-b border-amber-800 transition-all duration-200">Página Inicial</a>
-                    <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
-                    <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
-                    <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+                <div class="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.18em] hidden md:flex">
+                    <a href="{% url 'home' %}" class="text-amber-900 px-3 py-2 border-b-2 border-amber-800 transition-all duration-200">Início</a>
+                    <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Colecções</a>
+                    <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Galeria</a>
+                    <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Encomendas</a>
+                    <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Fidelidade</a>
+                    <a href="{% url 'contactos' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Contactos</a>
                 </div>
                 <!-- Ícone do Carrinho -->
                 <button onclick="toggleCart()" class="relative text-amber-800 hover:text-amber-600 transition-colors duration-200" aria-label="Carrinho">
@@ -92,20 +93,7 @@
     </nav>
 
     <script>
-        const productData = [
-            { name: 'Noir Absolu', brand: 'Eau de Parfum', category: 'masculino' },
-            { name: 'Bois de Cèdre', brand: 'Eau de Toilette', category: 'masculino' },
-            { name: 'Cuir Fumé', brand: 'Extrait de Parfum', category: 'masculino' },
-            { name: 'Vétiver Royal', brand: 'Parfum', category: 'masculino' },
-            { name: 'Rose Dorée', brand: 'Eau de Parfum', category: 'feminino' },
-            { name: 'Fleur Blanche', brand: 'Eau de Toilette', category: 'feminino' },
-            { name: 'Jasmin Précieux', brand: 'Extrait de Parfum', category: 'feminino' },
-            { name: 'Musc Soyeux', brand: 'Parfum', category: 'feminino' },
-            { name: 'Oud Impérial', brand: 'Extrait de Parfum', category: 'nicho' },
-            { name: 'Ambre Précieux', brand: 'Parfum', category: 'nicho' },
-            { name: 'Encens Sacré', brand: 'Extrait de Parfum', category: 'nicho' },
-            { name: 'Iris Absolu', brand: 'Parfum', category: 'nicho' },
-        ];
+        const productData = {{ produtos_busca_json|safe }};
 
         function doSearch(query) {
             if (!query.trim()) return;
@@ -167,9 +155,9 @@
                 <img src="{% static 'loja/images/image1.jpeg' %}" alt="Promoção 1" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Promoção do Dia</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Nova Colecção Primavera</h2>
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Descubra as fragrâncias da estação</p>
+                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Promoção da Época</span>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Fragrâncias Exclusivas</h2>
+                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Descubra a nossa curadoria de aromas únicos</p>
                     <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
                 </div>
             </div>
@@ -179,7 +167,7 @@
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
                     <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Oferta Especial</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Dia da Mãe</h2>
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">O Presente Perfeito</h2>
                     <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Presentes únicos para momentos inesquecíveis</p>
                     <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
                 </div>
@@ -279,7 +267,7 @@
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-3 mb-6">A Arte de Uma Fragrância</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mb-10"></div>
             <p class="text-stone-500 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-6">
-                A <span class="font-semibold text-stone-700">Decent Privé</span> nasceu da paixão pelas fragrâncias raras e pela elegância atemporal. Actualmente localizados na Província do Huambo, Angola, somos mais do que uma perfumaria — somos um destino sensorial para quem aprecia o requinte e a autenticidade.
+                A <span class="font-semibold text-stone-700">Décent Privé</span> nasceu da paixão pelas fragrâncias raras e pela elegância atemporal. Actualmente localizados na Província do Huambo, Angola, somos mais do que uma perfumaria — somos um destino sensorial para quem aprecia o requinte e a autenticidade.
             </p>
             <p class="text-stone-400 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-10">
                 Cada frasco que seleccionamos conta uma história. Do Médio Oriente à Europa, trazemos até si as melhores casas de perfumaria do mundo, com atendimento personalizado e uma curadoria que privilegia a qualidade acima de tudo.
@@ -369,6 +357,7 @@
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
         </div>
 
+        {% if masculinos %}
         <!-- ── PERFUMES MASCULINOS ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
@@ -377,32 +366,34 @@
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {% for produto in produtos_masculinos %}
+                {% for p in masculinos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        {% if produto.imagem %}
-                        <img loading="lazy" decoding="async" src="{{ produto.imagem.url }}" alt="{{ produto.nome }}"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                         {% else %}
-                        <div class="w-full h-full bg-gradient-to-br from-amber-100 to-amber-300 flex items-center justify-center text-5xl text-amber-700">🧴</div>
+                        <div class="w-full h-full bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
                         {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ produto.quantidade }}</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ produto.nome }}</h4>
-                    <p class="text-xs text-stone-600 mb-2">{{ produto.marca }}</p>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-amber-800 font-semibold text-base">{{ produto.preco_venda|floatformat:0|intcomma }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="{{ produto.nome }}" data-price="{{ produto.preco_venda }}" 
-                            {% if produto.imagem %}data-img="{{ produto.imagem.url }}"{% else %}data-img=""{% endif %}
-                            onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-                {% empty %}
-                <p class="col-span-4 text-center text-stone-500 py-8">Nenhum produto disponível no momento.</p>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if femininos %}
         <!-- ── PERFUMES FEMININOS ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
@@ -411,68 +402,74 @@
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {% for produto in produtos_femininos %}
+                {% for p in femininos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        {% if produto.imagem %}
-                        <img loading="lazy" decoding="async" src="{{ produto.imagem.url }}" alt="{{ produto.nome }}"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                         {% else %}
-                        <div class="w-full h-full bg-gradient-to-br from-pink-100 to-pink-300 flex items-center justify-center text-5xl text-pink-700">🌸</div>
+                        <div class="w-full h-full bg-gradient-to-br from-pink-50 to-stone-100 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
                         {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ produto.quantidade }}</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ produto.nome }}</h4>
-                    <p class="text-xs text-stone-600 mb-2">{{ produto.marca }}</p>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-amber-800 font-semibold text-base">{{ produto.preco_venda|floatformat:0|intcomma }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="{{ produto.nome }}" data-price="{{ produto.preco_venda }}" 
-                            {% if produto.imagem %}data-img="{{ produto.imagem.url }}"{% else %}data-img=""{% endif %}
-                            onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-                {% empty %}
-                <p class="col-span-4 text-center text-stone-500 py-8">Nenhum produto disponível no momento.</p>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-            </div>
+        {% if not masculinos and not femininos and not unissex %}
+        <div class="max-w-6xl mx-auto text-center py-16">
+            <p class="text-stone-400 text-sm uppercase tracking-widest">Produtos em breve. Consulte as nossas <a href="{% url 'colecoes' %}" class="text-amber-700 hover:underline">Colecções</a>.</p>
         </div>
+        {% endif %}
 
-        <!-- ── PERFUMES DE NICHO ── -->
+        {% if unissex %}
+        <!-- ── PERFUMES UNISSEX ── -->
         <div class="max-w-6xl mx-auto mb-16">
             <div class="flex items-center gap-4 mb-8">
                 <div class="flex-1 h-px bg-stone-200"></div>
-                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes de Nicho</h3>
+                <h3 class="font-serif italic text-2xl text-stone-700 whitespace-nowrap">Perfumes Unissex</h3>
                 <div class="flex-1 h-px bg-stone-200"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {% for produto in produtos_nicho %}
+                {% for p in unissex %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4">
-                        {% if produto.imagem %}
-                        <img loading="lazy" decoding="async" src="{{ produto.imagem.url }}" alt="{{ produto.nome }}"
+                        {% if p.imagem %}
+                        <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                         {% else %}
-                        <div class="w-full h-full bg-gradient-to-br from-purple-100 to-purple-300 flex items-center justify-center text-5xl text-purple-700">✨</div>
+                        <div class="w-full h-full bg-gradient-to-br from-amber-50 to-stone-100 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082"/>
+                            </svg>
+                        </div>
                         {% endif %}
                     </div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ produto.quantidade }}</p>
-                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ produto.nome }}</h4>
-                    <p class="text-xs text-stone-600 mb-2">{{ produto.marca }}</p>
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
+                    <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
                     <div class="flex items-center gap-3">
-                        <span class="text-amber-800 font-semibold text-base">{{ produto.preco_venda|floatformat:0|intcomma }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
                     </div>
-                    <button data-name="{{ produto.nome }}" data-price="{{ produto.preco_venda }}" 
-                            {% if produto.imagem %}data-img="{{ produto.imagem.url }}"{% else %}data-img=""{% endif %}
-                            onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
-                {% empty %}
-                <p class="col-span-4 text-center text-stone-500 py-8">Nenhum produto disponível no momento.</p>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
         <!-- Botão ver todos -->
         <div class="text-center mt-4">
@@ -493,7 +490,7 @@
             </div>
             <div class="map-wrap w-full overflow-hidden">
                 <iframe
-                    title="Localização Decent Privé"
+                    title="Localização Décent Privé"
                     src="https://maps.google.com/maps?q=SIAC+Huambo&output=embed&z=17"
                     width="100%"
                     height="300"
@@ -516,7 +513,7 @@
 
             <!-- Logo + Quem Somos -->
             <div class="md:col-span-1">
-                <h4 class="font-serif italic text-amber-500 text-xl mb-4">Decent Privé</h4>
+                <h4 class="font-serif italic text-amber-500 text-xl mb-4">Décent Privé</h4>
                 <p class="text-stone-300 text-xs leading-relaxed tracking-wide">
                     Somos uma perfumaria dedicada à exclusividade e à arte das fragrâncias. Curámos cada peça com rigor, oferecendo experiências sensoriais únicas para quem valoriza o detalhe.
                 </p>
@@ -541,13 +538,13 @@
                         <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
                         </svg>
-                        <a href="https://wa.me/244940385564" target="_blank" rel="noopener noreferrer" class="hover:text-amber-500 transition-colors duration-200">+244 940 385 564</a>
+                        <a href="https://wa.me/244929006478" target="_blank" rel="noopener noreferrer" class="hover:text-amber-500 transition-colors duration-200">+244 929 006 478</a>
                     </li>
                     <li class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0-9.75 6.75L2.25 6.75"/>
                         </svg>
-                        <a href="mailto:geral@decentprive.ao" class="hover:text-amber-500 transition-colors duration-200">geral@decentprive.ao</a>
+                        <a href="mailto:decentprive@gmail.com" class="hover:text-amber-500 transition-colors duration-200">decentprive@gmail.com</a>
                     </li>
                     <li class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" xmlns="http://www.w3.org/2000/svg">
@@ -716,7 +713,7 @@
         <!-- Faixa de copyright -->
         <div class="border-t border-stone-800 py-5 px-8 flex flex-col md:flex-row items-center justify-between gap-2">
             <p class="text-xs text-stone-400 tracking-wide">
-                &copy; 2026 Decent Privé. Todos os direitos reservados.
+                &copy; 2026 Décent Privé. Todos os direitos reservados.
             </p>
             <p class="text-xs text-stone-400 tracking-wide flex items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700 text-amber-400">
@@ -749,7 +746,7 @@
                 <span class="text-sm uppercase tracking-widest text-stone-300">Total</span>
                 <span id="cart-total" class="font-bold text-amber-400 text-2xl">0 Kz</span>
             </div>
-            <button onclick="finalizarEncomenda()" class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Fazer Encomenda</button>
+            <button onclick="finalizarEncomenda()" class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Finalizar Encomenda</button>
         </div>
     </div>
 
@@ -852,20 +849,41 @@
         }
 
         updateBadge();
+
+        function finalizarEncomenda() {
+            if (cartItems.length === 0) return;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "encomendas" %}';
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = 'csrfmiddlewaretoken';
+            csrf.value = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+            form.appendChild(csrf);
+            const itens = document.createElement('input');
+            itens.type = 'hidden';
+            itens.name = 'itens_json';
+            itens.value = JSON.stringify(cartItems.map(i => ({ name: i.name, price: i.price, qty: i.qty })));
+            form.appendChild(itens);
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 
     <!-- ── Menu Móvel ── -->
     <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
     <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
-            <span class="font-serif italic text-amber-700 text-2xl">Decent Privé</span>
+            <span class="font-serif italic text-amber-700 text-2xl">Décent Privé</span>
             <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none" aria-label="Fechar">&times;</button>
         </div>
         <nav class="flex flex-col p-6 gap-1">
-            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Página Inicial</a>
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
             <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
             <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
             <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
+            <a href="{% url 'contactos' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Contactos</a>
         </nav>
         <div class="px-6 pb-6 mt-auto">
             <div class="flex gap-2 border border-stone-300">
@@ -886,7 +904,7 @@
     </div>
 
     <!-- ── WhatsApp Flutuante ── -->
-    <a href="https://wa.me/244940385564?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20Decent%20Priv%C3%A9."
+    <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20Décent%20Priv%C3%A9."
        target="_blank" rel="noopener noreferrer"
        class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
        aria-label="Falar no WhatsApp">

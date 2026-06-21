@@ -1,36 +1,179 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decent Prive | Contactos</title>
+    <title>Décent Privé | Contactos</title>
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; }
         .font-serif { font-family: 'Playfair Display', serif; }
+        @keyframes pulseRing {
+            0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.55); }
+            70%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        .wa-pulse { animation: pulseRing 2s infinite; }
     </style>
 </head>
-<body class="bg-white text-gray-900">
+<body class="bg-white text-stone-900">
     {% load static %}
+
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
-        <a href="{% url 'home' %}" class="-mt-16">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Decent Prive" class="h-56 w-auto">
+        <a href="{% url 'home' %}" class="md:-mt-8">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-20 md:h-52 w-auto">
         </a>
-        <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
-            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
-            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
-            <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
-            <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+        <div class="flex items-center gap-5 pt-4">
+            <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
+                <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Início</a>
+                <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+                <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Galeria</a>
+                <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
+                <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
+                <a href="{% url 'contactos' %}" class="text-amber-950 font-semibold px-3 py-1 border-b border-amber-800 transition-all duration-200">Contactos</a>
+            </div>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-amber-800" aria-label="Menu">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/>
+                </svg>
+            </button>
         </div>
     </nav>
 
-    <main class="px-8 py-16 text-center">
-        <h1 class="text-5xl font-serif italic mb-6">Contactos</h1>
-        <p class="text-gray-500 max-w-md mx-auto tracking-wide uppercase text-xs">Entre em contacto connosco para qualquer informação.</p>
+    <!-- Hero -->
+    <section class="bg-stone-50 border-b border-stone-100 py-14 text-center px-8">
+        <p class="text-xs uppercase tracking-[0.4em] text-amber-700 mb-3">Fale Connosco</p>
+        <h1 class="font-serif italic text-4xl md:text-6xl text-stone-800 mb-4">Contactos</h1>
+        <p class="text-stone-500 text-xs uppercase tracking-widest max-w-md mx-auto">Estamos disponíveis para si através de qualquer um dos canais abaixo.</p>
+    </section>
+
+    <!-- Cartões de contacto -->
+    <main class="max-w-5xl mx-auto px-6 py-16">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+            <!-- WhatsApp -->
+            <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20D%C3%A9cent%20Priv%C3%A9."
+               target="_blank" rel="noopener noreferrer"
+               class="group flex flex-col items-center text-center border border-stone-200 hover:border-green-400 p-8 transition-all duration-300 hover:shadow-lg">
+                <div class="w-14 h-14 bg-green-100 group-hover:bg-green-200 rounded-full flex items-center justify-center mb-5 transition-colors duration-300">
+                    <svg class="w-7 h-7 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">WhatsApp</h3>
+                <p class="font-serif italic text-xl text-stone-800 mb-1">+244 929 006 478</p>
+                <p class="text-xs text-stone-400 tracking-wide">Resposta rápida</p>
+            </a>
+
+            <!-- Email -->
+            <a href="mailto:decentprive@gmail.com"
+               class="group flex flex-col items-center text-center border border-stone-200 hover:border-amber-400 p-8 transition-all duration-300 hover:shadow-lg">
+                <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-100 rounded-full flex items-center justify-center mb-5 transition-colors duration-300">
+                    <svg class="w-7 h-7 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5a2.25 2.25 0 0 0-2.25 2.25m19.5 0-9.75 6.75L2.25 6.75"/>
+                    </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">Email</h3>
+                <p class="font-serif italic text-xl text-stone-800 mb-1 break-all">decentprive@gmail.com</p>
+                <p class="text-xs text-stone-400 tracking-wide">Disponível 24h</p>
+            </a>
+
+            <!-- Telefone -->
+            <a href="tel:+244940385564"
+               class="group flex flex-col items-center text-center border border-stone-200 hover:border-amber-400 p-8 transition-all duration-300 hover:shadow-lg">
+                <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-100 rounded-full flex items-center justify-center mb-5 transition-colors duration-300">
+                    <svg class="w-7 h-7 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">Telefone</h3>
+                <p class="font-serif italic text-xl text-stone-800 mb-1">+244 940 385 564</p>
+                <p class="text-xs text-stone-400 tracking-wide">Seg – Sáb, 9h – 20h</p>
+            </a>
+
+        </div>
+
+        <!-- Redes sociais -->
+        <div class="mt-16 text-center">
+            <p class="text-xs uppercase tracking-[0.4em] text-stone-400 mb-8">Siga-nos nas Redes Sociais</p>
+            <div class="flex justify-center gap-4 flex-wrap">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-2 text-xs uppercase tracking-widest text-stone-600 hover:text-amber-700 border border-stone-200 hover:border-amber-400 px-6 py-3 transition-all duration-300">
+                    <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.12 8.44 9.88v-6.99H7.9v-2.89h2.54V9.84c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.89h-2.34v6.99C18.34 21.12 22 16.99 22 12z"/>
+                    </svg>
+                    Facebook
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-2 text-xs uppercase tracking-widest text-stone-600 hover:text-amber-700 border border-stone-200 hover:border-amber-400 px-6 py-3 transition-all duration-300">
+                    <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.515 2.497 5.783 2.225 7.149 2.163 8.415 2.105 8.795 2.163 12 2.163zm0-2.163C8.741 0 8.333.013 7.053.072 5.197.157 3.355.745 2.014 2.086.674 3.427.086 5.269 0 7.125-.013 8.333 0 8.741 0 12c0 3.259.013 3.668.072 4.948.085 1.856.674 3.698 2.014 5.038 1.341 1.341 3.183 1.929 5.038 2.014C8.333 23.987 8.741 24 12 24c3.259 0 3.668-.013 4.948-.072 1.856-.085 3.698-.674 5.038-2.014 1.341-1.341 1.929-3.183 2.014-5.038C23.987 15.668 24 15.259 24 12c0-3.259-.013-3.668-.072-4.948-.085-1.856-.674-3.698-2.014-5.038C20.573.745 18.731.157 16.875.072 15.667.013 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                    </svg>
+                    Instagram
+                </a>
+                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center gap-2 text-xs uppercase tracking-widest text-stone-600 hover:text-amber-700 border border-stone-200 hover:border-amber-400 px-6 py-3 transition-all duration-300">
+                    <svg class="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+                    </svg>
+                    TikTok
+                </a>
+            </div>
+        </div>
+
+        <!-- CTA Encomenda -->
+        <div class="mt-16 text-center border-t border-stone-100 pt-16">
+            <p class="text-xs uppercase tracking-[0.4em] text-stone-400 mb-4">Pronto para encomendar?</p>
+            <a href="{% url 'encomendas' %}" class="inline-block bg-amber-800 text-white text-[10px] uppercase tracking-[0.4em] px-10 py-4 hover:bg-amber-700 transition-all duration-300">
+                Fazer Encomenda
+            </a>
+        </div>
     </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-10">
+        &copy; 2026 Décent Privé. Todos os direitos reservados.
+    </footer>
+
+    <!-- WhatsApp Flutuante -->
+    <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20D%C3%A9cent%20Priv%C3%A9."
+       target="_blank" rel="noopener noreferrer"
+       class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
+       aria-label="Falar no WhatsApp">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </svg>
+    </a>
+
+    <!-- Menu Móvel -->
+    <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
+            <span class="font-serif italic text-amber-700 text-2xl">Décent Privé</span>
+            <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none">&times;</button>
+        </div>
+        <nav class="flex flex-col p-6 gap-1">
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
+            <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
+            <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
+            <a href="{% url 'contactos' %}" class="text-amber-950 font-semibold bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3">Contactos</a>
+        </nav>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const open = menu.classList.contains('-translate-x-full');
+            menu.classList.toggle('-translate-x-full', !open);
+            overlay.classList.toggle('hidden', !open);
+        }
+    </script>
 </body>
 </html>

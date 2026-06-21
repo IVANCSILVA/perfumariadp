@@ -20,6 +20,18 @@ def limpar_telefone(value):
 
 BI_REGEX = r'\d{9}[A-Z]{2}\d{3}'
 TELEFONE_REGEX = r'9\d{8}'
+NIB_REGEX = r'\d{21}'
+IBAN_AO_REGEX = r'AO\d{23}'
+
+
+def limpar_nib(value):
+    """Remove espaços e traços do NIB."""
+    return re.sub(r'[\s\-]', '', value).upper()
+
+
+def limpar_iban(value):
+    """Remove espaços e converte para maiúsculas."""
+    return re.sub(r'\s', '', value).upper()
 
 
 def validar_bi_angola(value):
@@ -37,4 +49,22 @@ def validar_telefone_angola(value):
     if not re.fullmatch(TELEFONE_REGEX, limpo):
         raise ValidationError(
             'Telefone invalido. Formato esperado: 9XX XXX XXX (ex: 923 456 789).'
+        )
+
+
+def validar_nib_angola(value):
+    """NIB angolano: 21 dígitos numéricos (4 banco + 4 balcão + 11 conta + 2 controlo)."""
+    limpo = limpar_nib(value)
+    if not re.fullmatch(NIB_REGEX, limpo):
+        raise ValidationError(
+            'NIB inválido. Deve ter 21 dígitos (ex: 004400006729503010102).'
+        )
+
+
+def validar_iban_angola(value):
+    """IBAN angolano: AO + 2 dígitos de controlo + 21 dígitos = 25 caracteres."""
+    limpo = limpar_iban(value)
+    if not re.fullmatch(IBAN_AO_REGEX, limpo):
+        raise ValidationError(
+            'IBAN inválido. Formato esperado: AO + 23 dígitos, total 25 caracteres (ex: AO06004400006729503010102).'
         )

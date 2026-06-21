@@ -73,14 +73,14 @@ class CategoriaAdmin(admin.ModelAdmin):
 # ---------------------------------------------------------------------------
 @admin.register(Produto)
 class ProdutoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'marca', 'quantidade', 'categoria', 'tipo', 'preco_venda', 'preco_compra', 'stock', 'disponivel')
-    list_filter = ('tipo', 'categoria', 'disponivel')
+    list_display = ('nome', 'marca', 'quantidade', 'categoria', 'genero', 'concentracao', 'preco_venda', 'preco_compra', 'stock', 'disponivel')
+    list_filter = ('genero', 'concentracao', 'categoria', 'disponivel')
     search_fields = ('nome', 'marca')
     list_editable = ('preco_venda', 'preco_compra', 'stock', 'disponivel')
     readonly_fields = ('criado_em', 'atualizado_em')
     fieldsets = (
         ('Informações Gerais', {
-            'fields': ('nome', 'marca', 'quantidade', 'descricao', 'categoria', 'tipo')
+            'fields': ('nome', 'marca', 'quantidade', 'descricao', 'categoria', 'genero', 'concentracao')
         }),
         ('Preço e Stock', {
             'fields': ('preco_venda', 'preco_compra', 'stock', 'disponivel')

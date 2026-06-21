@@ -30,14 +30,13 @@
                    class="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-700 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
         </div>
 
-        <!-- Filtro tipo -->
+        <!-- Filtro género -->
         <div class="flex items-center gap-1 flex-wrap">
-            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Tipo:</span>
-            <button data-valor="" class="filtro-tipo activo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
-            <button data-valor="masculino" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-blue-500 hover:text-blue-700">Masculino</button>
-            <button data-valor="feminino" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-pink-500 hover:text-pink-700">Feminino</button>
-            <button data-valor="unissex" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Unissex</button>
-            <button data-valor="nicho" class="filtro-tipo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-violet-500 hover:text-violet-700">Nicho</button>
+            <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Género:</span>
+            <button data-genero="" class="filtro-genero activo-genero text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todos</button>
+            <button data-genero="masculino" class="filtro-genero text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-blue-500 hover:text-blue-700">Masculino</button>
+            <button data-genero="feminino" class="filtro-genero text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-pink-500 hover:text-pink-700">Feminino</button>
+            <button data-genero="unissex" class="filtro-genero text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-emerald-500 hover:text-emerald-700">Unissex</button>
         </div>
 
         <!-- Filtro disponibilidade -->
@@ -56,8 +55,8 @@
                 <tr>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Nome</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Marca</th>
-                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Categoria</th>
-                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Tipo</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Género</th>
+                    <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Concentração</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Volume</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Essência</th>
                     <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Preço (Kz)</th>
@@ -72,7 +71,7 @@
                 <tr class="prod-row hover:bg-stone-50 transition-colors duration-100"
                     data-nome="{{ p.nome|lower }}"
                     data-marca="{{ p.marca|lower }}"
-                    data-tipo="{{ p.tipo }}"
+                    data-genero="{{ p.genero }}"
                     data-disp="{% if p.disponivel %}sim{% else %}nao{% endif %}"
                     data-barcode="{{ p.codigo_barras|lower|default:'' }}">
                     <td class="px-5 py-3 font-medium text-stone-800">
@@ -80,16 +79,15 @@
                            class="hover:text-amber-700 transition-colors">{{ p.nome }}</a>
                     </td>
                     <td class="px-5 py-3 text-stone-500">{{ p.marca }}</td>
-                    <td class="px-5 py-3 text-stone-500">{{ p.categoria|default:"—" }}</td>
                     <td class="px-5 py-3">
                         <span class="inline-block px-2 py-0.5 text-[9px] uppercase tracking-wider
-                            {% if p.tipo == 'masculino' %}bg-blue-100 text-blue-800
-                            {% elif p.tipo == 'feminino' %}bg-pink-100 text-pink-800
-                            {% elif p.tipo == 'nicho' %}bg-violet-100 text-violet-800
+                            {% if p.genero == 'masculino' %}bg-blue-100 text-blue-800
+                            {% elif p.genero == 'feminino' %}bg-pink-100 text-pink-800
                             {% else %}bg-emerald-100 text-emerald-800{% endif %}">
-                            {{ p.get_tipo_display }}
+                            {{ p.get_genero_display }}
                         </span>
                     </td>
+                    <td class="px-5 py-3 text-stone-500 text-[10px]">{{ p.get_concentracao_display|default:"—" }}</td>
                     <td class="px-5 py-3 text-stone-500">{{ p.quantidade|default:"—" }}</td>
                     <td class="px-5 py-3 text-stone-400 max-w-[180px]">
                         {% if p.essencia %}
@@ -148,7 +146,7 @@
     var semRes = document.getElementById('row-sem-resultados');
     var rows = Array.from(document.querySelectorAll('.prod-row'));
 
-    var filtroTipo = '';
+    var filtroGenero = '';
     var filtroDisp = '';
 
     function norm(s) {
@@ -160,7 +158,7 @@
         var vis = 0;
         rows.forEach(function (r) {
             var ok = (!termo || norm(r.dataset.nome).includes(termo) || norm(r.dataset.marca).includes(termo) || norm(r.dataset.barcode || '').includes(termo))
-                  && (!filtroTipo || r.dataset.tipo === filtroTipo)
+                  && (!filtroGenero || r.dataset.genero === filtroGenero)
                   && (!filtroDisp || r.dataset.disp === filtroDisp);
             r.classList.toggle('hidden', !ok);
             if (ok) vis++;
@@ -171,14 +169,15 @@
 
     pesquisa.addEventListener('input', aplicar);
 
-    document.querySelectorAll('.filtro-tipo').forEach(function (btn) {
+    document.querySelectorAll('.filtro-genero').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            document.querySelectorAll('.filtro-tipo').forEach(function (b) {
+            document.querySelectorAll('.filtro-genero').forEach(function (b) {
                 b.className = b.className.replace('border-stone-800 bg-stone-800 text-white', 'border-stone-200 text-stone-500');
+                b.classList.remove('activo-genero');
             });
             btn.classList.remove('border-stone-200', 'text-stone-500');
-            btn.classList.add('border-stone-800', 'bg-stone-800', 'text-white');
-            filtroTipo = btn.dataset.valor;
+            btn.classList.add('border-stone-800', 'bg-stone-800', 'text-white', 'activo-genero');
+            filtroGenero = btn.dataset.genero;
             aplicar();
         });
     });
