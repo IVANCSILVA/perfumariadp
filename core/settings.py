@@ -177,3 +177,5 @@ SMS_SENDER = 'DécentPrive'
 # ---------------------------------------------------------------------------
 SESSION_COOKIE_AGE = 900          # 15 minutos (em segundos)
 SESSION_SAVE_EVERY_REQUEST = True  # Reinicia o contador a cada pedido
+SESSION_COOKIE_SECURE = not DEBUG  # Apenas HTTPS em produção
+SESSION_COOKIE_HTTPONLY = True     # Inacessível via JavaScript
