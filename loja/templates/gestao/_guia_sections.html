@@ -1,0 +1,484 @@
+{% comment %}─────── SECÇÕES DO GUIA DO UTILIZADOR ───────{% endcomment %}
+
+{% comment %}── Macro de passo (âmbar) ──{% endcomment %}
+{% comment %}
+    Utilização:  <li class="guia-step amber">N. Texto</li>
+{% endcomment %}
+
+<!-- ══════════════════════════════════════════════════
+     01 — DASHBOARD
+     Perfil: Todos
+════════════════════════════════════════════════════ -->
+<div id="dashboard" class="gestao-card overflow-hidden guia-section section-amber">
+    <!-- Cabeçalho da secção -->
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fffbeb, #fef9c3);">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">01</span>
+                <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Dashboard</h3>
+            </div>
+            <p class="text-[11px] text-amber-700/70 mt-0.5">Visão geral do negócio em tempo real</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <!-- Corpo -->
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span>
+                <span>Após o login, é redireccionado automaticamente para o <strong>Dashboard</strong> — o ecrã principal do sistema.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span>
+                <span>Observe os <strong>cartões de resumo</strong> no topo da página: total de encomendas pendentes, encomendas do dia, número de produtos e clientes registados.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span>
+                <span>Consulte o <strong>gráfico de vendas</strong> que mostra a evolução das transacções e da receita nos últimos 14 dias.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span>
+                <span>Na tabela inferior, consulte as <strong>últimas encomendas</strong> e os <strong>produtos com stock crítico</strong> (menos de 5 unidades), para reposição urgente.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span>
+                <span>Use o <strong>menu lateral esquerdo</strong> para navegar entre todas as secções disponíveis no seu perfil.</span>
+            </li>
+        </ol>
+        <!-- Callout dica -->
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Comece sempre pelo Dashboard ao iniciar o seu turno. Os alertas de stock baixo e encomendas pendentes dão-lhe uma visão imediata do que precisa de atenção.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     02 — PONTO DE VENDA (POS)
+     Perfil: Todos
+════════════════════════════════════════════════════ -->
+<div id="pos" class="gestao-card overflow-hidden guia-section section-amber">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fffbeb, #fef9c3);">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">02</span>
+                <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Ponto de Venda (POS)</h3>
+            </div>
+            <p class="text-[11px] text-amber-700/70 mt-0.5">Terminal de venda rápida para uso no balcão</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>No menu lateral, clique em <strong>"Ponto de Venda (POS)"</strong> para abrir o terminal de venda.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Utilize o campo de pesquisa para localizar o produto pelo <strong>nome</strong> — ou aponte o leitor de código de barras para adicionar automaticamente.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Ajuste a <strong>quantidade</strong> de cada artigo no carrinho conforme necessário.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Opcionalmente, associe um <strong>cliente</strong> à venda para acumular pontos de fidelidade no seu perfil.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Seleccione a <strong>forma de pagamento</strong>: À Vista (pagamento imediato) ou Parcelado (2 prestações).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">6</span><span>Clique <strong>"Confirmar Venda"</strong>. O stock é descontado automaticamente e a fatura fica disponível para impressão.</span></li>
+        </ol>
+        <div class="callout-warn rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Atenção:</strong> Verifique sempre a quantidade em stock antes de confirmar a venda. Se o produto estiver esgotado, o sistema não permitirá a venda.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     03 — ENCOMENDAS ONLINE
+     Perfil: Todos
+════════════════════════════════════════════════════ -->
+<div id="encomendas" class="gestao-card overflow-hidden guia-section section-amber">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fffbeb, #fef9c3);">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">03</span>
+                <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Encomendas Online</h3>
+            </div>
+            <p class="text-[11px] text-amber-700/70 mt-0.5">Pedidos efectuados pelos clientes no website</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>O <strong>badge azul</strong> junto a "Encomendas Online" no menu indica o número de pedidos pendentes por processar. Clique para entrar na listagem.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Filtre as encomendas por estado: <strong>Em Curso</strong> (aguarda processamento), <strong>Finalizada</strong> (entregue) ou <strong>Cancelada</strong>.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Clique numa encomenda para ver o <strong>detalhe completo</strong>: nome do cliente, contacto, produtos encomendados, quantidades e forma de pagamento pretendida.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Contacte o cliente pelo <strong>telefone ou WhatsApp</strong> indicado na encomenda para confirmar a disponibilidade e combinação de entrega.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Após entregar e receber o pagamento, altere o estado para <strong>"Finalizada"</strong>. Se o cliente desistir, utilize <strong>"Cancelada"</strong>.</span></li>
+        </ol>
+        <div class="callout-info rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-blue-800 leading-relaxed"><strong>Nota:</strong> As encomendas online chegam também via WhatsApp ao número da loja. Verifique ambas as fontes para não perder nenhum pedido.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     04 — PRODUTOS E STOCK
+     Perfil: Todos (conteúdo varia)
+════════════════════════════════════════════════════ -->
+<div id="produtos" class="gestao-card overflow-hidden guia-section section-amber">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fffbeb, #fef9c3);">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 6c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">04</span>
+                <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Produtos e Stock</h3>
+            </div>
+            <p class="text-[11px] text-amber-700/70 mt-0.5">Catálogo de produtos e controlo de inventário</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            {% if not is_operador %}
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span><strong>Adicionar produto:</strong> clique em "Novo Produto" → preencha nome, marca, género, concentração, preço de compra, preço de venda e stock inicial → guarde.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span><strong>Imagem do produto:</strong> no formulário, carregue uma fotografia de boa qualidade. Será exibida na loja online e no detalhe interno.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span><strong>Editar produto:</strong> na listagem, clique no produto desejado → clique "Editar" → actualize os campos necessários → guarde as alterações.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span><strong>Entrada de stock:</strong> abra o detalhe do produto → clique "Entrada de Stock" → indique a quantidade recebida e uma descrição (ex: "Compra fornecedor X") → confirme.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span><strong>Visibilidade na loja:</strong> o campo "Disponível" controla se o produto aparece no website público. Desactive produtos esgotados ou descontinuados.</span></li>
+            {% else %}
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Produtos"</strong> no menu para consultar o catálogo completo e os níveis de stock actuais de cada artigo.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Clique num produto para ver o <strong>detalhe</strong>: preço de venda, stock disponível e histórico de movimentos de entrada/saída.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Para registar novas unidades recebidas, clique em <strong>"Entrada de Stock"</strong> no detalhe do produto, indique a quantidade e confirme.</span></li>
+            {% endif %}
+        </ol>
+        {% if is_operador %}
+        <div class="callout-warn rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Nota de perfil:</strong> A criação, edição e eliminação de produtos requer perfil de Gerente ou Administrador. Contacte o seu responsável caso precise de fazer alterações ao catálogo.</p>
+        </div>
+        {% else %}
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Registe sempre as entradas de stock com uma descrição detalhada (ex: "Compra mai/2025 — Fornecedor Paris"). Facilita a rastreabilidade e os relatórios de lucro.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     05 — CLIENTES
+     Perfil: Todos
+════════════════════════════════════════════════════ -->
+<div id="clientes" class="gestao-card overflow-hidden guia-section section-amber">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fffbeb, #fef9c3);">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">05</span>
+                <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wide">Clientes</h3>
+            </div>
+            <p class="text-[11px] text-amber-700/70 mt-0.5">Base de dados e programa de fidelidade</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span><strong>Adicionar cliente:</strong> clique "Novo Cliente" → preencha nome completo, telefone, email e data de nascimento → guarde.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>A <strong>data de nascimento</strong> é fundamental — activa as felicitações automáticas no dia do aniversário do cliente.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>No <strong>detalhe do cliente</strong>, consulte o histórico completo de compras, o valor total gasto e os pontos de fidelidade acumulados.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Os <strong>pontos de fidelidade</strong> acumulam-se automaticamente em cada compra associada ao cliente.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Para ligar um cliente a uma venda no POS, pesquise pelo nome ou telefone no campo "Cliente" antes de confirmar.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Boas práticas:</strong> Incentive os clientes a fornecerem o email e data de nascimento. Isso activa o programa de fidelidade e as comunicações personalizadas de aniversário, fidelizando-os à loja.</p>
+        </div>
+    </div>
+</div>
+
+{% if not is_operador %}
+
+<!-- ══════════════════════════════════════════════════
+     06 — VENDAS E FATURAÇÃO
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="vendas" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">06</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Vendas e Faturação</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Histórico completo de transacções e emissão de faturas</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Vendas e Faturação"</strong> para ver o histórico completo de todas as transacções realizadas.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Para uma venda manual (sem usar o POS), clique em <strong>"Nova Venda"</strong>, adicione os produtos e o cliente, escolha o pagamento e confirme.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Para emitir a fatura de uma venda, abra o detalhe da venda e clique em <strong>"Fatura"</strong> para gerar o documento em PDF pronto a imprimir ou enviar.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span><strong>Pagamento parcelado (2.ª prestação):</strong> no detalhe da venda a crédito, clique em "Registar 2.ª Prestação" quando o cliente efectuar o segundo pagamento.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span><strong>Cancelar venda:</strong> disponível no detalhe. O stock é reposto automaticamente e o movimento de caixa é revertido.</span></li>
+        </ol>
+        <div class="callout-warn rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Atenção:</strong> O cancelamento de uma venda é irreversível. Confirme sempre com o cliente e com o responsável antes de cancelar uma transacção.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     07 — FINANCEIRO
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="financeiro" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">07</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Financeiro</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Caixa, salários e relatórios financeiros</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <!-- Sub-bloco: Caixa -->
+        <p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest border-b border-stone-100 pb-1">Movimentos de Caixa</p>
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span><strong>Entradas:</strong> "Financeiro" → "Entradas" → "Nova Entrada" → seleccione a categoria (reforço de caixa, investimento, outro) → preencha valor e descrição → confirme.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span><strong>Saídas:</strong> "Financeiro" → "Saídas" → "Nova Saída" → categoria (despesa, renda, fornecedor, imposto, manutenção) → valor e descrição → confirme.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>O <strong>saldo de caixa</strong> (total de entradas menos saídas) é actualizado automaticamente e visível no topo de cada página financeira.</span></li>
+        </ol>
+        <!-- Sub-bloco: Salários -->
+        <p class="text-[10px] font-bold text-stone-500 uppercase tracking-widest border-b border-stone-100 pb-1 mt-2">Salários e Relatórios</p>
+        <ol class="space-y-3" start="4">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span><strong>Processamento salarial:</strong> aceda a "Salários" → seleccione o mês → o sistema calcula IRT, subsídios e deduções por funcionário → exporte para Excel.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span><strong>Relatório de vendas:</strong> "Relatório de Vendas" → filtre por período → "Exportar Excel" para análise detalhada das transacções.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">6</span><span><strong>Análise de lucro:</strong> "Análise de Lucro" → veja a margem por produto e período, com comparação entre preço de custo e preço de venda.</span></li>
+        </ol>
+        <div class="callout-info rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-blue-800 leading-relaxed"><strong>Nota:</strong> Registe todas as despesas com descrição e data precisas. Quanto mais detalhado for o registo, mais fidedigna será a análise de lucro e os relatórios mensais.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     08 — FUNCIONÁRIOS
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="funcionarios" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">08</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Funcionários</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Gestão da equipa e acessos ao sistema</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span><strong>Adicionar funcionário:</strong> "Novo Funcionário" → nome, cargo, BI/passaporte, data de nascimento, salário base, banco e IBAN → guarde.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>No detalhe do funcionário, clique <strong>"Criar Utilizador do Sistema"</strong> para gerar as credenciais de acesso. O email com utilizador e senha provisória é enviado automaticamente.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Escolha o <strong>nível de acesso</strong> adequado ao cargo: <em>Operador</em> (vendas e stock apenas), <em>Gerente</em> (acesso alargado) ou <em>Administrador</em> (acesso total — atribuir com cautela).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Quando um funcionário deixar a empresa, contacte o administrador para <strong>desactivar o utilizador</strong> e revogar o acesso imediatamente.</span></li>
+        </ol>
+        <div class="callout-warn rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Importante:</strong> Atribua sempre o nível de acesso mínimo necessário para a função. O acesso de Administrador deve ser reservado apenas a quem gere o sistema.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     09 — PROMOÇÕES
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="promocoes" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">09</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Promoções</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Campanhas de desconto visíveis no website</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span><strong>"Nova Promoção"</strong> → preencha o nome, data de início, data de fim e a percentagem de desconto a aplicar.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Seleccione os <strong>produtos incluídos</strong> na campanha. Apenas os produtos seleccionados terão o desconto aplicado na loja online.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Marque <strong>"Mostrar no Carrossel"</strong> para a promoção aparecer no carrossel rotativo da página principal.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Marque <strong>"Mostrar na Landing"</strong> para criar uma secção de destaque especial na página inicial da loja.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Na listagem, use o <strong>botão toggle</strong> para activar ou desactivar rapidamente a promoção sem a eliminar, preservando as configurações para uso futuro.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Crie promoções sazonais com antecedência (ex: Natal, Dia dos Namorados, Páscoa) e mantenha-as desactivadas. No dia certo, basta activar o toggle — rápido e sem erros.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     10 — NEWSLETTER
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="newsletter" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">10</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Newsletter</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Comunicações em massa para clientes subscritos</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Newsletter"</strong> no menu. Vê a lista de todos os emails subscritos, a data de inscrição e o total de inscritos activos.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Para enviar uma comunicação, preencha o <strong>assunto</strong> (linha de título do email) e o <strong>corpo da mensagem</strong> no formulário de envio.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Clique <strong>"Enviar Newsletter"</strong>. O email é enviado simultaneamente a todos os inscritos activos.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Os clientes subscrevem-se autonomamente na página pública da loja. Pode remover inscrições individualmente na listagem, se necessário.</span></li>
+        </ol>
+        <div class="callout-info rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-blue-800 leading-relaxed"><strong>Sugestão:</strong> Use a newsletter para anunciar novas chegadas, promoções sazonais ou eventos especiais. Comunicações regulares mas não excessivas (1 a 2 por mês) mantêm os clientes envolvidos sem causar cancelamentos.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     11 — ANIVERSÁRIOS
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="aniversarios" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 4.5v3.75M6 12.75v3.75M3 21h18"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">11</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Aniversários</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Felicitações automáticas a clientes e funcionários</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Aniversários"</strong> → clique em "Configuração" para definir a mensagem padrão de felicitação e os canais de envio (email ou registo manual).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>O sistema <strong>lista automaticamente</strong> os aniversários do mês actual. Os aniversariantes do dia aparecem destacados no topo.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Clique em <strong>"Enviar Felicitação"</strong> junto ao nome para enviar a mensagem personalizada ao aniversariante.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>O sistema regista cada felicitação enviada para <strong>evitar duplicados</strong> no mesmo ano.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Para que os aniversários sejam detectados, o cliente ou funcionário deve ter a <strong>data de nascimento</strong> preenchida no seu perfil.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Fidelização:</strong> Uma simples mensagem de aniversário faz toda a diferença na relação com o cliente. Aproveite para incluir um desconto especial de aniversário na mensagem — aumenta significativamente a taxa de retorno à loja.</p>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════
+     12 — SESSÃO E SEGURANÇA
+     Perfil: Todos
+════════════════════════════════════════════════════ -->
+<div id="sessao" class="gestao-card overflow-hidden guia-section section-rose">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
+        <div class="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-rose-700 uppercase tracking-widest">{% if is_operador %}06{% else %}12{% endif %}</span>
+                <h3 class="text-sm font-bold text-rose-900 uppercase tracking-wide">Sessão e Segurança</h3>
+            </div>
+            <p class="text-[11px] text-rose-700/70 mt-0.5">Regras essenciais de segurança para todos os utilizadores</p>
+        </div>
+        <span class="badge-all text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Todos os perfis</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span>
+                <span>A sessão expira automaticamente após <strong>15 minutos de inactividade</strong>. Qualquer acção no sistema renova o tempo de sessão automaticamente.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span>
+                <span>Ao terminar o trabalho, clique sempre em <strong>"Sair"</strong> no fundo do menu lateral para encerrar a sessão em segurança — especialmente em computadores partilhados.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span>
+                <span>Se esqueceu a senha, aceda à página de login e clique em <strong>"Esqueci a senha"</strong>. Um link de redefinição será enviado para o seu email registado.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span>
+                <span><strong>Nunca partilhe</strong> as suas credenciais de acesso com ninguém. Cada membro da equipa deve ter a sua própria conta individual.</span>
+            </li>
+            <li class="flex gap-3 text-xs text-stone-600">
+                <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span>
+                <span>Em caso de suspeita de acesso não autorizado, contacte <strong>imediatamente o administrador</strong> para redefinir a sua senha e rever os acessos do sistema.</span>
+            </li>
+        </ol>
+        <!-- Callout vermelho de alerta -->
+        <div class="rounded-lg px-4 py-3 flex gap-3" style="border-left: 3px solid #e11d48; background: linear-gradient(135deg, #fff1f2, #ffe4e6);">
+            <svg class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-rose-800 leading-relaxed"><strong>Regra de ouro:</strong> A segurança do sistema depende de cada utilizador. Credenciais comprometidas podem dar acesso a informações financeiras confidenciais e dados de clientes. Em caso de dúvida, mude a senha imediatamente.</p>
+        </div>
+    </div>
+</div>
