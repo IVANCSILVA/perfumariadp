@@ -88,5 +88,6 @@ urlpatterns = [
     path('gestao/aniversarios/config/', views.gestao_aniversarios_config, name='gestao_aniversarios_config'),
     path('gestao/aniversarios/<str:tipo>/<int:pk>/enviar/', views.gestao_aniversariante_enviar, name='gestao_aniversariante_enviar'),
     path('gestao/api/barcode/', views.gestao_api_barcode, name='gestao_api_barcode'),
+    path('gestao/guia/', views.gestao_guia, name='gestao_guia'),
     path('newsletter/inscrever/', views.newsletter_inscrever, name='newsletter_inscrever'),
 ]

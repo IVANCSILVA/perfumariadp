@@ -1,0 +1,250 @@
+{% extends 'gestao/base.html' %}
+{% block title_suffix %} | Guia do Utilizador{% endblock %}
+{% block page_title %}Guia do Utilizador{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Cabeçalho -->
+    <div class="gestao-card p-8">
+        <div class="flex items-start gap-5">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-stone-800 tracking-wide">Guia do Utilizador — Sistema de Gestão Décent Privé</h2>
+                <p class="text-stone-500 text-xs mt-1 tracking-wide">Manual de utilização do painel de gestão. Consulte sempre que tiver dúvidas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Índice -->
+    <div class="gestao-card p-6">
+        <h3 class="text-xs font-bold uppercase tracking-[0.25em] text-stone-600 mb-4 border-b border-stone-100 pb-3">Índice</h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <a href="#dashboard" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">01</span> Dashboard</a>
+            <a href="#vendas" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">02</span> Vendas e Faturação</a>
+            <a href="#encomendas" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">03</span> Encomendas Online</a>
+            <a href="#pos" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">04</span> Ponto de Venda (POS)</a>
+            <a href="#produtos" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">05</span> Produtos e Stock</a>
+            <a href="#financeiro" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">06</span> Financeiro</a>
+            <a href="#clientes" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">07</span> Clientes</a>
+            <a href="#funcionarios" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">08</span> Funcionários</a>
+            <a href="#promocoes" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">09</span> Promoções</a>
+            <a href="#newsletter" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">10</span> Newsletter</a>
+            <a href="#aniversarios" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">11</span> Aniversários</a>
+            <a href="#sessao" class="flex items-center gap-2 text-amber-700 hover:text-amber-900 transition-colors py-1"><span class="text-stone-400">12</span> Sessão e Segurança</a>
+        </div>
+    </div>
+
+    <!-- 01 Dashboard -->
+    <div id="dashboard" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">01</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Dashboard</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>O <strong>Dashboard</strong> é o ecrã inicial do painel de gestão e apresenta um resumo em tempo real do estado do negócio.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Cartões de resumo:</strong> total de encomendas, encomendas pendentes, encomendas do dia, total de produtos e clientes.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Gráfico de vendas:</strong> evolução das vendas e receita nos últimos 14 dias.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Últimas encomendas:</strong> listagem das encomendas mais recentes com estado e valor.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Stock baixo:</strong> produtos com menos de 5 unidades em stock, para reposição urgente.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 02 Vendas -->
+    <div id="vendas" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">02</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Vendas e Faturação</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Registo e acompanhamento de todas as vendas realizadas na loja.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Nova venda:</strong> clique em "Nova Venda", adicione os produtos, cliente (opcional), forma de pagamento e confirme.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Formas de pagamento:</strong> À vista ou Parcelado (2 prestações). No parcelado, o 2.º pagamento pode ser registado mais tarde no detalhe da venda.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Fatura:</strong> após confirmar a venda, aceda ao detalhe e clique em "Fatura" para imprimir ou exportar.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Cancelar venda:</strong> disponível no detalhe da venda. O stock é reposto automaticamente.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 03 Encomendas Online -->
+    <div id="encomendas" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">03</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Encomendas Online</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Pedidos feitos pelos clientes através do website da loja.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Badge de notificação:</strong> o número em azul no menu indica encomendas pendentes que ainda não foram processadas.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Estados:</strong> <em>Em Curso</em> (aguarda processamento), <em>Finalizada</em> (entregue/paga), <em>Cancelada</em>.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Processamento:</strong> aceda ao detalhe da encomenda, confirme os itens e altere o estado conforme o progresso.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>WhatsApp:</strong> os pedidos chegam também por WhatsApp ao número configurado.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 04 POS -->
+    <div id="pos" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">04</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Ponto de Venda (POS)</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Terminal de venda rápida para uso no balcão, optimizado para velocidade.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Pesquisa por código de barras:</strong> use o leitor ou escreva o código manualmente para adicionar produtos.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Pesquisa por nome:</strong> escreva parte do nome do produto para o localizar rapidamente.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Quantidade:</strong> ajuste a quantidade de cada produto antes de confirmar.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Finalizar:</strong> seleccione a forma de pagamento e confirme para registar a venda e gerar a fatura.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 05 Produtos -->
+    <div id="produtos" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">05</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Produtos e Stock</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Gestão do catálogo de produtos e controlo de inventário.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Adicionar produto:</strong> clique em "Novo Produto", preencha nome, marca, género, concentração, preços (compra e venda), stock inicial e imagem.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Editar produto:</strong> no detalhe do produto, clique em "Editar" para actualizar qualquer campo.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Entrada de stock:</strong> use o botão "Entrada de Stock" no detalhe do produto para registar novas unidades recebidas.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Disponível na loja:</strong> o campo "Disponível" controla se o produto aparece no website público.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Stock baixo:</strong> produtos com stock inferior a 5 unidades aparecem destacados no Dashboard.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 06 Financeiro -->
+    <div id="financeiro" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">06</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Financeiro</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Registo de movimentos de caixa (entradas e saídas) e processamento de salários.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Entradas:</strong> registos de reforço de caixa, investimentos e outros ganhos não relacionados com vendas directas.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Saídas:</strong> registo de despesas, rendas, fornecedores, impostos, manutenção e outros custos.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Saldo de caixa:</strong> visível no topo de cada página financeira — total de entradas menos saídas.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Salários:</strong> processamento mensal com cálculo automático de IRT, subsídios e deduções. Exportável para Excel.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Relatórios:</strong> aceda a "Relatório de Vendas" ou "Análise de Lucro" para exportar dados para Excel.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 07 Clientes -->
+    <div id="clientes" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">07</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Clientes</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Base de dados de clientes com histórico de compras e programa de fidelidade.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Adicionar cliente:</strong> registe nome, contacto, email e data de nascimento. A data de nascimento activa as felicitações automáticas de aniversário.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Histórico:</strong> no detalhe do cliente, consulte todas as compras realizadas e o valor total gasto.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Fidelidade:</strong> o sistema acumula pontos automaticamente por cada compra, consultáveis no detalhe do cliente.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 08 Funcionários -->
+    <div id="funcionarios" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">08</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Funcionários</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Gestão da equipa da loja e respectivos acessos ao sistema.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Adicionar funcionário:</strong> registe os dados pessoais, cargo, salário base, banco e IBAN para processamento salarial.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Criar utilizador:</strong> no detalhe do funcionário, clique em "Criar Utilizador" para gerar credenciais de acesso ao sistema. As credenciais são enviadas por email automaticamente.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Níveis de acesso:</strong> <em>Administrador</em> (acesso total), <em>Gerente</em> (acesso à maioria das funções), <em>Operador</em> (vendas e stock apenas).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 09 Promoções -->
+    <div id="promocoes" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">09</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Promoções</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Criação e gestão de campanhas promocionais visíveis no website.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Nova promoção:</strong> defina nome, datas de início/fim, percentagem de desconto, cor, ícone e produtos incluídos.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Mostrar no carrossel:</strong> activa a promoção no carrossel da página principal durante o período definido.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Mostrar na landing:</strong> destaca a promoção numa secção especial da página principal.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Activar/Desactivar:</strong> use o botão de toggle na listagem para activar ou desactivar rapidamente sem apagar a promoção.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 10 Newsletter -->
+    <div id="newsletter" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">10</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Newsletter</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Comunicação em massa por email para os clientes inscritos na newsletter.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Inscritos:</strong> lista de todos os emails subscritos com data de inscrição e estado (activo/inactivo).</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Enviar email:</strong> preencha o assunto e mensagem e clique em "Enviar". O email é enviado a todos os inscritos activos.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Subscrição:</strong> os clientes subscrevem pela página pública da loja. A gestão pode remover subscrições individualmente.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 11 Aniversários -->
+    <div id="aniversarios" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">11</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Aniversários</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <p>Felicitações automáticas a clientes e funcionários no dia do aniversário.</p>
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Configuração:</strong> defina a mensagem padrão de felicitação e os canais de envio (email, SMS ou manual).</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Aniversariantes do mês:</strong> o sistema lista automaticamente os aniversários do mês actual, destacando os do dia.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Envio manual:</strong> clique no botão de envio junto a cada pessoa para enviar a felicitação individualmente.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Histórico:</strong> o sistema regista todas as felicitações enviadas para evitar duplicados.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 12 Sessão -->
+    <div id="sessao" class="gestao-card p-6">
+        <div class="flex items-center gap-3 mb-4 border-b border-stone-100 pb-3">
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded">12</span>
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-wide">Sessão e Segurança</h3>
+        </div>
+        <div class="space-y-3 text-xs text-stone-600 leading-relaxed">
+            <ul class="space-y-2 pl-4">
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Timeout de sessão:</strong> a sessão expira automaticamente após <strong>15 minutos de inactividade</strong>. Qualquer interacção renova o tempo.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Sair:</strong> utilize sempre o botão "Sair" no fundo do menu lateral para terminar a sessão em segurança.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Recuperação de senha:</strong> na página de login, clique em "Esqueci a senha" para receber um link de redefinição por email.</span></li>
+                <li class="flex gap-2"><span class="text-amber-500 flex-shrink-0">→</span><span><strong>Nunca partilhe:</strong> não partilhe as suas credenciais de acesso. Cada utilizador deve ter a sua própria conta.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="text-center py-4 text-[10px] text-stone-400 uppercase tracking-widest">
+        Décent Privé — Sistema de Gestão &mdash; Para suporte contacte o administrador do sistema.
+    </div>
+
+</div>
+{% endblock %}

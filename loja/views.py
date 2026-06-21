@@ -333,6 +333,11 @@ def gestao_logout(request):
     return redirect('gestao_login')
 
 
+@staff_member_required(login_url='/gestao/login/')
+def gestao_guia(request):
+    return render(request, 'gestao/guia.html', {'active_page': 'guia'})
+
+
 # ---------------------------------------------------------------------------
 # Painel de Gestão (requer login de staff)
 # ---------------------------------------------------------------------------
