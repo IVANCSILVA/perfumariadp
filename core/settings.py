@@ -171,3 +171,9 @@ else:
 SMS_GATEWAY_URL = os.environ.get('SMS_GATEWAY_URL', '')
 SMS_GATEWAY_API_KEY = os.environ.get('SMS_GATEWAY_API_KEY', '')
 SMS_SENDER = 'DécentPrive'
+
+# ---------------------------------------------------------------------------
+# Sessões
+# ---------------------------------------------------------------------------
+SESSION_COOKIE_AGE = 900          # 15 minutos (em segundos)
+SESSION_SAVE_EVERY_REQUEST = True  # Reinicia o contador a cada pedido
