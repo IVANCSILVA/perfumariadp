@@ -207,6 +207,11 @@
             overlay.classList.toggle('hidden', !open);
         }
 
+        // Limpa o carrinho ao submeter o formulário
+        document.getElementById('encomenda-form').addEventListener('submit', function () {
+            localStorage.removeItem('dp_cart');
+        });
+
         // Carrega itens do carrinho (localStorage) e preenche o campo hidden + resumo
         document.addEventListener('DOMContentLoaded', function () {
             const raw = localStorage.getItem('dp_cart');

@@ -754,15 +754,6 @@
         let cartOpen = false;
         let cartItems = JSON.parse(localStorage.getItem('dp_cart') || '[]');
 
-        function finalizarEncomenda() {
-            if (cartItems.length === 0) {
-                alert('O seu carrinho está vazio.');
-                return;
-            }
-            document.cookie = "carrinho_checkout=" + JSON.stringify(cartItems) + "; path=/";
-            window.location.href = "{% url 'encomendas' %}";
-        }
-
         function saveCart() { localStorage.setItem('dp_cart', JSON.stringify(cartItems)); }
 
         function updateBadge() {
@@ -865,9 +856,18 @@
             itens.name = 'itens_json';
             itens.value = JSON.stringify(cartItems.map(i => ({ name: i.name, price: i.price, qty: i.qty })));
             form.appendChild(itens);
+            localStorage.removeItem('dp_cart');
             document.body.appendChild(form);
             form.submit();
         }
+
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) {
+                cartItems = JSON.parse(localStorage.getItem('dp_cart') || '[]');
+                updateBadge();
+                renderCart();
+            }
+        });
     </script>
 
     <!-- ── Menu Móvel ── -->
