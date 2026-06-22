@@ -746,7 +746,7 @@
                 <span class="text-sm uppercase tracking-widest text-stone-300">Total</span>
                 <span id="cart-total" class="font-bold text-amber-400 text-2xl">0 Kz</span>
             </div>
-            <button onclick="finalizarEncomenda()" class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Finalizar Encomenda</button>
+            <button onclick="finalizarEncomenda()" class="w-full bg-amber-700 text-white text-xs uppercase tracking-[0.4em] py-4 hover:bg-amber-600 transition-colors duration-200 font-semibold">Efectuar Encomenda</button>
         </div>
     </div>
 
@@ -842,23 +842,11 @@
         updateBadge();
 
         function finalizarEncomenda() {
-            if (cartItems.length === 0) return;
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{% url "encomendas" %}';
-            const csrf = document.createElement('input');
-            csrf.type = 'hidden';
-            csrf.name = 'csrfmiddlewaretoken';
-            csrf.value = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
-            form.appendChild(csrf);
-            const itens = document.createElement('input');
-            itens.type = 'hidden';
-            itens.name = 'itens_json';
-            itens.value = JSON.stringify(cartItems.map(i => ({ name: i.name, price: i.price, qty: i.qty })));
-            form.appendChild(itens);
-            localStorage.removeItem('dp_cart');
-            document.body.appendChild(form);
-            form.submit();
+            if (cartItems.length === 0) {
+                alert('O seu carrinho está vazio.');
+                return;
+            }
+            window.location.href = '{% url "encomendas" %}';
         }
 
         window.addEventListener('pageshow', function (e) {
