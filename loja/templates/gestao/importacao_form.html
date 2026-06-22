@@ -1,0 +1,95 @@
+{% extends 'gestao/base.html' %}
+{% block title %}{% if lote %}Editar Lote{% else %}Novo Lote de Importação{% endif %}{% endblock %}
+{% block page_title %}{% if lote %}Editar Lote{% else %}Novo Lote de Importação{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+    <div class="mb-6">
+        <a href="{% url 'gestao_importacoes' %}" class="text-stone-400 hover:text-stone-700 text-xs uppercase tracking-widest transition-colors">
+            ← Lotes de Importação
+        </a>
+    </div>
+
+    <div class="gestao-card p-8">
+        <h2 class="text-sm font-semibold text-stone-800 uppercase tracking-[0.2em] mb-6">
+            {% if lote %}Editar — {{ lote.referencia }}{% else %}Novo Lote{% endif %}
+        </h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-5">
+
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Referência *</label>
+                    <input type="text" name="referencia" required
+                           value="{{ lote.referencia|default:'' }}"
+                           placeholder='Ex: "Wamos #4 — Julho 2025"'
+                           class="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Data da Encomenda *</label>
+                        <input type="date" name="data_encomenda" required
+                               value="{{ lote.data_encomenda|date:'Y-m-d'|default:'' }}"
+                               class="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Estado</label>
+                        <select name="status"
+                                class="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="em_preparacao" {% if lote.status == 'em_preparacao' or not lote %}selected{% endif %}>Em Preparação</option>
+                            <option value="em_transito" {% if lote.status == 'em_transito' %}selected{% endif %}>Em Trânsito</option>
+                            <option value="parcial" {% if lote.status == 'parcial' %}selected{% endif %}>Recebido Parcialmente</option>
+                            <option value="recebido" {% if lote.status == 'recebido' %}selected{% endif %}>Recebido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Câmbio EUR → Kzs *</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs">€1 =</span>
+                            <input type="number" name="cambio" required step="0.01" min="1"
+                                   value="{{ lote.cambio|default:'' }}"
+                                   placeholder="538.00"
+                                   class="w-full pl-12 pr-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                        </div>
+                        <p class="text-[9px] text-stone-400 mt-1">Taxa de câmbio na data da encomenda</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Transporte por Unidade (Kzs) *</label>
+                        <input type="number" name="custo_transporte_unidade" required step="0.01" min="0"
+                               value="{{ lote.custo_transporte_unidade|default:'' }}"
+                               placeholder="10000.00"
+                               class="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                        <p class="text-[9px] text-stone-400 mt-1">Custo fixo de transporte por unidade</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-1.5">Notas</label>
+                    <textarea name="notas" rows="3"
+                              placeholder="Fornecedor, referências, observações gerais…"
+                              class="w-full px-4 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors resize-none">{{ lote.notas|default:'' }}</textarea>
+                </div>
+
+            </div>
+
+            <div class="flex items-center justify-between mt-8 pt-6 border-t border-stone-100">
+                <a href="{% if lote %}{% url 'gestao_importacao_detalhe' lote.pk %}{% else %}{% url 'gestao_importacoes' %}{% endif %}"
+                   class="text-xs text-stone-400 hover:text-stone-700 uppercase tracking-widest transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit"
+                        class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-3 transition-colors duration-150">
+                    {% if lote %}Guardar Alterações{% else %}Criar Lote{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

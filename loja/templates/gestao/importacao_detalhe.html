@@ -1,0 +1,430 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}{{ lote.referencia }}{% endblock %}
+{% block page_title %}Lote: {{ lote.referencia }}{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 mb-5 text-[10px] uppercase tracking-widest text-stone-400">
+        <a href="{% url 'gestao_importacoes' %}" class="hover:text-stone-700 transition-colors">Lotes de Importação</a>
+        <span>/</span>
+        <span class="text-stone-600">{{ lote.referencia }}</span>
+    </div>
+
+    <!-- Header card -->
+    <div class="gestao-card p-6 mb-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+
+            <div class="flex flex-wrap gap-8">
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 mb-0.5">Data da Encomenda</p>
+                    <p class="text-sm font-semibold text-stone-800">{{ lote.data_encomenda|date:"d/m/Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 mb-0.5">Câmbio</p>
+                    <p class="text-sm font-semibold text-stone-800 font-mono">€1 = {{ lote.cambio|floatformat:2|intcomma }} Kzs</p>
+                </div>
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 mb-0.5">Transporte / Unidade</p>
+                    <p class="text-sm font-semibold text-stone-800 font-mono">{{ lote.custo_transporte_unidade|floatformat:0|intcomma }} Kzs</p>
+                </div>
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 mb-0.5">Estado</p>
+                    <p class="text-sm">
+                        {% if lote.status == 'recebido' %}
+                            <span class="inline-block px-2.5 py-1 text-[9px] uppercase tracking-wider bg-emerald-100 text-emerald-800">Recebido</span>
+                        {% elif lote.status == 'parcial' %}
+                            <span class="inline-block px-2.5 py-1 text-[9px] uppercase tracking-wider bg-amber-100 text-amber-800">Recebido Parcialmente</span>
+                        {% elif lote.status == 'em_transito' %}
+                            <span class="inline-block px-2.5 py-1 text-[9px] uppercase tracking-wider bg-sky-100 text-sky-800">Em Trânsito</span>
+                        {% else %}
+                            <span class="inline-block px-2.5 py-1 text-[9px] uppercase tracking-wider bg-stone-100 text-stone-600">Em Preparação</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 mb-0.5">Recebidos</p>
+                    <p class="text-sm font-semibold" id="contador-recebidos">
+                        <span id="num-recebidos">{{ lote.total_recebidos }}</span>/<span id="num-total">{{ lote.total_itens }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="{% url 'gestao_importacao_editar' lote.pk %}"
+                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-stone-300 text-[9px] uppercase tracking-[0.2em] text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-200 shadow-sm">
+                    Editar Lote
+                </a>
+                <form method="post" action="{% url 'gestao_importacao_aplicar_precos' lote.pk %}"
+                      onsubmit="return confirm('Actualizar os preços de venda e custo dos produtos ligados com os valores calculados?')">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-800 text-white border border-amber-800 text-[9px] uppercase tracking-[0.2em] hover:bg-amber-700 transition-all duration-200 shadow-sm">
+                        Aplicar Preços ao Catálogo
+                    </button>
+                </form>
+                <form method="post" action="{% url 'gestao_importacao_apagar' lote.pk %}"
+                      onsubmit="return confirm('Apagar este lote e todos os seus itens?')">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-red-200 text-[9px] uppercase tracking-[0.2em] text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200 shadow-sm">
+                        Apagar
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% if lote.notas %}
+        <p class="mt-4 text-xs text-stone-500 border-t border-stone-100 pt-3">{{ lote.notas }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Items table -->
+    <div class="bg-white border border-stone-200 rounded-t-xl shadow-sm overflow-x-auto">
+        <table class="w-full text-xs gestao-table" id="tabela-itens">
+            <thead class="bg-stone-50 border-b border-stone-200">
+                <tr>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-400 font-semibold w-10">✓</th>
+                    <th class="text-left px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Produto</th>
+                    <th class="text-left px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Marca</th>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">M/F</th>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Vol.</th>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Qtd.</th>
+                    <th class="text-right px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Preço (€)</th>
+                    <th class="text-right px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Custo Unit. (Kzs)</th>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Factor</th>
+                    <th class="text-right px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-amber-700 font-semibold">PVP Sugerido (Kzs)</th>
+                    <th class="text-right px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-emerald-700 font-semibold">Lucro Unit. (Kzs)</th>
+                    <th class="text-left px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-400 font-semibold">Observações</th>
+                    <th class="text-right px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-stone-500 font-semibold">Acções</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100" id="tbody-itens">
+                {% for item in lote.itens.all %}
+                <tr class="item-row transition-colors duration-150 {% if item.recebido %}bg-emerald-50/60{% else %}hover:bg-stone-50{% endif %}"
+                    id="row-item-{{ item.pk }}" data-item-pk="{{ item.pk }}">
+
+                    <!-- Checkbox Recebido -->
+                    <td class="px-3 py-3 text-center">
+                        <button type="button"
+                                onclick="toggleRecebido({{ lote.pk }}, {{ item.pk }}, this)"
+                                class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-150
+                                       {% if item.recebido %}bg-emerald-500 border-emerald-500 text-white{% else %}border-stone-300 text-transparent hover:border-emerald-400{% endif %}"
+                                title="{% if item.recebido %}Marcar como não recebido{% else %}Marcar como recebido{% endif %}">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                            </svg>
+                        </button>
+                    </td>
+
+                    <td class="px-4 py-3 font-medium text-stone-800">
+                        {{ item.nome_produto }}
+                        {% if item.produto %}
+                        <span class="ml-1 text-[9px] text-amber-600 uppercase tracking-wider" title="Ligado ao catálogo: {{ item.produto.nome }}">⬡ Cat.</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-stone-500">{{ item.marca|default:"—" }}</td>
+                    <td class="px-3 py-3 text-center">
+                        {% if item.genero == 'masculino' %}
+                            <span class="inline-block px-1.5 py-0.5 text-[9px] uppercase bg-blue-100 text-blue-800">M</span>
+                        {% elif item.genero == 'feminino' %}
+                            <span class="inline-block px-1.5 py-0.5 text-[9px] uppercase bg-pink-100 text-pink-800">F</span>
+                        {% else %}
+                            <span class="inline-block px-1.5 py-0.5 text-[9px] uppercase bg-stone-100 text-stone-600">U</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-3 py-3 text-center text-stone-500">{{ item.volume_ml|default:"—" }}</td>
+                    <td class="px-3 py-3 text-center text-stone-700 font-medium">{{ item.quantidade }}</td>
+                    <td class="px-4 py-3 text-right font-mono text-stone-700">€{{ item.preco_compra_eur|floatformat:2 }}</td>
+                    <td class="px-4 py-3 text-right font-mono text-stone-600">{{ item.custo_unitario_kzs|floatformat:0|intcomma }}</td>
+                    <td class="px-3 py-3 text-center text-stone-500 font-mono">{{ item.factor_lucro }}</td>
+                    <td class="px-4 py-3 text-right font-mono font-semibold text-amber-800">{{ item.preco_venda_sugerido|floatformat:0|intcomma }}</td>
+                    <td class="px-4 py-3 text-right font-mono text-emerald-700">{{ item.lucro_unitario_kzs|floatformat:0|intcomma }}</td>
+                    <td class="px-4 py-3 text-stone-400 max-w-[160px]">
+                        {% if item.observacoes %}
+                        <span class="block truncate" title="{{ item.observacoes }}">{{ item.observacoes }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <button type="button"
+                                onclick="abrirModalEditar({{ item.pk }})"
+                                class="inline-flex items-center px-2.5 py-1 bg-white border border-stone-200 text-[9px] uppercase tracking-wider text-stone-600 hover:bg-amber-800 hover:text-white hover:border-amber-800 transition-all duration-150 shadow-sm mr-1">
+                            Editar
+                        </button>
+                        <form method="post" action="{% url 'gestao_importacao_item_apagar' lote.pk item.pk %}"
+                              class="inline"
+                              onsubmit="return confirm('Remover {{ item.nome_produto }}?')">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="inline-flex items-center px-2.5 py-1 bg-white border border-red-200 text-[9px] uppercase tracking-wider text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-150 shadow-sm">
+                                ✕
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr id="row-vazio">
+                    <td colspan="13" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                        Nenhum produto neste lote ainda. Adicione o primeiro produto abaixo.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if lote.itens.count > 0 %}
+            <tfoot class="bg-stone-50 border-t-2 border-stone-200">
+                <tr>
+                    <td colspan="7" class="px-4 py-3 text-[9px] uppercase tracking-widest text-stone-500 font-bold">Totais do Lote</td>
+                    <td class="px-4 py-3 text-right font-mono font-bold text-stone-700">{{ lote.custo_total_kzs|floatformat:0|intcomma }}</td>
+                    <td></td>
+                    <td class="px-4 py-3 text-right font-mono font-bold text-amber-800">{{ lote.venda_total_sugerida_kzs|floatformat:0|intcomma }}</td>
+                    <td colspan="3"></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- Add item form -->
+    <div class="bg-stone-800 rounded-b-xl px-6 py-5 border border-t-0 border-stone-700 shadow-sm" id="form-adicionar">
+        <p class="text-[9px] uppercase tracking-[0.3em] text-amber-400/80 font-bold mb-4">+ Adicionar Produto ao Lote</p>
+        <form method="post" action="{% url 'gestao_importacao_item_adicionar' lote.pk %}" id="form-add">
+            {% csrf_token %}
+            <div class="grid grid-cols-12 gap-3">
+                <div class="col-span-3">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Nome do Produto *</label>
+                    <input type="text" name="nome_produto" required id="add-nome"
+                           placeholder="Acqua di Gio EDP"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Marca</label>
+                    <input type="text" name="marca" id="add-marca"
+                           placeholder="Giorgio Armani"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">M/F</label>
+                    <select name="genero" id="add-genero"
+                            class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                        <option value="masculino">M</option>
+                        <option value="feminino">F</option>
+                        <option value="unissex">U</option>
+                    </select>
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Volume</label>
+                    <input type="text" name="volume_ml" id="add-volume"
+                           placeholder="125ml"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Qtd. *</label>
+                    <input type="number" name="quantidade" id="add-qty" required min="1" value="1"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Preço (€) *</label>
+                    <input type="number" name="preco_compra_eur" id="add-eur" required step="0.01" min="0.01"
+                           placeholder="79.00"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Factor *</label>
+                    <input type="number" name="factor_lucro" id="add-factor" required step="0.001" min="0.01" max="1"
+                           placeholder="0.58"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Produto Catálogo</label>
+                    <select name="produto_id" id="add-produto"
+                            class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                        <option value="">— Nenhum —</option>
+                        {% for p in produtos_catalogo %}
+                        <option value="{{ p.pk }}">{{ p.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mt-3 flex items-end gap-3">
+                <div class="flex-1">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-400 mb-1">Observações</label>
+                    <input type="text" name="observacoes" id="add-obs"
+                           placeholder="Nova compra, em PT, vendido ao Sr. X…"
+                           class="w-full px-3 py-2 text-xs bg-stone-700 border border-stone-600 text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-colors">
+                </div>
+                <!-- Live preview -->
+                <div class="text-right text-[9px] text-stone-400 whitespace-nowrap leading-5" id="preview-calculo">
+                    <span>Custo: <strong id="prev-custo" class="text-stone-300">—</strong></span><br>
+                    <span>PVP: <strong id="prev-pvp" class="text-amber-400">—</strong></span>
+                </div>
+                <button type="submit"
+                        class="bg-amber-600 hover:bg-amber-500 text-white text-[10px] uppercase tracking-[0.25em] px-6 py-2 transition-colors duration-150 whitespace-nowrap">
+                    + Adicionar
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!-- Modal Editar Item -->
+<div id="modal-editar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 p-8">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-sm font-semibold text-stone-800 uppercase tracking-[0.2em]">Editar Produto</h3>
+            <button onclick="fecharModal()" class="text-stone-400 hover:text-stone-700 text-lg leading-none">✕</button>
+        </div>
+        <form id="form-editar" method="post" action="">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Nome do Produto *</label>
+                    <input type="text" name="nome_produto" id="edit-nome" required
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Marca</label>
+                    <input type="text" name="marca" id="edit-marca"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Género</label>
+                    <select name="genero" id="edit-genero"
+                            class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                        <option value="masculino">M — Masculino</option>
+                        <option value="feminino">F — Feminino</option>
+                        <option value="unissex">U — Unissex</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Volume</label>
+                    <input type="text" name="volume_ml" id="edit-volume"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Quantidade *</label>
+                    <input type="number" name="quantidade" id="edit-qty" required min="1"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Preço de Compra (€) *</label>
+                    <input type="number" name="preco_compra_eur" id="edit-eur" required step="0.01" min="0.01"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Factor de Lucro *</label>
+                    <input type="number" name="factor_lucro" id="edit-factor" required step="0.001" min="0.01" max="1"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                    <p class="text-[9px] text-stone-400 mt-1">Ex: 0.58 → PVP = custo ÷ 0.58</p>
+                </div>
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Produto Catálogo</label>
+                    <select name="produto_id" id="edit-produto"
+                            class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                        <option value="">— Nenhum —</option>
+                        {% for p in produtos_catalogo %}
+                        <option value="{{ p.pk }}">{{ p.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1">Observações</label>
+                    <input type="text" name="observacoes" id="edit-obs"
+                           class="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-6 pt-4 border-t border-stone-100">
+                <button type="button" onclick="fecharModal()" class="text-xs text-stone-400 hover:text-stone-700 uppercase tracking-widest">Cancelar</button>
+                <button type="submit" class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-2.5 transition-colors">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    var ITENS_ARR = [
+        {% for item in lote.itens.all %}
+        { pk: {{ item.pk }}, nome: "{{ item.nome_produto|escapejs }}", marca: "{{ item.marca|escapejs }}", genero: "{{ item.genero }}", volume: "{{ item.volume_ml|escapejs }}", qty: {{ item.quantidade }}, eur: {{ item.preco_compra_eur }}, factor: {{ item.factor_lucro }}, obs: "{{ item.observacoes|escapejs }}", produto_id: "{% if item.produto %}{{ item.produto.pk }}{% endif %}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    var ITENS = {};
+    ITENS_ARR.forEach(function(d) { ITENS[d.pk] = d; });
+
+    var CAMBIO = {{ lote.cambio }};
+    var TRANSP = {{ lote.custo_transporte_unidade }};
+    var CSRF   = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    /* ---- Live preview no formulário de adicionar ---- */
+    function calcularPreview() {
+        var eur    = parseFloat(document.getElementById('add-eur').value) || 0;
+        var factor = parseFloat(document.getElementById('add-factor').value) || 0;
+        var custo  = eur * CAMBIO + TRANSP;
+        var pvp    = factor > 0 ? custo / factor : 0;
+        document.getElementById('prev-custo').textContent = custo > 0 ? Math.round(custo).toLocaleString('pt-PT') + ' Kzs' : '—';
+        document.getElementById('prev-pvp').textContent   = pvp > 0   ? Math.round(pvp).toLocaleString('pt-PT')   + ' Kzs' : '—';
+    }
+    document.getElementById('add-eur').addEventListener('input', calcularPreview);
+    document.getElementById('add-factor').addEventListener('input', calcularPreview);
+
+    /* ---- Toggle Recebido (AJAX) ---- */
+    window.toggleRecebido = function (lotePk, itemPk, btn) {
+        fetch('/gestao/importacoes/' + lotePk + '/item/' + itemPk + '/toggle/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var row = document.getElementById('row-item-' + itemPk);
+            if (data.recebido) {
+                btn.classList.remove('border-stone-300', 'text-transparent');
+                btn.classList.add('bg-emerald-500', 'border-emerald-500', 'text-white');
+                row.classList.remove('hover:bg-stone-50');
+                row.classList.add('bg-emerald-50/60');
+            } else {
+                btn.classList.remove('bg-emerald-500', 'border-emerald-500', 'text-white');
+                btn.classList.add('border-stone-300', 'text-transparent');
+                row.classList.remove('bg-emerald-50/60');
+                row.classList.add('hover:bg-stone-50');
+            }
+            document.getElementById('num-recebidos').textContent = data.recebidos;
+            document.getElementById('num-total').textContent = data.total;
+        });
+    };
+
+    /* ---- Modal editar ---- */
+
+    window.abrirModalEditar = function (itemPk) {
+        var d = ITENS[itemPk];
+        if (!d) return;
+        document.getElementById('edit-nome').value   = d.nome;
+        document.getElementById('edit-marca').value  = d.marca;
+        document.getElementById('edit-genero').value = d.genero;
+        document.getElementById('edit-volume').value = d.volume;
+        document.getElementById('edit-qty').value    = d.qty;
+        document.getElementById('edit-eur').value    = d.eur;
+        document.getElementById('edit-factor').value = d.factor;
+        document.getElementById('edit-obs').value    = d.obs;
+        var sel = document.getElementById('edit-produto');
+        sel.value = d.produto_id || '';
+        document.getElementById('form-editar').action =
+            '/gestao/importacoes/{{ lote.pk }}/item/' + itemPk + '/editar/';
+        var modal = document.getElementById('modal-editar');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    window.fecharModal = function () {
+        var modal = document.getElementById('modal-editar');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    document.getElementById('modal-editar').addEventListener('click', function(e) {
+        if (e.target === this) fecharModal();
+    });
+})();
+</script>
+
+{% endblock %}

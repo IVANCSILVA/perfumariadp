@@ -1,0 +1,33 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Apagar Lote{% endblock %}
+{% block page_title %}Apagar Lote de Importação{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="gestao-card p-8 text-center">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.732 0 2.815-1.874 1.95-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.008v.008H12v-.008Z"/>
+            </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-stone-800 uppercase tracking-[0.2em] mb-2">Confirmar Eliminação</h2>
+        <p class="text-xs text-stone-500 mb-1">Vai apagar o lote:</p>
+        <p class="text-sm font-semibold text-stone-800 mb-1">{{ lote.referencia }}</p>
+        <p class="text-xs text-stone-400 mb-6">{{ lote.total_itens }} produto(s) — {{ lote.data_encomenda|date:"d/m/Y" }}</p>
+        <p class="text-xs text-red-600 mb-8">Esta acção é irreversível. Todos os itens do lote serão eliminados.</p>
+        <div class="flex items-center justify-center gap-4">
+            <a href="{% url 'gestao_importacao_detalhe' lote.pk %}"
+               class="text-xs text-stone-400 hover:text-stone-700 uppercase tracking-widest transition-colors">
+                Cancelar
+            </a>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white text-[10px] uppercase tracking-[0.3em] px-8 py-3 transition-colors duration-150">
+                    Apagar Definitivamente
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

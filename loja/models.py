@@ -792,6 +792,154 @@ class FelicitacaoEnviada(models.Model):
         return f'{self.get_tipo_display()} {self.nome} — {self.ano} ({self.canal})'
 
 
+class LoteImportacao(models.Model):
+    """Lote de compra de produtos no estrangeiro (equivale a uma folha Excel de importação)."""
+
+    STATUS_CHOICES = [
+        ('em_preparacao', 'Em Preparação'),
+        ('em_transito',   'Em Trânsito'),
+        ('recebido',      'Recebido'),
+        ('parcial',       'Recebido Parcialmente'),
+    ]
+
+    referencia = models.CharField(
+        max_length=100,
+        help_text='Ex: "Junho 2025 — Portugal", "Wamos #3"'
+    )
+    data_encomenda = models.DateField(help_text='Data em que a encomenda foi feita ao fornecedor.')
+    cambio = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name='Câmbio EUR → Kzs',
+        help_text='Taxa de câmbio do euro para kwanza na data da encomenda (ex: 538,00).'
+    )
+    custo_transporte_unidade = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name='Transporte por unidade (Kzs)',
+        help_text='Custo fixo de transporte aplicado a cada unidade do lote (ex: 10 000,00 Kzs).'
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='em_preparacao')
+    notas = models.TextField(blank=True)
+    criado_por = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='lotes_importacao'
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Lote de Importação'
+        verbose_name_plural = 'Lotes de Importação'
+        ordering = ['-data_encomenda']
+
+    def __str__(self):
+        return f'{self.referencia} ({self.data_encomenda})'
+
+    @property
+    def total_itens(self):
+        return self.itens.count()
+
+    @property
+    def total_recebidos(self):
+        return self.itens.filter(recebido=True).count()
+
+    @property
+    def custo_total_kzs(self):
+        return sum(item.custo_total_kzs for item in self.itens.all())
+
+    @property
+    def venda_total_sugerida_kzs(self):
+        return sum(item.preco_venda_sugerido * item.quantidade for item in self.itens.all())
+
+
+class ItemLoteImportacao(models.Model):
+    """Linha de um lote de importação — equivale a uma linha da folha Excel."""
+
+    GENERO_CHOICES = [
+        ('masculino', 'M — Masculino'),
+        ('feminino',  'F — Feminino'),
+        ('unissex',   'U — Unissex'),
+    ]
+
+    lote = models.ForeignKey(
+        LoteImportacao, on_delete=models.CASCADE, related_name='itens'
+    )
+    produto = models.ForeignKey(
+        Produto, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='itens_importacao',
+        help_text='Produto do catálogo a que este item corresponde (opcional).'
+    )
+    nome_produto = models.CharField(
+        max_length=200,
+        help_text='Nome do produto tal como consta na factura do fornecedor.'
+    )
+    marca = models.CharField(max_length=100, blank=True)
+    genero = models.CharField(max_length=20, choices=GENERO_CHOICES, default='unissex')
+    volume_ml = models.CharField(
+        max_length=20, blank=True,
+        verbose_name='Volume (ml)',
+        help_text='Ex: 100ml, 125ml'
+    )
+    quantidade = models.PositiveIntegerField(default=1)
+    preco_compra_eur = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name='Preço de compra (€)',
+        help_text='Preço pago ao fornecedor em euros.'
+    )
+    factor_lucro = models.DecimalField(
+        max_digits=5, decimal_places=3,
+        verbose_name='Factor de lucro',
+        help_text=(
+            'Factor de divisão para calcular o PVP. '
+            'Ex: 0,58 → PVP = custo ÷ 0,58 (margem bruta ≈ 42%)'
+        )
+    )
+    recebido = models.BooleanField(
+        default=False,
+        help_text='Marcar quando o produto chegar ao armazém.'
+    )
+    observacoes = models.CharField(max_length=255, blank=True, verbose_name='Observações')
+
+    class Meta:
+        verbose_name = 'Item de Lote de Importação'
+        verbose_name_plural = 'Itens de Lote de Importação'
+        ordering = ['pk']
+
+    def __str__(self):
+        return f'{self.quantidade}× {self.nome_produto} ({self.lote})'
+
+    @property
+    def custo_unitario_kzs(self):
+        """Custo por unidade = (preço_eur × câmbio) + transporte/unidade."""
+        if self.preco_compra_eur is None:
+            return 0
+        return float(self.preco_compra_eur) * float(self.lote.cambio) + float(self.lote.custo_transporte_unidade)
+
+    @property
+    def custo_total_kzs(self):
+        """Custo total do lote = custo_unitário × quantidade."""
+        return self.custo_unitario_kzs * self.quantidade
+
+    @property
+    def preco_venda_sugerido(self):
+        """PVP sugerido = custo_unitário ÷ factor_lucro."""
+        if not self.factor_lucro or float(self.factor_lucro) == 0:
+            return 0
+        return self.custo_unitario_kzs / float(self.factor_lucro)
+
+    @property
+    def lucro_unitario_kzs(self):
+        """Lucro por unidade = PVP − custo_unitário."""
+        return self.preco_venda_sugerido - self.custo_unitario_kzs
+
+    @property
+    def margem_percentagem(self):
+        """Margem em % = lucro / PVP × 100."""
+        pvp = self.preco_venda_sugerido
+        if not pvp:
+            return 0
+        return (self.lucro_unitario_kzs / pvp) * 100
+
+
 class MovimentoStock(models.Model):
     """Registo de todas as movimentações de stock (entrada, saída, ajuste)."""
     

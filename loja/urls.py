@@ -90,4 +90,15 @@ urlpatterns = [
     path('gestao/api/barcode/', views.gestao_api_barcode, name='gestao_api_barcode'),
     path('gestao/guia/', views.gestao_guia, name='gestao_guia'),
     path('newsletter/inscrever/', views.newsletter_inscrever, name='newsletter_inscrever'),
+    # Lotes de Importação
+    path('gestao/importacoes/', views.gestao_importacoes, name='gestao_importacoes'),
+    path('gestao/importacoes/novo/', views.gestao_importacao_criar, name='gestao_importacao_criar'),
+    path('gestao/importacoes/<int:pk>/', views.gestao_importacao_detalhe, name='gestao_importacao_detalhe'),
+    path('gestao/importacoes/<int:pk>/editar/', views.gestao_importacao_criar, name='gestao_importacao_editar'),
+    path('gestao/importacoes/<int:pk>/apagar/', views.gestao_importacao_apagar, name='gestao_importacao_apagar'),
+    path('gestao/importacoes/<int:pk>/aplicar-precos/', views.gestao_importacao_aplicar_precos, name='gestao_importacao_aplicar_precos'),
+    path('gestao/importacoes/<int:lote_pk>/item/adicionar/', views.gestao_importacao_item_salvar, name='gestao_importacao_item_adicionar'),
+    path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/editar/', views.gestao_importacao_item_salvar, name='gestao_importacao_item_editar'),
+    path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/apagar/', views.gestao_importacao_item_apagar, name='gestao_importacao_item_apagar'),
+    path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/toggle/', views.gestao_importacao_item_toggle, name='gestao_importacao_item_toggle'),
 ]

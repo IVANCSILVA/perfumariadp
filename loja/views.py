@@ -79,7 +79,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao
 from .forms import NewsletterInscricaoForm
 
 logger = logging.getLogger(__name__)
@@ -2735,3 +2735,272 @@ def gestao_caixa_exportar_excel(request):
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Lotes de Importação
+# ---------------------------------------------------------------------------
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacoes(request):
+    lotes = LoteImportacao.objects.prefetch_related('itens').all()
+    return render(request, 'gestao/importacoes.html', {
+        'active_page': 'importacoes',
+        'lotes': lotes,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_criar(request, pk=None):
+    lote = get_object_or_404(LoteImportacao, pk=pk) if pk else None
+
+    if request.method == 'POST':
+        referencia = request.POST.get('referencia', '').strip()
+        data_encomenda = request.POST.get('data_encomenda', '').strip()
+        cambio = request.POST.get('cambio', '').strip().replace(',', '.')
+        custo_transporte = request.POST.get('custo_transporte_unidade', '').strip().replace(',', '.')
+        status = request.POST.get('status', 'em_preparacao')
+        notas = request.POST.get('notas', '').strip()
+
+        erros = []
+        if not referencia:
+            erros.append('A referência é obrigatória.')
+        if not data_encomenda:
+            erros.append('A data da encomenda é obrigatória.')
+        try:
+            cambio_val = float(cambio)
+            if cambio_val <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            erros.append('Câmbio inválido.')
+            cambio_val = None
+        try:
+            transporte_val = float(custo_transporte)
+            if transporte_val < 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            erros.append('Custo de transporte inválido.')
+            transporte_val = None
+
+        if erros:
+            for e in erros:
+                messages.error(request, e)
+        else:
+            if lote:
+                lote.referencia = referencia
+                lote.data_encomenda = data_encomenda
+                lote.cambio = cambio_val
+                lote.custo_transporte_unidade = transporte_val
+                lote.status = status
+                lote.notas = notas
+                lote.save()
+                messages.success(request, 'Lote actualizado com sucesso.')
+            else:
+                lote = LoteImportacao.objects.create(
+                    referencia=referencia,
+                    data_encomenda=data_encomenda,
+                    cambio=cambio_val,
+                    custo_transporte_unidade=transporte_val,
+                    status=status,
+                    notas=notas,
+                    criado_por=request.user,
+                )
+                messages.success(request, 'Lote criado. Adicione os produtos abaixo.')
+            return redirect('gestao_importacao_detalhe', pk=lote.pk)
+
+    return render(request, 'gestao/importacao_form.html', {
+        'active_page': 'importacoes',
+        'lote': lote,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_detalhe(request, pk):
+    lote = get_object_or_404(LoteImportacao.objects.prefetch_related('itens__produto'), pk=pk)
+    produtos_catalogo = Produto.objects.filter(disponivel=True).order_by('nome')
+    return render(request, 'gestao/importacao_detalhe.html', {
+        'active_page': 'importacoes',
+        'lote': lote,
+        'produtos_catalogo': produtos_catalogo,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_apagar(request, pk):
+    lote = get_object_or_404(LoteImportacao, pk=pk)
+    if request.method == 'POST':
+        ref = lote.referencia
+        lote.delete()
+        messages.success(request, f'Lote "{ref}" apagado.')
+        return redirect('gestao_importacoes')
+    return render(request, 'gestao/confirmar_apagar_lote.html', {
+        'active_page': 'importacoes',
+        'lote': lote,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_item_salvar(request, lote_pk, item_pk=None):
+    lote = get_object_or_404(LoteImportacao, pk=lote_pk)
+    item = get_object_or_404(ItemLoteImportacao, pk=item_pk, lote=lote) if item_pk else None
+
+    if request.method != 'POST':
+        return redirect('gestao_importacao_detalhe', pk=lote_pk)
+
+    nome = request.POST.get('nome_produto', '').strip()
+    marca = request.POST.get('marca', '').strip()
+    genero = request.POST.get('genero', 'unissex')
+    volume_ml = request.POST.get('volume_ml', '').strip()
+    quantidade = request.POST.get('quantidade', '1').strip()
+    preco_eur = request.POST.get('preco_compra_eur', '').strip().replace(',', '.')
+    factor = request.POST.get('factor_lucro', '').strip().replace(',', '.')
+    observacoes = request.POST.get('observacoes', '').strip()
+    produto_id = request.POST.get('produto_id', '').strip()
+
+    erros = []
+    if not nome:
+        erros.append('O nome do produto é obrigatório.')
+    try:
+        qty_val = int(quantidade)
+        if qty_val <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        erros.append('Quantidade inválida.')
+        qty_val = 1
+    try:
+        eur_val = float(preco_eur)
+        if eur_val <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        erros.append('Preço de compra (€) inválido.')
+        eur_val = None
+    try:
+        factor_val = float(factor)
+        if not (0 < factor_val <= 1):
+            raise ValueError
+    except (ValueError, TypeError):
+        erros.append('Factor de lucro inválido (deve estar entre 0 e 1, ex: 0.58).')
+        factor_val = None
+
+    produto_obj = None
+    if produto_id:
+        try:
+            produto_obj = Produto.objects.get(pk=int(produto_id))
+        except (Produto.DoesNotExist, ValueError):
+            pass
+
+    if erros:
+        for e in erros:
+            messages.error(request, e)
+        return redirect('gestao_importacao_detalhe', pk=lote_pk)
+
+    if item:
+        item.nome_produto = nome
+        item.marca = marca
+        item.genero = genero
+        item.volume_ml = volume_ml
+        item.quantidade = qty_val
+        item.preco_compra_eur = eur_val
+        item.factor_lucro = factor_val
+        item.observacoes = observacoes
+        item.produto = produto_obj
+        item.save()
+        messages.success(request, f'"{nome}" actualizado.')
+    else:
+        ItemLoteImportacao.objects.create(
+            lote=lote,
+            nome_produto=nome,
+            marca=marca,
+            genero=genero,
+            volume_ml=volume_ml,
+            quantidade=qty_val,
+            preco_compra_eur=eur_val,
+            factor_lucro=factor_val,
+            observacoes=observacoes,
+            produto=produto_obj,
+        )
+        messages.success(request, f'"{nome}" adicionado ao lote.')
+
+    return redirect('gestao_importacao_detalhe', pk=lote_pk)
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_item_apagar(request, lote_pk, item_pk):
+    lote = get_object_or_404(LoteImportacao, pk=lote_pk)
+    item = get_object_or_404(ItemLoteImportacao, pk=item_pk, lote=lote)
+    if request.method == 'POST':
+        nome = item.nome_produto
+        item.delete()
+        messages.success(request, f'"{nome}" removido do lote.')
+    return redirect('gestao_importacao_detalhe', pk=lote_pk)
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_item_toggle(request, lote_pk, item_pk):
+    """Toggle AJAX para marcar/desmarcar item como recebido."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido.'}, status=405)
+    lote = get_object_or_404(LoteImportacao, pk=lote_pk)
+    item = get_object_or_404(ItemLoteImportacao, pk=item_pk, lote=lote)
+    item.recebido = not item.recebido
+    item.save(update_fields=['recebido'])
+
+    total = lote.itens.count()
+    recebidos = lote.itens.filter(recebido=True).count()
+    if recebidos == total and total > 0:
+        novo_status = 'recebido'
+    elif recebidos > 0:
+        novo_status = 'parcial'
+    else:
+        novo_status = lote.status
+    if novo_status != lote.status and novo_status in ('recebido', 'parcial'):
+        lote.status = novo_status
+        lote.save(update_fields=['status'])
+
+    return JsonResponse({
+        'recebido': item.recebido,
+        'total': total,
+        'recebidos': recebidos,
+        'lote_status': lote.status,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_importacao_aplicar_precos(request, pk):
+    """Aplica os preços calculados do lote aos produtos do catálogo ligados."""
+    if request.method != 'POST':
+        return redirect('gestao_importacao_detalhe', pk=pk)
+
+    lote = get_object_or_404(LoteImportacao, pk=pk)
+    actualizados = 0
+    ignorados = 0
+
+    for item in lote.itens.select_related('produto').all():
+        if not item.produto:
+            ignorados += 1
+            continue
+        pvp = round(item.preco_venda_sugerido, 2)
+        custo = round(item.custo_unitario_kzs, 2)
+        if pvp > 0:
+            item.produto.preco_venda = pvp
+            item.produto.preco_compra = custo
+            item.produto.save(update_fields=['preco_venda', 'preco_compra'])
+            actualizados += 1
+        else:
+            ignorados += 1
+
+    if actualizados:
+        msg = f'{actualizados} produto(s) actualizado(s) com os preços calculados.'
+        if ignorados:
+            msg += f' {ignorados} item(ns) sem ligação a produto foram ignorados.'
+        messages.success(request, msg)
+    else:
+        messages.warning(request, 'Nenhum produto foi actualizado. Certifique-se de que os itens estão ligados a produtos do catálogo.')
+
+    return redirect('gestao_importacao_detalhe', pk=pk)
