@@ -826,10 +826,3 @@ class MovimentoStock(models.Model):
     def __str__(self):
         return f'{self.get_tipo_display()}: {self.quantidade} × {self.produto.nome}'
     
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        total = self.produto.movimentos_stock.aggregate(
-        total=models.Sum('quantidade')
-        )['total'] or 0
-        self.produto.stock = total
-        self.produto.save(update_fields=['stock'])
