@@ -62,8 +62,20 @@
         <!-- Dados do Cliente -->
         <div class="grid grid-cols-2 gap-6 border-t border-stone-100 pt-6">
             <div>
-                <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">Cliente</p>
+                <p class="text-xs uppercase tracking-widest text-stone-500 mb-2">
+                    Cliente
+                    <span class="ml-2 px-2 py-0.5 rounded text-[9px] uppercase tracking-widest
+                        {% if encomenda.tipo_cliente == 'empresa' %}bg-blue-100 text-blue-700{% else %}bg-stone-100 text-stone-500{% endif %}">
+                        {{ encomenda.get_tipo_cliente_display|default:"Particular" }}
+                    </span>
+                </p>
+                {% if encomenda.tipo_cliente == 'empresa' and encomenda.nome_empresa %}
+                <p class="text-lg font-semibold text-stone-900">{{ encomenda.nome_empresa }}</p>
+                {% if encomenda.nif %}<p class="text-xs text-stone-500 mt-0.5">NIF: {{ encomenda.nif }}</p>{% endif %}
+                <p class="text-sm text-stone-600 mt-1">Resp.: {{ encomenda.nome_cliente }}</p>
+                {% else %}
                 <p class="text-lg font-semibold text-stone-900">{{ encomenda.nome_cliente }}</p>
+                {% endif %}
                 {% if encomenda.telefone and encomenda.telefone != '—' %}
                 <p class="text-sm text-stone-600 mt-1">{{ encomenda.telefone }}</p>
                 {% endif %}

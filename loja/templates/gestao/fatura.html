@@ -71,7 +71,13 @@
         <div class="grid grid-cols-2 gap-10 mb-8">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-3">Faturado a</p>
+                {% if encomenda.tipo_cliente == 'empresa' and encomenda.nome_empresa %}
+                <p class="text-base font-bold text-stone-900">{{ encomenda.nome_empresa }}</p>
+                {% if encomenda.nif %}<p class="text-xs text-stone-500 mt-0.5">NIF: {{ encomenda.nif }}</p>{% endif %}
+                <p class="text-sm text-stone-600 mt-1">Resp.: {{ encomenda.nome_cliente }}</p>
+                {% else %}
                 <p class="text-base font-bold text-stone-900">{{ encomenda.nome_cliente }}</p>
+                {% endif %}
                 {% if encomenda.telefone and encomenda.telefone != '—' %}
                 <p class="text-sm text-stone-600 mt-1">Tel: {{ encomenda.telefone }}</p>
                 {% endif %}
