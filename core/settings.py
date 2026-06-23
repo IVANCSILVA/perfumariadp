@@ -36,7 +36,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if os.environ.get('DJANGO_ALLOWED_HOSTS') else []
+ALLOWED_HOSTS = ['decentprive.ao','www.decentprive.ao','gestao.decentprive.ao','127.0.0.1']
 
 
 # Application definition
