@@ -359,7 +359,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {% for p in masculinos %}
                 <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -395,7 +395,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {% for p in femininos %}
                 <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -437,7 +437,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {% for p in unissex %}
                 <div class="group flex flex-col items-center text-center">
-                    <div class="product-img-wrap relative w-full overflow-hidden mb-4">
+                    <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
