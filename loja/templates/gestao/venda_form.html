@@ -21,13 +21,50 @@
                 <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Dados do Cliente</h2>
             </div>
             <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- Tipo de Cliente -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-2">Tipo de Cliente</label>
+                    <div class="flex gap-6 items-center">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="tipo_cliente" value="particular" id="tipo_particular"
+                                   class="accent-amber-700" checked>
+                            <span class="text-xs text-stone-700 uppercase tracking-widest">Particular</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="tipo_cliente" value="empresa" id="tipo_empresa"
+                                   class="accent-amber-700">
+                            <span class="text-xs text-stone-700 uppercase tracking-widest">Empresa</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Campos exclusivos de Empresa -->
+                <div id="campos-empresa" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 hidden">
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Nome da Empresa *</label>
+                        <input type="text" name="nome_empresa" id="nome_empresa"
+                               value="{{ post.nome_empresa|default:'' }}"
+                               placeholder="Ex: Empresa XYZ, Lda."
+                               class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">NIF *</label>
+                        <input type="text" name="nif" id="nif"
+                               value="{{ post.nif|default:'' }}"
+                               placeholder="Ex: 5000123456"
+                               class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                </div>
+
+                <!-- Nome (particular: nome; empresa: nome do responsável) -->
                 <div>
-                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Nome do Cliente</label>
+                    <label id="label-nome-cliente" class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Nome do Cliente</label>
                     <input type="text" name="nome_cliente"
                            value="{{ post.nome_cliente|default:'' }}"
                            placeholder="Ex: João Silva  (deixe vazio para Balcão)"
                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
-                    <p class="mt-1 text-[9px] text-stone-400">Se vazio, regista como "Cliente Balcão".</p>
+                    <p id="hint-nome-cliente" class="mt-1 text-[9px] text-stone-400">Se vazio, regista como "Cliente Balcão".</p>
                 </div>
                 <div>
                     <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Telefone</label>
@@ -40,7 +77,7 @@
                     <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Email</label>
                     <input type="email" name="email"
                            value="{{ post.email|default:'' }}"
-                           placeholder="Ex: joao@email.com"
+                           placeholder="Ex: empresa@email.com"
                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
                 </div>
                 <div class="md:col-span-2">
@@ -57,6 +94,27 @@
                 </div>
             </div>
         </div>
+
+        <script>
+        (function() {
+            var radios = document.querySelectorAll('input[name="tipo_cliente"]');
+            var camposEmpresa = document.getElementById('campos-empresa');
+            var labelNome = document.getElementById('label-nome-cliente');
+            var hintNome = document.getElementById('hint-nome-cliente');
+            var nifInput = document.getElementById('nif');
+            var nomeEmpresaInput = document.getElementById('nome_empresa');
+            function toggleTipo() {
+                var isEmpresa = document.getElementById('tipo_empresa').checked;
+                camposEmpresa.classList.toggle('hidden', !isEmpresa);
+                labelNome.textContent = isEmpresa ? 'Nome do Responsável / Contacto' : 'Nome do Cliente';
+                hintNome.textContent = isEmpresa ? 'Nome da pessoa de contacto.' : 'Se vazio, regista como "Cliente Balcão".';
+                nifInput.required = isEmpresa;
+                nomeEmpresaInput.required = isEmpresa;
+            }
+            radios.forEach(function(r) { r.addEventListener('change', toggleTipo); });
+            toggleTipo();
+        })();
+        </script>
 
         <!-- Scanner de Código de Barras -->
         <div class="bg-white border border-stone-200 mb-4">
@@ -288,13 +346,13 @@ function mostrarFeedback(msg, tipo) {
 
 // ── Criar linha de produto ────────────────────────────────────────────────────
 
-function criarLinha(prodId, quantidade) {
+function criarLinha(prodId, quantidade, fromBarcode) {
     var div = document.createElement('div');
     div.className = 'linha-produto grid grid-cols-[1fr_80px_130px_60px_30px] gap-3 items-center';
 
     // Select produto
     var sel = document.createElement('select');
-    sel.name = 'produto_id';
+    sel.name = fromBarcode && prodId ? '' : 'produto_id';
     sel.className = 'w-full px-2 py-2 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors appearance-none';
     var opt0 = document.createElement('option');
     opt0.value = '';
@@ -310,6 +368,17 @@ function criarLinha(prodId, quantidade) {
         sel.appendChild(opt);
     });
     if (prodId) sel.value = prodId;
+
+    // Quando vem de barcode: bloquear o select e usar hidden input para submissão
+    var hiddenProdId = null;
+    if (fromBarcode && prodId) {
+        sel.disabled = true;
+        sel.className += ' opacity-60 cursor-not-allowed';
+        hiddenProdId = document.createElement('input');
+        hiddenProdId.type = 'hidden';
+        hiddenProdId.name = 'produto_id';
+        hiddenProdId.value = prodId;
+    }
 
     // Quantidade
     var inputQty = document.createElement('input');
@@ -341,6 +410,7 @@ function criarLinha(prodId, quantidade) {
     btnRem.addEventListener('click', function() { div.remove(); recalcTotal(); });
 
     div.appendChild(sel);
+    if (hiddenProdId) div.appendChild(hiddenProdId);
     div.appendChild(inputQty);
     div.appendChild(inputPreco);
     div.appendChild(subDiv);
@@ -396,7 +466,7 @@ function processarBarcode(codigo) {
             recalcTotal();
             mostrarFeedback('Qty actualizada: ' + p.nome + ' × ' + novaQty, 'ok');
         } else {
-            criarLinha(String(idLocal), 1);
+            criarLinha(String(idLocal), 1, true);
             mostrarFeedback('Adicionado: ' + p.nome + ' — ' + p.marca, 'ok');
         }
         inputBarcode.value = '';
@@ -412,7 +482,7 @@ function processarBarcode(codigo) {
                 // Adicionar ao mapa local
                 PRODUTOS[data.id] = {nome: data.nome, marca: data.marca, preco: data.preco, stock: data.stock, codigo_barras: codigo};
                 BARCODE_MAP[codigo] = String(data.id);
-                criarLinha(String(data.id), 1);
+                criarLinha(String(data.id), 1, true);
                 mostrarFeedback('Adicionado: ' + data.nome + ' — ' + data.marca, 'ok');
             } else {
                 mostrarFeedback('Produto não encontrado: ' + codigo, 'erro');
@@ -485,8 +555,8 @@ btnFecharCamara.addEventListener('click', pararCamara);
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-btnAdd.addEventListener('click', function() { criarLinha(null, 1); });
-criarLinha(null, 1);
+btnAdd.addEventListener('click', function() { criarLinha(null, 1, false); });
+criarLinha(null, 1, false);
 inputBarcode.focus();
 </script>
 {% endblock %}

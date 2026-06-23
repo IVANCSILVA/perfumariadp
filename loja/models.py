@@ -163,6 +163,17 @@ class Encomenda(models.Model):
         ('cancelada', 'Cancelada'),
     ]
 
+    TIPO_CLIENTE_CHOICES = [
+        ('particular', 'Particular'),
+        ('empresa', 'Empresa'),
+    ]
+    tipo_cliente = models.CharField(
+        max_length=10, choices=TIPO_CLIENTE_CHOICES, default='particular',
+        verbose_name='Tipo de Cliente'
+    )
+    nome_empresa = models.CharField(max_length=200, blank=True, verbose_name='Nome da Empresa')
+    nif = models.CharField(max_length=50, blank=True, verbose_name='NIF')
+
     nome_cliente = models.CharField(max_length=200)
     telefone = models.CharField(max_length=30)
     email = models.EmailField(blank=True)

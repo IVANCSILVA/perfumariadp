@@ -575,6 +575,9 @@ def gestao_venda_nova(request):
     erros = {}
 
     if request.method == 'POST':
+        tipo_cliente = request.POST.get('tipo_cliente', 'particular')
+        nome_empresa = request.POST.get('nome_empresa', '').strip()
+        nif          = request.POST.get('nif', '').strip()
         nome_cliente = request.POST.get('nome_cliente', '').strip() or 'Cliente Balcão'
         telefone     = request.POST.get('telefone', '').strip()
         email        = request.POST.get('email', '').strip()
@@ -654,6 +657,9 @@ def gestao_venda_nova(request):
                 data_proxima_parcela = None
 
             encomenda = Encomenda.objects.create(
+                tipo_cliente=tipo_cliente,
+                nome_empresa=nome_empresa,
+                nif=nif,
                 nome_cliente=nome_cliente,
                 telefone=telefone or '—',
                 email=email,
