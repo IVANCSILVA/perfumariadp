@@ -1,0 +1,128 @@
+{% extends 'gestao/base.html' %}
+{% block title %}{{ instancia|yesno:"Editar,Novo" }} Banner{% endblock %}
+{% block page_title %}{{ instancia|yesno:"Editar Banner,Novo Banner" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'gestao_banners' %}"
+           class="text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-amber-800 transition-colors">
+            ← Voltar aos Banners
+        </a>
+    </div>
+
+    <div class="gestao-card p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Imagem actual -->
+            {% if instancia and instancia.imagem %}
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-2">Imagem actual</p>
+                <img src="{{ instancia.imagem.url }}" alt="{{ instancia.titulo }}"
+                     class="w-full max-h-52 object-cover rounded-lg border border-stone-200 mb-2">
+                <label class="flex items-center gap-2 text-xs text-red-600 cursor-pointer">
+                    <input type="checkbox" name="remover_imagem" class="rounded">
+                    Remover imagem actual
+                </label>
+            </div>
+            {% endif %}
+
+            <!-- Upload de imagem -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">
+                    {{ instancia|yesno:"Nova Imagem de Fundo,Imagem de Fundo" }}
+                </label>
+                <input type="file" name="imagem" accept="image/*"
+                       class="w-full text-xs text-stone-700 border border-stone-300 rounded px-3 py-2 file:mr-3 file:text-[10px] file:uppercase file:tracking-widest file:border-0 file:bg-amber-800 file:text-white file:px-3 file:py-1.5 file:rounded file:cursor-pointer hover:file:bg-amber-700">
+                <p class="text-[10px] text-stone-400 mt-1">Se não tiver imagem, a cor de fundo será utilizada.</p>
+            </div>
+
+            <!-- Título -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Título *</label>
+                <input type="text" name="titulo" maxlength="200" required
+                       value="{{ instancia.titulo|default:'' }}"
+                       placeholder="Ex: Fragrâncias Exclusivas"
+                       class="w-full border border-stone-300 rounded px-3 py-2.5 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors">
+            </div>
+
+            <!-- Subtítulo -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Subtítulo</label>
+                <input type="text" name="subtitulo" maxlength="300"
+                       value="{{ instancia.subtitulo|default:'' }}"
+                       placeholder="Ex: Descubra a nossa curadoria de aromas únicos"
+                       class="w-full border border-stone-300 rounded px-3 py-2.5 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors">
+            </div>
+
+            <!-- Texto do botão -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Texto do Botão</label>
+                <input type="text" name="texto_botao" maxlength="50"
+                       value="{{ instancia.texto_botao|default:'Ver Colecção' }}"
+                       class="w-full border border-stone-300 rounded px-3 py-2.5 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors">
+            </div>
+
+            <!-- Link do botão -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Link do Botão</label>
+                <input type="text" name="link_botao" maxlength="200"
+                       value="{{ instancia.link_botao|default:'#produtos' }}"
+                       placeholder="Ex: /colecoes/ ou #produtos"
+                       class="w-full border border-stone-300 rounded px-3 py-2.5 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors">
+            </div>
+
+            <!-- Cor de fundo -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Cor de Fundo</label>
+                <div class="flex items-center gap-3">
+                    <input type="color" name="cor_fundo"
+                           value="{{ instancia.cor_fundo|default:'#1c1917' }}"
+                           class="h-10 w-16 rounded border border-stone-300 cursor-pointer">
+                    <input type="text" id="cor-hex" maxlength="7"
+                           value="{{ instancia.cor_fundo|default:'#1c1917' }}"
+                           class="w-28 border border-stone-300 rounded px-3 py-2 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors"
+                           oninput="document.querySelector('input[name=cor_fundo]').value=this.value">
+                </div>
+            </div>
+
+            <!-- Ordem -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.3em] text-stone-500 mb-1.5">Ordem</label>
+                <input type="number" name="ordem" min="0"
+                       value="{{ instancia.ordem|default:0 }}"
+                       class="w-32 border border-stone-300 rounded px-3 py-2.5 text-sm text-stone-700 focus:outline-none focus:border-amber-700 transition-colors">
+                <p class="text-[10px] text-stone-400 mt-1">Número mais baixo aparece primeiro.</p>
+            </div>
+
+            <!-- Activo -->
+            <div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="activo"
+                           {% if not instancia or instancia.activo %}checked{% endif %}
+                           class="rounded border-stone-300 text-amber-700">
+                    <span class="text-xs text-stone-700">Banner activo (visível no carrossel)</span>
+                </label>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 rounded transition-colors">
+                    Guardar
+                </button>
+                <a href="{% url 'gestao_banners' %}"
+                   class="text-[10px] uppercase tracking-[0.3em] border border-stone-300 hover:border-stone-400 text-stone-600 px-6 py-2.5 rounded transition-colors">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelector('input[name=cor_fundo]').addEventListener('input', function() {
+        document.getElementById('cor-hex').value = this.value;
+    });
+</script>
+{% endblock %}

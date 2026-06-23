@@ -973,4 +973,20 @@ class MovimentoStock(models.Model):
     
     def __str__(self):
         return f'{self.get_tipo_display()}: {self.quantidade} × {self.produto.nome}'
-    
+
+
+class ImagemGaleria(models.Model):
+    imagem = models.ImageField(upload_to='galeria/')
+    legenda = models.CharField(max_length=200, blank=True)
+    ordem = models.PositiveSmallIntegerField(default=0)
+    activo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Imagem da Galeria'
+        verbose_name_plural = 'Imagens da Galeria'
+        ordering = ['ordem', '-criado_em']
+
+    def __str__(self):
+        return self.legenda or f'Imagem #{self.pk}'
+

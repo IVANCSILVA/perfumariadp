@@ -1,0 +1,91 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Banners{% endblock %}
+{% block page_title %}Banners do Carrossel{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <p class="text-stone-500 text-xs tracking-wide">{{ banners|length }} banner(s) configurado(s)</p>
+            <p class="text-[10px] text-stone-400 mt-0.5">Exibidos no carrossel da página inicial quando não há promoções activas.</p>
+        </div>
+        <a href="{% url 'gestao_banner_novo' %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors rounded">
+            + Novo Banner
+        </a>
+    </div>
+
+    {% if banners %}
+    <div class="gestao-card overflow-hidden">
+        <table class="gestao-table w-full text-xs">
+            <thead>
+                <tr class="border-b border-stone-200">
+                    <th class="text-left px-4 py-3 text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Imagem</th>
+                    <th class="text-left px-4 py-3 text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Título</th>
+                    <th class="text-left px-4 py-3 text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold hidden md:table-cell">Subtítulo</th>
+                    <th class="text-left px-4 py-3 text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold hidden sm:table-cell">Ordem</th>
+                    <th class="text-left px-4 py-3 text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Estado</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+                {% for banner in banners %}
+                <tr class="hover:bg-stone-50">
+                    <td class="px-4 py-3">
+                        {% if banner.imagem %}
+                        <img src="{{ banner.imagem.url }}" alt="{{ banner.titulo }}"
+                             class="w-20 h-12 object-cover rounded border border-stone-200">
+                        {% else %}
+                        <div class="w-20 h-12 rounded border border-stone-200 flex items-center justify-center"
+                             style="background-color: {{ banner.cor_fundo }}">
+                            <span class="text-[9px] text-white/70 uppercase tracking-widest">Cor</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 font-medium text-stone-800">{{ banner.titulo }}</td>
+                    <td class="px-4 py-3 text-stone-500 hidden md:table-cell">{{ banner.subtitulo|default:"—" }}</td>
+                    <td class="px-4 py-3 text-stone-500 hidden sm:table-cell">{{ banner.ordem }}</td>
+                    <td class="px-4 py-3">
+                        {% if banner.activo %}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] uppercase tracking-widest font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activo
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 text-[9px] uppercase tracking-widest font-semibold">
+                            Inactivo
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'gestao_banner_editar' banner.pk %}"
+                               class="text-[10px] uppercase tracking-widest border border-stone-300 hover:border-amber-700 hover:text-amber-800 text-stone-600 px-3 py-1.5 rounded transition-colors">
+                                Editar
+                            </a>
+                            <form method="post" action="{% url 'gestao_banner_apagar' banner.pk %}"
+                                  onsubmit="return confirm('Eliminar este banner?')">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="text-[10px] uppercase tracking-widest border border-red-200 hover:border-red-500 hover:text-red-700 text-red-400 px-3 py-1.5 rounded transition-colors">
+                                    ✕
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-12 text-center">
+        <p class="text-stone-500 text-sm mb-4">Nenhum banner configurado ainda.</p>
+        <a href="{% url 'gestao_banner_novo' %}"
+           class="inline-block bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 rounded transition-colors">
+            + Criar primeiro banner
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

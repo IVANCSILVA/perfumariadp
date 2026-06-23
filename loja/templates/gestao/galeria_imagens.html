@@ -1,0 +1,60 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Galeria{% endblock %}
+{% block page_title %}Galeria de Imagens{% endblock %}
+
+{% block content %}
+<div class="max-w-[1400px] mx-auto">
+
+    <div class="flex items-center justify-between mb-6">
+        <p class="text-stone-500 text-xs tracking-wide">{{ imagens|length }} imagem(ns) na galeria</p>
+        <a href="{% url 'gestao_galeria_imagem_nova' %}"
+           class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors rounded">
+            + Nova Imagem
+        </a>
+    </div>
+
+    {% if imagens %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for img in imagens %}
+        <div class="gestao-card overflow-hidden group">
+            <div class="relative h-48 bg-stone-100">
+                <img src="{{ img.imagem.url }}" alt="{{ img.legenda }}"
+                     class="w-full h-full object-cover">
+                {% if not img.activo %}
+                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span class="text-white text-[10px] uppercase tracking-widest bg-black/60 px-2 py-1 rounded">Inactiva</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="p-3">
+                <p class="text-xs text-stone-700 truncate mb-1">{{ img.legenda|default:"Sem legenda" }}</p>
+                <p class="text-[10px] text-stone-400 mb-3">Ordem: {{ img.ordem }}</p>
+                <div class="flex gap-2">
+                    <a href="{% url 'gestao_galeria_imagem_editar' img.pk %}"
+                       class="flex-1 text-center text-[10px] uppercase tracking-widest border border-stone-300 hover:border-amber-700 hover:text-amber-800 text-stone-600 py-1.5 rounded transition-colors">
+                        Editar
+                    </a>
+                    <form method="post" action="{% url 'gestao_galeria_imagem_apagar' img.pk %}"
+                          onsubmit="return confirm('Eliminar esta imagem?')">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="text-[10px] uppercase tracking-widest border border-red-200 hover:border-red-500 hover:text-red-700 text-red-400 px-3 py-1.5 rounded transition-colors">
+                            ✕
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-12 text-center">
+        <p class="text-stone-500 text-sm mb-4">Nenhuma imagem na galeria ainda.</p>
+        <a href="{% url 'gestao_galeria_imagem_nova' %}"
+           class="inline-block bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 rounded transition-colors">
+            + Adicionar primeira imagem
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

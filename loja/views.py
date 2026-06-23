@@ -79,7 +79,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao, Banner, ImagemGaleria
 from .forms import NewsletterInscricaoForm
 
 logger = logging.getLogger(__name__)
@@ -197,10 +197,13 @@ def home(request):
         for p in Produto.objects.filter(disponivel=True).only('nome', 'marca', 'genero')
     ], ensure_ascii=False)
 
+    banners_carrossel = list(Banner.objects.filter(activo=True).order_by('ordem'))
+
     return render(request, 'loja/index.html', {
         'total_visitas': total_visitas,
         'promocoes_carrossel': promocoes_carrossel,
         'promocoes_landing': promocoes_landing,
+        'banners_carrossel': banners_carrossel,
         'masculinos': masculinos,
         'femininos': femininos,
         'unissex': unissex,
@@ -297,7 +300,8 @@ def encomenda_sucesso(request):
     return render(request, 'loja/encomenda_sucesso.html', {'encomenda_id': encomenda_id})
 
 def galeria(request):
-    return render(request, 'loja/galeria.html')
+    imagens = ImagemGaleria.objects.filter(activo=True).order_by('ordem', '-criado_em')
+    return render(request, 'loja/galeria.html', {'imagens': imagens})
 
 def fidelidade(request):
     return render(request, 'loja/fidelidade.html')
@@ -3004,3 +3008,133 @@ def gestao_importacao_aplicar_precos(request, pk):
         messages.warning(request, 'Nenhum produto foi actualizado. Certifique-se de que os itens estão ligados a produtos do catálogo.')
 
     return redirect('gestao_importacao_detalhe', pk=pk)
+
+
+# ---------------------------------------------------------------------------
+# Gestão — Galeria de Imagens
+# ---------------------------------------------------------------------------
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_galeria(request):
+    imagens = ImagemGaleria.objects.all()
+    return render(request, 'gestao/galeria_imagens.html', {
+        'active_page': 'galeria',
+        'imagens': imagens,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_galeria_imagem_form(request, pk=None):
+    instancia = get_object_or_404(ImagemGaleria, pk=pk) if pk else None
+    if request.method == 'POST':
+        legenda = request.POST.get('legenda', '').strip()[:200]
+        try:
+            ordem = int(request.POST.get('ordem') or 0)
+        except (ValueError, TypeError):
+            ordem = 0
+        activo = request.POST.get('activo') == 'on'
+        nova_imagem = request.FILES.get('imagem')
+        remover_imagem = request.POST.get('remover_imagem') == 'on'
+
+        if not instancia and not nova_imagem:
+            messages.error(request, 'É obrigatório selecionar uma imagem.')
+        else:
+            obj = instancia or ImagemGaleria()
+            obj.legenda = legenda
+            obj.ordem = ordem
+            obj.activo = activo
+            if remover_imagem and obj.pk and obj.imagem:
+                obj.imagem.delete(save=False)
+                obj.imagem = None
+            if nova_imagem:
+                obj.imagem = nova_imagem
+            obj.save()
+            messages.success(request, 'Imagem guardada com sucesso.')
+            return redirect('gestao_galeria')
+    return render(request, 'gestao/galeria_imagem_form.html', {
+        'active_page': 'galeria',
+        'instancia': instancia,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_galeria_imagem_apagar(request, pk):
+    img = get_object_or_404(ImagemGaleria, pk=pk)
+    if request.method == 'POST':
+        if img.imagem:
+            img.imagem.delete(save=False)
+        img.delete()
+        messages.success(request, 'Imagem eliminada.')
+    return redirect('gestao_galeria')
+
+
+# ---------------------------------------------------------------------------
+# Gestão — Banners / Carrossel
+# ---------------------------------------------------------------------------
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_banners(request):
+    banners = Banner.objects.all()
+    return render(request, 'gestao/banners.html', {
+        'active_page': 'banners',
+        'banners': banners,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_banner_form(request, pk=None):
+    instancia = get_object_or_404(Banner, pk=pk) if pk else None
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        subtitulo = request.POST.get('subtitulo', '').strip()[:300]
+        texto_botao = (request.POST.get('texto_botao') or 'Ver Colecção').strip()[:50] or 'Ver Colecção'
+        link_botao = (request.POST.get('link_botao') or '#produtos').strip()[:200]
+        cor_fundo = (request.POST.get('cor_fundo') or '#1c1917').strip()[:7]
+        try:
+            ordem = int(request.POST.get('ordem') or 0)
+        except (ValueError, TypeError):
+            ordem = 0
+        activo = request.POST.get('activo') == 'on'
+        nova_imagem = request.FILES.get('imagem')
+        remover_imagem = request.POST.get('remover_imagem') == 'on'
+
+        if not titulo:
+            messages.error(request, 'O título é obrigatório.')
+        else:
+            obj = instancia or Banner()
+            obj.titulo = titulo
+            obj.subtitulo = subtitulo
+            obj.texto_botao = texto_botao
+            obj.link_botao = link_botao
+            obj.cor_fundo = cor_fundo
+            obj.ordem = ordem
+            obj.activo = activo
+            if remover_imagem and obj.pk and obj.imagem:
+                obj.imagem.delete(save=False)
+                obj.imagem = None
+            if nova_imagem:
+                obj.imagem = nova_imagem
+            obj.save()
+            messages.success(request, 'Banner guardado com sucesso.')
+            return redirect('gestao_banners')
+    return render(request, 'gestao/banner_form.html', {
+        'active_page': 'banners',
+        'instancia': instancia,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_banner_apagar(request, pk):
+    banner = get_object_or_404(Banner, pk=pk)
+    if request.method == 'POST':
+        if banner.imagem:
+            banner.imagem.delete(save=False)
+        banner.delete()
+        messages.success(request, 'Banner eliminado.')
+    return redirect('gestao_banners')

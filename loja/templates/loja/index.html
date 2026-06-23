@@ -150,9 +150,23 @@
                 </div>
             </div>
 {% endfor %}
+{% elif banners_carrossel %}
+{% for b in banners_carrossel %}
+            <div class="slide relative min-w-full h-full flex-shrink-0" style="background-color:{{ b.cor_fundo }}">
+                {% if b.imagem %}
+                <img {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} src="{{ b.imagem.url }}" alt="{{ b.titulo }}" class="w-full h-full object-cover opacity-80">
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                    {% if b.subtitulo %}<span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">{{ b.subtitulo }}</span>{% endif %}
+                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">{{ b.titulo }}</h2>
+                    <a href="{{ b.link_botao }}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ b.texto_botao }}</a>
+                </div>
+            </div>
+{% endfor %}
 {% else %}
             <div class="slide relative min-w-full h-full flex-shrink-0">
-                <img src="{% static 'loja/images/image1.jpeg' %}" alt="Promoção 1" class="w-full h-full object-cover opacity-80">
+                <img src="{% static 'loja/images/imag1.jpeg' %}" alt="Fragrâncias Exclusivas" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
                     <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Promoção da Época</span>
@@ -161,37 +175,14 @@
                     <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
                 </div>
             </div>
-
             <div class="slide relative min-w-full h-full flex-shrink-0">
-                <img loading="lazy" decoding="async" src="{% static 'loja/images/image2.jpeg' %}" alt="Promoção 2" class="w-full h-full object-cover opacity-80">
+                <img loading="lazy" decoding="async" src="{% static 'loja/images/imag2.jpeg' %}" alt="O Presente Perfeito" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
                     <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Oferta Especial</span>
                     <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">O Presente Perfeito</h2>
                     <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Presentes únicos para momentos inesquecíveis</p>
                     <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
-                </div>
-            </div>
-
-            <div class="slide relative min-w-full h-full flex-shrink-0">
-                <img loading="lazy" decoding="async" src="{% static 'loja/images/image3.jpeg' %}" alt="Promoção 3" class="w-full h-full object-cover opacity-80">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Edição Limitada</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Exclusividade Garantida</h2>
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Peças únicas disponíveis por tempo limitado</p>
-                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Descobrir</a>
-                </div>
-            </div>
-
-            <div class="slide relative min-w-full h-full flex-shrink-0">
-                <img loading="lazy" decoding="async" src="{% static 'loja/images/image4.jpeg' %}" alt="Promoção 4" class="w-full h-full object-cover opacity-80">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Novidade</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Fragrâncias Orientais</h2>
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Uma viagem sensorial ao oriente</p>
-                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Explorar</a>
                 </div>
             </div>
 {% endif %}

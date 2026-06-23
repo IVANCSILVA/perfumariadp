@@ -37,10 +37,29 @@
         </div>
     </nav>
 
-    <main class="px-8 py-16 text-center">
-        <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Décent Privé</span>
-        <h1 class="text-5xl font-serif italic mb-6 mt-3">Galeria</h1>
-        <p class="text-stone-500 max-w-md mx-auto tracking-wide uppercase text-xs">Inspire-se com as nossas imagens e momentos únicos.</p>
+    <main class="px-8 py-16">
+        <div class="text-center mb-12">
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Décent Privé</span>
+            <h1 class="text-5xl font-serif italic mb-6 mt-3">Galeria</h1>
+            <p class="text-stone-500 max-w-md mx-auto tracking-wide uppercase text-xs">Inspire-se com as nossas imagens e momentos únicos.</p>
+        </div>
+
+        {% if imagens %}
+        <div class="columns-2 sm:columns-3 lg:columns-4 gap-4 max-w-6xl mx-auto">
+            {% for img in imagens %}
+            <div class="break-inside-avoid mb-4">
+                <img src="{{ img.imagem.url }}" alt="{{ img.legenda }}"
+                     loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                     class="w-full rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 object-cover">
+                {% if img.legenda %}
+                <p class="text-xs text-stone-500 tracking-wide text-center mt-2 px-1">{{ img.legenda }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-stone-400 text-sm tracking-wide">Em breve...</p>
+        {% endif %}
     </main>
 
     <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-10">
