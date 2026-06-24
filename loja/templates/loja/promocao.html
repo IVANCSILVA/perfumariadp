@@ -39,7 +39,7 @@
         <img src="{{ promo.imagem.url }}" alt="{{ promo.nome }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
         {% endif %}
         <div class="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-900/90"></div>
-        <div class="relative px-8 py-24 md:py-32 text-center">
+        <div class="relative px-4 md:px-8 py-24 md:py-32 text-center">
             {% if promo.subtitulo %}
             <span class="text-xs uppercase tracking-[0.4em] text-amber-300">{{ promo.subtitulo }}</span>
             {% else %}
@@ -111,7 +111,7 @@
     </section>
 
     <!-- Rodapé -->
-    <footer class="bg-stone-900 text-stone-300 py-8 px-8 text-center text-xs tracking-wide">
+    <footer class="bg-stone-900 text-stone-300 py-8 px-4 md:px-8 text-center text-xs tracking-wide">
         &copy; 2026 Décent Privé — Curadoria de fragrâncias raras.
     </footer>
 </body>

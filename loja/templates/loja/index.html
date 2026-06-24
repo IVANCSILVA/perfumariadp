@@ -22,15 +22,18 @@
             left: 50%;
             transform: translateX(-50%);
             height: 100%;
-            width: 70%;
+            width: 100%;
             object-fit: cover;
         }
         #produtos .group img {
             mix-blend-mode: multiply;
         }
-        .banner-wrap { height: 650px; }
-        .product-img-wrap { height: 280px; }
-        .map-wrap { height: 300px; }
+        .banner-wrap { height: 420px; }
+        @media (min-width: 768px) { .banner-wrap { height: 650px; } }
+        .product-img-wrap { height: 200px; }
+        @media (min-width: 768px) { .product-img-wrap { height: 280px; } }
+        .map-wrap { height: 250px; }
+        @media (min-width: 768px) { .map-wrap { height: 300px; } }
         .map-frame { border: 0; filter: grayscale(0.3) invert(0.9) hue-rotate(180deg); }
         @keyframes pulseRing {
             0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
@@ -42,9 +45,9 @@
 </head>
 <body class="bg-white text-gray-900 transition-colors duration-300">
     <!-- Navbar -->
-    <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
+    <nav class="flex justify-between items-start px-4 md:px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
         <a href="{% url 'home' %}" class="md:-mt-8">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Prive" class="h-20 md:h-52 w-auto">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Prive" class="h-16 md:h-52 w-auto">
         </a>
         <div class="flex flex-col items-end gap-1 pt-4">
             <div class="flex items-center gap-5">
@@ -135,18 +138,18 @@
                 <img {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} src="{% static 'loja/images/image1.jpeg' %}" alt="{{ p.nome }}" class="w-full h-full object-cover opacity-80">
                 {% endif %}
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">{{ p.icone }} {{ p.subtitulo|default:p.get_tipo_display }}</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">{{ p.nome }}</h2>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
+                    <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">{{ p.icone }} {{ p.subtitulo|default:p.get_tipo_display }}</span>
+                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">{{ p.nome }}</h2>
                     {% if p.desconto_percentagem %}
                     <p class="text-amber-300 text-xs uppercase tracking-widest mb-3">Até {{ p.desconto_percentagem }}% de desconto</p>
                     {% endif %}
                     {% if p.descricao %}
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8 max-w-2xl">{{ p.descricao|truncatewords:18 }}</p>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 max-w-xl md:max-w-2xl px-2 hidden sm:block">{{ p.descricao|truncatewords:18 }}</p>
                     {% else %}
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Promoção por tempo limitado</p>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Promoção por tempo limitado</p>
                     {% endif %}
-                    <a href="{% if p.link_botao %}{{ p.link_botao }}{% else %}{{ p.get_absolute_url }}{% endif %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ p.texto_botao|default:'Ver Promoção' }}</a>
+                    <a href="{% if p.link_botao %}{{ p.link_botao }}{% else %}{{ p.get_absolute_url }}{% endif %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ p.texto_botao|default:'Ver Promoção' }}</a>
                 </div>
             </div>
 {% endfor %}
@@ -157,10 +160,10 @@
                 <img {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy" decoding="async"{% endif %} src="{{ b.imagem.url }}" alt="{{ b.titulo }}" class="w-full h-full object-cover opacity-80">
                 {% endif %}
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    {% if b.subtitulo %}<span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">{{ b.subtitulo }}</span>{% endif %}
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">{{ b.titulo }}</h2>
-                    <a href="{{ b.link_botao }}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ b.texto_botao }}</a>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
+                    {% if b.subtitulo %}<span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">{{ b.subtitulo }}</span>{% endif %}
+                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">{{ b.titulo }}</h2>
+                    <a href="{{ b.link_botao }}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ b.texto_botao }}</a>
                 </div>
             </div>
 {% endfor %}
@@ -168,21 +171,21 @@
             <div class="slide relative min-w-full h-full flex-shrink-0">
                 <img src="{% static 'loja/images/imag1.jpeg' %}" alt="Fragrâncias Exclusivas" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Promoção da Época</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">Fragrâncias Exclusivas</h2>
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Descubra a nossa curadoria de aromas únicos</p>
-                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
+                    <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">Promoção da Época</span>
+                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">Fragrâncias Exclusivas</h2>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Descubra a nossa curadoria de aromas únicos</p>
+                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
                 </div>
             </div>
             <div class="slide relative min-w-full h-full flex-shrink-0">
                 <img loading="lazy" decoding="async" src="{% static 'loja/images/imag2.jpeg' %}" alt="O Presente Perfeito" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                    <span class="text-xs uppercase tracking-[0.4em] text-amber-300 mb-3">Oferta Especial</span>
-                    <h2 class="font-serif italic text-white text-4xl md:text-6xl mb-4">O Presente Perfeito</h2>
-                    <p class="text-stone-300 text-xs uppercase tracking-widest mb-8">Presentes únicos para momentos inesquecíveis</p>
-                    <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
+                    <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">Oferta Especial</span>
+                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">O Presente Perfeito</h2>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Presentes únicos para momentos inesquecíveis</p>
+                    <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
                 </div>
             </div>
 {% endif %}
@@ -190,11 +193,11 @@
         </div>
 
         <!-- Seta esquerda -->
-        <button onclick="moveSlide(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10">
+        <button onclick="moveSlide(-1)" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10 text-sm md:text-base">
             &#8592;
         </button>
         <!-- Seta direita -->
-        <button onclick="moveSlide(1)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10">
+        <button onclick="moveSlide(1)" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-200 z-10 text-sm md:text-base">
             &#8594;
         </button>
 
@@ -252,7 +255,7 @@
     </script>
 
     <!-- Sobre Nós -->
-    <section class="bg-white py-20 px-8 border-b border-stone-100">
+    <section class="bg-white py-20 px-4 md:px-8 border-b border-stone-100">
         <div class="max-w-4xl mx-auto text-center">
             <span class="text-xs uppercase tracking-[0.4em] text-amber-700">A Nossa História</span>
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-3 mb-6">A Arte de Uma Fragrância</h2>
@@ -286,7 +289,7 @@
 
     {% if promocoes_landing %}
     <!-- Promoções a decorrer (landing) -->
-    <section id="promocoes" class="bg-white py-16 px-8 border-t border-stone-100">
+    <section id="promocoes" class="bg-white py-16 px-4 md:px-8 border-t border-stone-100">
         <div class="text-center mb-12">
             <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Tempo Limitado</span>
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Promoções a Decorrer</h2>
@@ -339,7 +342,7 @@
     {% endif %}
 
     <!-- Secção de Produtos em Destaque -->
-    <section id="produtos" class="bg-stone-50 py-16 px-8">
+    <section id="produtos" class="bg-stone-50 py-16 px-4 md:px-8">
 
         <!-- Cabeçalho principal -->
         <div class="text-center mb-14">
@@ -360,6 +363,9 @@
                 {% for p in masculinos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
+                        {% if p.tem_desconto %}
+                        <span class="absolute top-2 left-2 z-10 bg-amber-700 text-white text-[9px] uppercase tracking-widest px-2 py-1 rounded">-{{ p.desconto_percentagem }}%</span>
+                        {% endif %}
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -374,10 +380,15 @@
                     {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center gap-2">
+                        {% if p.tem_desconto %}
+                        <span class="text-stone-400 line-through text-xs">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_promocional|floatformat:0 }} Kz</span>
+                        {% else %}
                         <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        {% endif %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|floatformat:0 }}{% else %}{{ p.preco_venda|floatformat:0 }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -396,6 +407,9 @@
                 {% for p in femininos %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
+                        {% if p.tem_desconto %}
+                        <span class="absolute top-2 left-2 z-10 bg-amber-700 text-white text-[9px] uppercase tracking-widest px-2 py-1 rounded">-{{ p.desconto_percentagem }}%</span>
+                        {% endif %}
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -410,10 +424,15 @@
                     {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center gap-2">
+                        {% if p.tem_desconto %}
+                        <span class="text-stone-400 line-through text-xs">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_promocional|floatformat:0 }} Kz</span>
+                        {% else %}
                         <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        {% endif %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|floatformat:0 }}{% else %}{{ p.preco_venda|floatformat:0 }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -438,6 +457,9 @@
                 {% for p in unissex %}
                 <div class="group flex flex-col items-center text-center">
                     <div class="product-img-wrap relative w-full overflow-hidden mb-4 aspect-[4/5]">
+                        {% if p.tem_desconto %}
+                        <span class="absolute top-2 left-2 z-10 bg-amber-700 text-white text-[9px] uppercase tracking-widest px-2 py-1 rounded">-{{ p.desconto_percentagem }}%</span>
+                        {% endif %}
                         {% if p.imagem %}
                         <img loading="lazy" decoding="async" src="{{ p.imagem.url }}" alt="{{ p.nome }}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
@@ -452,10 +474,15 @@
                     {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2">{{ p.nome }}</h4>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center gap-2">
+                        {% if p.tem_desconto %}
+                        <span class="text-stone-400 line-through text-xs">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        <span class="text-amber-800 font-semibold text-base">{{ p.preco_promocional|floatformat:0 }} Kz</span>
+                        {% else %}
                         <span class="text-amber-800 font-semibold text-base">{{ p.preco_venda|floatformat:0 }} Kz</span>
+                        {% endif %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{{ p.preco_venda|floatformat:0 }}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|floatformat:0 }}{% else %}{{ p.preco_venda|floatformat:0 }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-4 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -472,7 +499,7 @@
     </section>
 
     <!-- Mapa Google -->
-    <section class="bg-white py-14 px-8 border-t border-stone-100">
+    <section class="bg-white py-14 px-4 md:px-8 border-t border-stone-100">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-8">
                 <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Visite-nos</span>
@@ -500,7 +527,7 @@
         <div class="h-px bg-amber-800 w-full"></div>
 
         <!-- Conteúdo principal do rodapé -->
-        <div class="max-w-6xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div class="max-w-6xl mx-auto px-4 md:px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
 
             <!-- Logo + Quem Somos -->
             <div class="md:col-span-1">
@@ -584,7 +611,7 @@
         </div>
 
         <!-- Newsletter + Métodos de Pagamento -->
-        <div class="border-t border-stone-800 py-10 px-8">
+        <div class="border-t border-stone-800 py-10 px-4 md:px-8">
             <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
 
                 <!-- Newsletter -->
@@ -702,7 +729,7 @@
         </script>
 
         <!-- Faixa de copyright -->
-        <div class="border-t border-stone-800 py-5 px-8 flex flex-col md:flex-row items-center justify-between gap-2">
+        <div class="border-t border-stone-800 py-5 px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-2">
             <p class="text-xs text-stone-400 tracking-wide">
                 &copy; 2026 Décent Privé. Todos os direitos reservados.
             </p>
@@ -719,7 +746,7 @@
 
     <!-- ── Carrinho Lateral ── -->
     <div id="cart-overlay" onclick="toggleCart()" class="hidden fixed inset-0 bg-black/50 z-40 cursor-pointer"></div>
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-[28rem] bg-stone-900 shadow-2xl z-50 flex flex-col translate-x-full transition-transform duration-300">
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-stone-900 shadow-2xl z-50 flex flex-col translate-x-full transition-transform duration-300">
         <div class="flex items-center justify-between px-8 py-6 border-b border-stone-700">
             <div class="flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -851,7 +878,7 @@
 
     <!-- ── Menu Móvel ── -->
     <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
-    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
+    <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[16rem] sm:w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
             <span class="font-serif italic text-amber-700 text-2xl">Décent Privé</span>
             <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none" aria-label="Fechar">&times;</button>

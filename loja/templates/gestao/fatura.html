@@ -242,11 +242,15 @@
     }
 
     /* Wrapper flex principal (div.flex.h-screen) */
-    body > div,
-    .flex.h-screen {
+    body > div.flex.h-screen {
         display: block !important;
         height: auto !important;
         overflow: visible !important;
+    }
+
+    /* Overlay do sidebar mobile — manter escondido na impressão */
+    #sidebar-overlay {
+        display: none !important;
     }
 
     /* Coluna de conteúdo (flex-1 flex flex-col overflow-hidden) */

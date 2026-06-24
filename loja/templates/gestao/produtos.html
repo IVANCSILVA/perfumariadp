@@ -60,6 +60,7 @@
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Volume</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Essência</th>
                     <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Preço (Kz)</th>
+                    <th class="text-center px-3 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Desc.</th>
                     <th class="text-right px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Stock</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Cód. Barras</th>
                     <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Estado</th>
@@ -95,6 +96,13 @@
                         {% else %}—{% endif %}
                     </td>
                     <td class="px-5 py-3 text-right text-stone-700 font-medium">{{ p.preco|floatformat:0|intcomma }}</td>
+                    <td class="px-3 py-3 text-center">
+                        {% if p.tem_desconto %}
+                        <span class="inline-block bg-amber-100 text-amber-800 text-[9px] uppercase tracking-wider px-2 py-0.5 rounded">-{{ p.desconto_percentagem }}%</span>
+                        {% else %}
+                        <span class="text-stone-300">—</span>
+                        {% endif %}
+                    </td>
                     <td class="px-5 py-3 text-right">
                         <span class="{% if p.stock == 0 %}text-red-600 font-semibold{% elif p.stock < 5 %}text-amber-600 font-semibold{% else %}text-stone-600{% endif %}">
                             {{ p.stock }}
@@ -123,13 +131,13 @@
                 </tr>
                 {% empty %}
                 <tr id="row-vazio">
-                    <td colspan="11" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                    <td colspan="12" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
                         Nenhum produto registado ainda.
                     </td>
                 </tr>
                 {% endfor %}
                 <tr id="row-sem-resultados" class="hidden">
-                    <td colspan="11" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
+                    <td colspan="12" class="px-5 py-10 text-center text-stone-400 text-xs tracking-wide">
                         Nenhum produto encontrado para os filtros aplicados.
                     </td>
                 </tr>

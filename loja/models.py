@@ -88,6 +88,10 @@ class Produto(models.Model):
         blank=True,
         help_text='Notas olfativas: topo, coração e fundo (ex: Bergamota, Jasmim, Sândalo)'
     )
+    desconto_percentagem = models.PositiveIntegerField(
+        default=0,
+        help_text='Percentagem de desconto para promoções directas no produto (0 = sem desconto).'
+    )
     stock = models.PositiveIntegerField(default=0)
     disponivel = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
@@ -105,6 +109,16 @@ class Produto(models.Model):
     def preco(self):
         """Retrocompatibilidade: alias para preco_venda."""
         return self.preco_venda
+
+    @property
+    def tem_desconto(self):
+        return self.desconto_percentagem and self.desconto_percentagem > 0
+
+    @property
+    def preco_promocional(self):
+        if self.tem_desconto:
+            return round(float(self.preco_venda) * (100 - self.desconto_percentagem) / 100, 2)
+        return float(self.preco_venda)
 
     @property
     def margem(self):

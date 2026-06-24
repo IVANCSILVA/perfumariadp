@@ -187,9 +187,9 @@ def home(request):
     promocoes_carrossel = [p for p in activas if p.mostrar_carrossel]
     promocoes_landing = [p for p in activas if p.mostrar_landing]
 
-    masculinos = list(Produto.objects.filter(disponivel=True, genero='masculino').order_by('nome')[:4])
-    femininos  = list(Produto.objects.filter(disponivel=True, genero='feminino').order_by('nome')[:4])
-    unissex    = list(Produto.objects.filter(disponivel=True, genero='unissex').order_by('nome')[:4])
+    masculinos = list(Produto.objects.filter(disponivel=True, genero='masculino').order_by('-desconto_percentagem', 'nome')[:4])
+    femininos  = list(Produto.objects.filter(disponivel=True, genero='feminino').order_by('-desconto_percentagem', 'nome')[:4])
+    unissex    = list(Produto.objects.filter(disponivel=True, genero='unissex').order_by('-desconto_percentagem', 'nome')[:4])
 
     import json as _json
     produtos_busca_json = _json.dumps([
@@ -212,9 +212,9 @@ def home(request):
 
 def colecoes(request):
     _activas, _carrossel, promocoes_publicas = get_promocoes_activas()
-    masculinos = Produto.objects.filter(disponivel=True, genero='masculino').order_by('marca', 'nome')
-    femininos  = Produto.objects.filter(disponivel=True, genero='feminino').order_by('marca', 'nome')
-    unissex    = Produto.objects.filter(disponivel=True, genero='unissex').order_by('marca', 'nome')
+    masculinos = Produto.objects.filter(disponivel=True, genero='masculino').order_by('-desconto_percentagem', 'marca', 'nome')
+    femininos  = Produto.objects.filter(disponivel=True, genero='feminino').order_by('-desconto_percentagem', 'marca', 'nome')
+    unissex    = Produto.objects.filter(disponivel=True, genero='unissex').order_by('-desconto_percentagem', 'marca', 'nome')
     return render(request, 'loja/colecoes.html', {
         'promocoes_publicas': promocoes_publicas,
         'masculinos': masculinos,
@@ -256,31 +256,54 @@ def encomendas(request):
         if forma_pag not in ('avista', 'parcelado'):
             forma_pag = 'avista'
 
-        encomenda = Encomenda.objects.create(
-            nome_cliente=nome,
-            telefone=telefone,
-            email=email,
-            morada=morada,
-            notas=notas,
-            origem='online',
-            forma_pagamento=forma_pag,
-        )
+        from django.db import transaction
+        with transaction.atomic():
+            encomenda = Encomenda.objects.create(
+                nome_cliente=nome,
+                telefone=telefone,
+                email=email,
+                morada=morada,
+                notas=notas,
+                origem='online',
+                forma_pagamento=forma_pag,
+                status='em_curso',
+            )
 
-        try:
-            itens = json.loads(itens_json)
-            for item in itens:
-                nome_prod = item.get('name', '').strip()
-                preco = float(item.get('price', 0))
-                qty = int(item.get('qty', 1))
-                if nome_prod:
-                    ItemEncomenda.objects.create(
-                        encomenda=encomenda,
-                        nome_produto=nome_prod,
-                        preco_unitario=preco,
-                        quantidade=qty,
-                    )
-        except (json.JSONDecodeError, ValueError, TypeError):
-            pass
+            try:
+                itens = json.loads(itens_json)
+                for item in itens:
+                    nome_prod = item.get('name', '').strip()
+                    preco = float(item.get('price', 0))
+                    qty = int(item.get('qty', 1))
+                    if nome_prod and qty > 0:
+                        produto = Produto.objects.filter(nome=nome_prod, disponivel=True).first()
+                        if produto and produto.stock >= qty:
+                            produto.stock -= qty
+                            produto.save(update_fields=['stock'])
+                            MovimentoStock.objects.create(
+                                produto=produto,
+                                tipo='saida',
+                                quantidade=-qty,
+                                descricao=f'Encomenda online #{encomenda.pk}',
+                                encomenda=encomenda,
+                            )
+                            ItemEncomenda.objects.create(
+                                encomenda=encomenda,
+                                produto=produto,
+                                nome_produto=nome_prod,
+                                preco_unitario=preco,
+                                preco_custo_unitario=produto.preco_compra or 0,
+                                quantidade=qty,
+                            )
+                        else:
+                            ItemEncomenda.objects.create(
+                                encomenda=encomenda,
+                                nome_produto=nome_prod,
+                                preco_unitario=preco,
+                                quantidade=qty,
+                            )
+            except (json.JSONDecodeError, ValueError, TypeError):
+                pass
 
         request.session['ultima_encomenda_id'] = encomenda.pk
         return redirect('encomenda_sucesso')
@@ -420,18 +443,24 @@ def gestao_vendas(request):
 
     encomendas = Encomenda.objects.prefetch_related('itens').select_related('vendido_por').order_by('-criado_em')
 
-    contadores = contar_por_status(encomendas)
+    contadores = contar_por_status(Encomenda.objects.all())
 
     receita_total = sum(
         sum(item.subtotal() for item in enc.itens.all())
-        for enc in encomendas if enc.status == 'finalizada'
+        for enc in Encomenda.objects.filter(status='finalizada').prefetch_related('itens')
     )
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(encomendas, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, 'gestao/vendas.html', {
         'active_page': 'vendas',
-        'encomendas': encomendas,
+        'encomendas': page_obj,
+        'page_obj': page_obj,
         'contadores': contadores,
-        'total_registos': len(encomendas),
+        'total_registos': paginator.count,
         'receita_total': receita_total,
     })
 
@@ -1153,6 +1182,7 @@ def gestao_produto_criar(request, pk=None):
         disponivel = post.get('disponivel') == 'on'
         codigo_barras = post.get('codigo_barras', '').strip() or None
         essencia = post.get('essencia', '').strip()
+        desconto_raw = post.get('desconto_percentagem', '0').strip() or '0'
 
         if not nome:
             erros['nome'] = 'Nome obrigatório.'
@@ -1174,6 +1204,17 @@ def gestao_produto_criar(request, pk=None):
         except ValueError:
             erros['preco_compra'] = 'Preço de compra inválido.'
             preco_compra = 0
+        try:
+            desconto_percentagem = int(desconto_raw)
+            if desconto_percentagem < 0 or desconto_percentagem > 100:
+                erros['desconto_percentagem'] = 'Desconto deve estar entre 0 e 100.'
+            elif desconto_percentagem > 0 and not erros.get('preco_venda'):
+                preco_promocional = round(preco_venda * (100 - desconto_percentagem) / 100, 2)
+                if preco_promocional >= preco_venda:
+                    erros['desconto_percentagem'] = 'O preço promocional deve ser inferior ao preço original.'
+        except ValueError:
+            erros['desconto_percentagem'] = 'Percentagem de desconto inválida.'
+            desconto_percentagem = 0
         if codigo_barras:
             qs_cb = Produto.objects.filter(codigo_barras=codigo_barras)
             if instancia:
@@ -1226,6 +1267,7 @@ def gestao_produto_criar(request, pk=None):
                     instancia.imagem = imagem
                 instancia.codigo_barras = codigo_barras
                 instancia.essencia = essencia
+                instancia.desconto_percentagem = desconto_percentagem
                 instancia.save()
                 messages.success(request, f'Produto "{nome}" actualizado.')
             else:
@@ -1244,6 +1286,7 @@ def gestao_produto_criar(request, pk=None):
                     imagem=imagem,
                     codigo_barras=codigo_barras,
                     essencia=essencia,
+                    desconto_percentagem=desconto_percentagem,
                 )
                 messages.success(request, f'Produto "{nome}" criado com sucesso.')
             return redirect('gestao_produtos')
@@ -1260,6 +1303,7 @@ def gestao_produto_criar(request, pk=None):
             'disponivel': 'on' if instancia.disponivel else '',
             'codigo_barras': instancia.codigo_barras or '',
             'essencia': instancia.essencia,
+            'desconto_percentagem': str(instancia.desconto_percentagem),
         }
 
     return render(request, 'gestao/produto_form.html', {
@@ -1412,12 +1456,12 @@ def gestao_caixa(request):
         .order_by('-total_qty')[:8]
     )
 
-    # Últimas 15 vendas finalizadas
+    # Vendas finalizadas hoje
     ultimas_vendas = (
         Encomenda.objects
-        .filter(status='finalizada')
+        .filter(status='finalizada', criado_em__date=hoje)
         .prefetch_related('itens')
-        .order_by('-criado_em')[:15]
+        .order_by('-criado_em')
     )
     for v in ultimas_vendas:
         v.total_calc = sum(i.subtotal() for i in v.itens.all())
@@ -1767,7 +1811,7 @@ def _financeiro_listar(request, tipo):
             messages.success(request, f'{"Entrada" if tipo == "entrada" else "Saída"} de caixa registada.')
             return redirect('gestao_caixa_entrada' if tipo == 'entrada' else 'gestao_caixa_saida')
 
-    movimentos = MovimentoCaixa.objects.filter(tipo=tipo).select_related('criado_por').order_by('-data')[:100]
+    movimentos = MovimentoCaixa.objects.filter(tipo=tipo).exclude(categoria='venda').select_related('criado_por').order_by('-data')[:100]
     total = sum(float(m.valor) for m in movimentos)
 
     # Saldo geral do caixa (todas as entradas − todas as saídas)

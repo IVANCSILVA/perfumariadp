@@ -6,7 +6,7 @@
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-        <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ encomendas|length }} registo(s)</p>
+        <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ total_registos }} registo(s)</p>
         <a href="{% url 'gestao_venda_nova' %}"
            class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150">
             + Efectuar Venda
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Pesquisa + filtros -->
-    <div class="bg-white border border-stone-200 px-5 py-4 mb-0 rounded-t-xl shadow-sm flex flex-wrap items-center gap-3">
+    <div class="bg-white border border-stone-200 px-3 md:px-5 py-3 md:py-4 mb-0 rounded-t-xl shadow-sm flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
         <div class="relative flex-1 min-w-[200px]">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
@@ -54,34 +54,34 @@
         </div>
         <div class="flex items-center gap-1 flex-wrap">
             <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Estado:</span>
-            <button data-status="" class="filtro-status activo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todas</button>
-            <button data-status="finalizada" class="filtro-status text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-green-500 hover:text-green-700">Finalizada</button>
-            <button data-status="em_curso"   class="filtro-status text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-yellow-400 hover:text-yellow-700">Em Curso</button>
-            <button data-status="cancelada"  class="filtro-status text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-red-400 hover:text-red-600">Cancelada</button>
+            <button data-status="" class="filtro-status activo text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todas</button>
+            <button data-status="finalizada" class="filtro-status text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-green-500 hover:text-green-700">Finalizada</button>
+            <button data-status="em_curso"   class="filtro-status text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-yellow-400 hover:text-yellow-700">Em Curso</button>
+            <button data-status="cancelada"  class="filtro-status text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-red-400 hover:text-red-600">Cancelada</button>
         </div>
         <div class="flex items-center gap-1 flex-wrap">
             <span class="text-[9px] uppercase tracking-widest text-stone-400 mr-1">Origem:</span>
-            <button data-origem=""       class="filtro-origem activo text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todas</button>
-            <button data-origem="balcao" class="filtro-origem text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-amber-600 hover:text-amber-700">Balcão</button>
-            <button data-origem="online" class="filtro-origem text-[9px] uppercase tracking-widest px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-blue-500 hover:text-blue-700">Online</button>
+            <button data-origem=""       class="filtro-origem activo text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-800 bg-stone-800 text-white">Todas</button>
+            <button data-origem="balcao" class="filtro-origem text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-amber-600 hover:text-amber-700">Balcão</button>
+            <button data-origem="online" class="filtro-origem text-[9px] uppercase tracking-widest px-2 md:px-3 py-1.5 border transition-colors duration-100 border-stone-200 text-stone-500 hover:border-blue-500 hover:text-blue-700">Online</button>
         </div>
     </div>
 
     <!-- Tabela -->
     <div class="bg-white border border-t-0 border-stone-200 overflow-x-auto rounded-b-xl shadow-sm">
-        <table class="w-full text-xs gestao-table">
+        <table class="w-full text-xs gestao-table min-w-[800px]">
             <thead>
-                <tr class="border-b border-stone-100 text-[9px] uppercase tracking-widest text-stone-400 bg-stone-50">
-                    <th class="px-5 py-3 text-left">#</th>
-                    <th class="px-5 py-3 text-left">Origem</th>
-                    <th class="px-5 py-3 text-left">Produto</th>
-                    <th class="px-5 py-3 text-right">Valor Pago</th>
-                    <th class="px-5 py-3 text-center">Qtd</th>
-                    <th class="px-5 py-3 text-left">Cliente</th>
-                    <th class="px-5 py-3 text-left">Vendido por</th>
-                    <th class="px-5 py-3 text-left">Data e Hora</th>
-                    <th class="px-5 py-3 text-left">Estado</th>
-                    <th class="px-5 py-3 text-left">Acção</th>
+                <tr class="border-b border-stone-100 text-[9px] md:text-[9px] uppercase tracking-widest text-stone-400 bg-stone-50">
+                    <th class="px-3 md:px-5 py-3 text-left">#</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Origem</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Produto</th>
+                    <th class="px-3 md:px-5 py-3 text-right">Valor</th>
+                    <th class="px-3 md:px-5 py-3 text-center">Qtd</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Cliente</th>
+                    <th class="px-3 md:px-5 py-3 text-left hidden md:table-cell">Vendido por</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Data</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Estado</th>
+                    <th class="px-3 md:px-5 py-3 text-left">Acção</th>
                 </tr>
             </thead>
             <tbody id="tbody-vendas" class="divide-y divide-stone-50">
@@ -92,47 +92,47 @@
                     data-id="{{ enc.pk }}"
                     data-status="{{ enc.status }}"
                     data-origem="{{ enc.origem }}">
-                    <td class="px-5 py-3 text-stone-400 font-mono">#{{ enc.pk }}</td>
-                    <td class="px-5 py-3 whitespace-nowrap">
+                    <td class="px-3 md:px-5 py-3 text-stone-400 font-mono">#{{ enc.pk }}</td>
+                    <td class="px-3 md:px-5 py-3 whitespace-nowrap">
                         {% if enc.origem == 'balcao' %}
                         <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm bg-amber-50 text-amber-700 border border-amber-200">Balcão</span>
                         {% elif enc.origem == 'online' %}
                         <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm bg-blue-50 text-blue-700 border border-blue-200">Online</span>
                         {% endif %}
                     </td>
-                    <td class="px-5 py-3 text-stone-700 max-w-[220px]">
+                    <td class="px-3 md:px-5 py-3 text-stone-700 max-w-[160px] md:max-w-[220px]">
                         {% for item in enc.itens.all %}
                         <div class="text-[11px] leading-tight">{{ item.nome_produto }}</div>
                         {% empty %}
                         <span class="text-stone-300">—</span>
                         {% endfor %}
                     </td>
-                    <td class="px-5 py-3 text-right whitespace-nowrap">
+                    <td class="px-3 md:px-5 py-3 text-right whitespace-nowrap">
                         <div class="text-stone-800 font-semibold text-[12px]">{{ enc.total|floatformat:0|intcomma }} Kz</div>
                     </td>
-                    <td class="px-5 py-3 text-stone-700 text-center font-medium">
+                    <td class="px-3 md:px-5 py-3 text-stone-700 text-center font-medium">
                         {% for item in enc.itens.all %}
                         <div class="text-[11px] leading-tight">{{ item.quantidade }}</div>
                         {% empty %}
                         <span class="text-stone-300">—</span>
                         {% endfor %}
                     </td>
-                    <td class="px-5 py-3 whitespace-nowrap">
+                    <td class="px-3 md:px-5 py-3 whitespace-nowrap">
                         <div class="text-stone-800 font-medium">{{ enc.nome_cliente }}</div>
                         <div class="text-stone-400 text-[10px]">{{ enc.telefone }}</div>
                     </td>
-                    <td class="px-5 py-3 text-stone-500 whitespace-nowrap text-[11px]">
+                    <td class="px-3 md:px-5 py-3 text-stone-500 whitespace-nowrap text-[11px] hidden md:table-cell">
                         {% if enc.vendido_por %}
                             {{ enc.vendido_por.get_full_name|default:enc.vendido_por.username }}
                         {% else %}
                             <span class="text-stone-300">—</span>
                         {% endif %}
                     </td>
-                    <td class="px-5 py-3 text-stone-500 whitespace-nowrap text-[11px]">
+                    <td class="px-3 md:px-5 py-3 text-stone-500 whitespace-nowrap text-[11px]">
                         {{ enc.criado_em|date:"d/m/Y" }}
-                        <span class="text-stone-400 ml-1">{{ enc.criado_em|date:"H:i" }}</span>
+                        <span class="text-stone-400 ml-1 hidden md:inline">{{ enc.criado_em|date:"H:i" }}</span>
                     </td>
-                    <td class="px-5 py-3 whitespace-nowrap">
+                    <td class="px-3 md:px-5 py-3 whitespace-nowrap">
                         <span class="px-2 py-0.5 text-[9px] uppercase tracking-widest rounded-sm
                             {% if enc.status == 'em_curso' %}bg-yellow-100 text-yellow-700
                             {% elif enc.status == 'finalizada' %}bg-green-100 text-green-700
@@ -141,7 +141,7 @@
                             {{ enc.get_status_display }}
                         </span>
                     </td>
-                    <td class="px-5 py-3 flex items-center gap-2">
+                    <td class="px-3 md:px-5 py-3 flex items-center gap-2">
                         <a href="{% url 'gestao_venda_detalhe' enc.pk %}"
                            class="flex items-center gap-1.5 text-stone-600 hover:text-amber-700 hover:bg-amber-50 px-2.5 py-1.5 rounded transition-colors" title="Ver Detalhe da Venda">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -175,6 +175,25 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Paginação -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+        <p class="text-[10px] text-stone-400 uppercase tracking-widest">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </p>
+        <div class="flex items-center gap-1">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               class="px-3 py-1.5 text-[10px] uppercase tracking-widest border border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700 transition-colors">← Anterior</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               class="px-3 py-1.5 text-[10px] uppercase tracking-widest border border-stone-200 text-stone-500 hover:border-amber-500 hover:text-amber-700 transition-colors">Seguinte →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script>
