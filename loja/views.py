@@ -332,6 +332,7 @@ def gestao_login(request):
     return render(request, 'gestao/login.html', {'erro': erro})
 
 
+@require_POST
 def gestao_logout(request):
     logout(request)
     return redirect('gestao_login')
@@ -396,7 +397,6 @@ def gestao_dashboard(request):
         'total_encomendas': Encomenda.objects.count(),
         'pendentes': Encomenda.objects.filter(status='em_curso').count(),
         'encomendas_hoje': Encomenda.objects.filter(criado_em__date=hoje).count(),
-        'total_produtos': Produto.objects.count(),
         'total_produtos': Produto.objects.count(),
         'stock_baixo': Produto.objects.filter(stock__lt=5).count() if Produto.objects.exists() else None,
         'total_clientes': Cliente.objects.count(),
@@ -537,21 +537,16 @@ def gestao_venda_detalhe(request, pk):
                 return redirect('gestao_vendas')
         
         elif acao == 'eliminar':
-            # Reverter stock dos itens
-            for item in encomenda.itens.all():
-                if item.produto:
-                    item.produto.stock += item.quantidade
-                    item.produto.save(update_fields=['stock'])
-            
-            # Eliminar movimentos de stock relacionados
-            MovimentoStock.objects.filter(encomenda=encomenda).delete()
-            
-            # Eliminar itens
-            encomenda.itens.all().delete()
-            
-            # Eliminar a encomenda
-            venda_id = encomenda.pk
-            encomenda.delete()
+            from django.db import transaction
+            with transaction.atomic():
+                for item in encomenda.itens.all():
+                    if item.produto:
+                        item.produto.stock += item.quantidade
+                        item.produto.save(update_fields=['stock'])
+                MovimentoStock.objects.filter(encomenda=encomenda).delete()
+                encomenda.itens.all().delete()
+                venda_id = encomenda.pk
+                encomenda.delete()
             
             messages.success(request, f'Venda #{venda_id} eliminada com sucesso. Stock revertido.')
             return redirect('gestao_vendas')
@@ -639,64 +634,65 @@ def gestao_venda_nova(request):
             valor_parcela2 = None
 
         if not erros:
-            # Determinar status e parcelas
-            if forma_pagamento == 'parcelado':
-                status = 'em_curso'
-                parcela1_paga = True  # 1ª parcela paga na hora
-                parcela2_paga = False
-                from datetime import timedelta, date as date_type
-                data_str = request.POST.get('data_proxima_parcela', '').strip()
-                try:
-                    data_proxima_parcela = date_type.fromisoformat(data_str) if data_str else timezone.now().date() + timedelta(days=30)
-                except ValueError:
-                    data_proxima_parcela = timezone.now().date() + timedelta(days=30)
-            else:
-                status = 'finalizada'
-                parcela1_paga = False
-                parcela2_paga = False
-                data_proxima_parcela = None
+            from django.db import transaction
+            with transaction.atomic():
+                # Determinar status e parcelas
+                if forma_pagamento == 'parcelado':
+                    status = 'em_curso'
+                    parcela1_paga = True  # 1ª parcela paga na hora
+                    parcela2_paga = False
+                    from datetime import timedelta, date as date_type
+                    data_str = request.POST.get('data_proxima_parcela', '').strip()
+                    try:
+                        data_proxima_parcela = date_type.fromisoformat(data_str) if data_str else timezone.now().date() + timedelta(days=30)
+                    except ValueError:
+                        data_proxima_parcela = timezone.now().date() + timedelta(days=30)
+                else:
+                    status = 'finalizada'
+                    parcela1_paga = False
+                    parcela2_paga = False
+                    data_proxima_parcela = None
 
-            encomenda = Encomenda.objects.create(
-                tipo_cliente=tipo_cliente,
-                nome_empresa=nome_empresa,
-                nif=nif,
-                nome_cliente=nome_cliente,
-                telefone=telefone or '—',
-                email=email,
-                morada=morada,
-                notas=notas,
-                status=status,
-                origem='balcao',
-                vendido_por=request.user if request.user.is_authenticated else None,
-                forma_pagamento=forma_pagamento,
-                valor_parcela1=valor_parcela1,
-                valor_parcela2=valor_parcela2,
-                parcela1_paga=parcela1_paga,
-                parcela2_paga=parcela2_paga,
-                data_proxima_parcela=data_proxima_parcela,
-            )
-            for item in itens_validos:
-                p = item['produto']
-                ItemEncomenda.objects.create(
-                    encomenda=encomenda,
-                    produto=p,
-                    nome_produto=p.nome,
-                    preco_unitario=item['preco'],
-                    preco_custo_unitario=p.preco_compra or 0,
-                    quantidade=item['qty'],
+                encomenda = Encomenda.objects.create(
+                    tipo_cliente=tipo_cliente,
+                    nome_empresa=nome_empresa,
+                    nif=nif,
+                    nome_cliente=nome_cliente,
+                    telefone=telefone or '—',
+                    email=email,
+                    morada=morada,
+                    notas=notas,
+                    status=status,
+                    origem='balcao',
+                    vendido_por=request.user if request.user.is_authenticated else None,
+                    forma_pagamento=forma_pagamento,
+                    valor_parcela1=valor_parcela1,
+                    valor_parcela2=valor_parcela2,
+                    parcela1_paga=parcela1_paga,
+                    parcela2_paga=parcela2_paga,
+                    data_proxima_parcela=data_proxima_parcela,
                 )
-                p.stock -= item['qty']
-                p.save(update_fields=['stock'])
-                # Registar movimento de saída de stock
-                MovimentoStock.objects.create(
-                    produto=p,
-                    tipo='saida',
-                    quantidade=-item['qty'],  # Negativo para saída
-                    descricao=f'Venda: Encomenda #{encomenda.pk}',
-                    encomenda=encomenda,
-                    criado_por=request.user if request.user.is_authenticated else None,
-                )
-            _registar_venda_no_caixa(encomenda, request.user)
+                for item in itens_validos:
+                    p = item['produto']
+                    ItemEncomenda.objects.create(
+                        encomenda=encomenda,
+                        produto=p,
+                        nome_produto=p.nome,
+                        preco_unitario=item['preco'],
+                        preco_custo_unitario=p.preco_compra or 0,
+                        quantidade=item['qty'],
+                    )
+                    p.stock -= item['qty']
+                    p.save(update_fields=['stock'])
+                    MovimentoStock.objects.create(
+                        produto=p,
+                        tipo='saida',
+                        quantidade=-item['qty'],
+                        descricao=f'Venda: Encomenda #{encomenda.pk}',
+                        encomenda=encomenda,
+                        criado_por=request.user if request.user.is_authenticated else None,
+                    )
+                _registar_venda_no_caixa(encomenda, request.user)
             if forma_pagamento == 'parcelado':
                 messages.success(request, f'Venda parcelada #{encomenda.pk} criada. 1ª parcela paga. Próximo pagamento: {encomenda.data_proxima_parcela.strftime("%d/%m/%Y")}')
             else:

@@ -97,7 +97,6 @@ urlpatterns = [
     path('gestao/banners/novo/', views.gestao_banner_form, name='gestao_banner_novo'),
     path('gestao/banners/<int:pk>/editar/', views.gestao_banner_form, name='gestao_banner_editar'),
     path('gestao/banners/<int:pk>/apagar/', views.gestao_banner_apagar, name='gestao_banner_apagar'),
-    path('newsletter/inscrever/', views.newsletter_inscrever, name='newsletter_inscrever'),
     # Lotes de Importação
     path('gestao/importacoes/', views.gestao_importacoes, name='gestao_importacoes'),
     path('gestao/importacoes/novo/', views.gestao_importacao_criar, name='gestao_importacao_criar'),

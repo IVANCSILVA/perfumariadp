@@ -345,7 +345,7 @@ class Funcionario(models.Model):
         validators=[validar_telefone_angola]
     )
     email = models.EmailField(blank=True)
-    cargo = models.CharField(max_length=20, choices=CARGO_CHOICES, default='operador')
+    cargo = models.CharField(max_length=20, choices=CARGO_CHOICES, default='operador_caixa')
     turno = models.CharField(max_length=10, choices=TURNO_CHOICES, default='integral')
     salario = models.DecimalField(
         max_digits=12, decimal_places=2, null=True, blank=True,
