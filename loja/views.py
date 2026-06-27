@@ -1202,10 +1202,15 @@ def gestao_funcionario_detalhe(request, pk):
 @_block_operador
 def gestao_produto_criar(request, pk=None):
     instancia = get_object_or_404(Produto, pk=pk) if pk else None
-    # Garantir que as duas categorias fixas existem
+    # Garantir que as duas categorias fixas existem e obter os IDs
+    cat_ids = []
     for nome_cat in ['Nicho', 'Diversos']:
-        Categoria.objects.get_or_create(nome=nome_cat, defaults={'slug': nome_cat.lower()})
-    categorias = Categoria.objects.filter(nome__in=['Nicho', 'Diversos']).order_by('nome')
+        obj, created = Categoria.objects.get_or_create(
+            nome__iexact=nome_cat,
+            defaults={'nome': nome_cat, 'slug': gerar_slug_unico(Categoria, nome_cat)},
+        )
+        cat_ids.append(obj.id)
+    categorias = Categoria.objects.filter(id__in=cat_ids).order_by('nome')
     genero_choices = Produto.GENERO_CHOICES
     concentracao_choices = Produto.CONCENTRACAO_CHOICES
     origem_choices = Produto.ORIGEM_CHOICES
