@@ -11,6 +11,15 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; }
         .font-serif { font-family: 'Playfair Display', serif; }
+        @keyframes pulseRing {
+            0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.55); }
+            70%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        .wa-pulse { animation: pulseRing 2s infinite; }
+        .lightbox-img { transition: opacity 0.3s ease; }
+        .gallery-item { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .gallery-item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.12); }
     </style>
 </head>
 <body class="bg-white text-stone-900">
@@ -21,7 +30,7 @@
             <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-16 md:h-52 w-auto">
         </a>
         <div class="flex items-center gap-5 pt-4">
-            <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
+            <div class="gap-1 text-xs uppercase tracking-widest hidden md:flex md:gap-4 lg:gap-6">
                 <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Início</a>
                 <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
                 <a href="{% url 'galeria' %}" class="text-amber-950 font-semibold px-3 py-1 border-b border-amber-800 transition-all duration-200">Galeria</a>
@@ -37,35 +46,81 @@
         </div>
     </nav>
 
-    <main class="px-4 md:px-8 py-16">
-        <div class="text-center mb-12">
-            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Décent Privé</span>
-            <h1 class="text-5xl font-serif italic mb-6 mt-3">Galeria</h1>
-            <p class="text-stone-500 max-w-md mx-auto tracking-wide uppercase text-xs">Inspire-se com as nossas imagens e momentos únicos.</p>
-        </div>
+    <!-- Hero -->
+    <section class="bg-stone-50 border-b border-stone-100 py-14 text-center px-4 md:px-8">
+        <p class="text-xs uppercase tracking-[0.4em] text-amber-700 mb-3">Inspiração</p>
+        <h1 class="font-serif italic text-4xl md:text-6xl text-stone-800 mb-4">Galeria</h1>
+        <p class="text-stone-500 max-w-md mx-auto tracking-wide uppercase text-xs">Inspire-se com as nossas imagens e momentos únicos.</p>
+    </section>
 
+    <main class="px-4 md:px-8 py-16">
         {% if imagens %}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
             {% for img in imagens %}
-            <div class="group">
-                <div class="aspect-square overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div class="gallery-item group cursor-pointer rounded-lg overflow-hidden bg-white border border-stone-100 relative"
+                 onclick="openLightbox({{ forloop.counter0 }})">
+                <div class="aspect-square overflow-hidden">
                     <img src="{{ img.imagem.url }}" alt="{{ img.legenda }}"
                          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                 </div>
                 {% if img.legenda %}
-                <p class="text-xs text-stone-500 tracking-wide text-center mt-2 px-1">{{ img.legenda }}</p>
+                <div class="p-3">
+                    <p class="text-xs text-stone-600 tracking-wide text-center line-clamp-2">{{ img.legenda }}</p>
+                </div>
                 {% endif %}
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none">
+                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>
+                    </svg>
+                </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p class="text-center text-stone-400 text-sm tracking-wide">Em breve...</p>
+        <div class="text-center py-24">
+            <div class="w-16 h-16 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center mx-auto mb-6">
+                <svg class="w-7 h-7 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+                </svg>
+            </div>
+            <p class="text-stone-400 text-sm tracking-wide uppercase">Em breve...</p>
+        </div>
         {% endif %}
     </main>
 
-    <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-10">
-        &copy; 2026 Décent Privé. Todos os direitos reservados.
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="hidden fixed inset-0 z-[60] bg-black/90 items-center justify-center p-4" onclick="closeLightbox(event)">
+        <button class="absolute top-4 right-4 text-white/70 hover:text-white text-4xl leading-none z-10" onclick="closeLightbox(event)" aria-label="Fechar">&times;</button>
+        <button class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white z-10 w-12 h-12 flex items-center justify-center" onclick="navLightbox(event, -1)" aria-label="Anterior">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+        </button>
+        <button class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white z-10 w-12 h-12 flex items-center justify-center" onclick="navLightbox(event, 1)" aria-label="Próximo">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+        </button>
+        <div class="max-w-4xl max-h-[85vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <img id="lightbox-img" src="" alt="" class="lightbox-img max-h-[70vh] w-auto object-contain rounded-lg shadow-2xl">
+            <div id="lightbox-caption" class="text-center mt-4 max-w-2xl">
+                <p id="lightbox-legenda" class="text-white text-sm tracking-wide"></p>
+                <p id="lightbox-counter" class="text-white/40 text-xs uppercase tracking-widest mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-stone-900 text-stone-300 border-t border-stone-800">
+        <div class="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="font-serif italic text-amber-500 text-lg">Décent Privé</p>
+                <p class="text-xs text-stone-400 mt-1">Curadoria de fragrâncias exclusivas — Huambo, Angola</p>
+            </div>
+            <div class="flex flex-wrap gap-6 text-xs uppercase tracking-widest">
+                <a href="{% url 'home' %}" class="hover:text-amber-400 transition-colors">Início</a>
+                <a href="{% url 'colecoes' %}" class="hover:text-amber-400 transition-colors">Colecções</a>
+                <a href="{% url 'fidelidade' %}" class="hover:text-amber-400 transition-colors">Fidelidade</a>
+                <a href="{% url 'contactos' %}" class="hover:text-amber-400 transition-colors">Contactos</a>
+            </div>
+            <p class="text-xs text-stone-500">&copy; 2026 Décent Privé</p>
+        </div>
     </footer>
 
     <!-- Menu Móvel -->
@@ -85,7 +140,69 @@
         </nav>
     </div>
 
+    <!-- WhatsApp Flutuante -->
+    <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20D%C3%A9cent%20Priv%C3%A9."
+       target="_blank" rel="noopener noreferrer"
+       class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
+       aria-label="Falar no WhatsApp">
+        <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </svg>
+    </a>
+
     <script>
+        const galleryImages = [
+            {% for img in imagens %}
+            { src: '{{ img.imagem.url }}', legenda: '{{ img.legenda|escapejs|default:"" }}' }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        let currentIdx = 0;
+
+        function openLightbox(idx) {
+            currentIdx = idx;
+            showImage();
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function showImage() {
+            const img = galleryImages[currentIdx];
+            const el = document.getElementById('lightbox-img');
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.src = img.src;
+                el.alt = img.legenda;
+                el.style.opacity = '1';
+            }, 150);
+            document.getElementById('lightbox-legenda').textContent = img.legenda || '';
+            document.getElementById('lightbox-counter').textContent = (currentIdx + 1) + ' / ' + galleryImages.length;
+        }
+
+        function closeLightbox(e) {
+            if (e.target === e.currentTarget || e.target.closest('button[aria-label="Fechar"]')) {
+                const lb = document.getElementById('lightbox');
+                lb.classList.add('hidden');
+                lb.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function navLightbox(e, dir) {
+            e.stopPropagation();
+            currentIdx = (currentIdx + dir + galleryImages.length) % galleryImages.length;
+            showImage();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            const lb = document.getElementById('lightbox');
+            if (lb.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeLightbox({ target: lb, currentTarget: lb });
+            if (e.key === 'ArrowLeft') navLightbox({ stopPropagation: () => {} }, -1);
+            if (e.key === 'ArrowRight') navLightbox({ stopPropagation: () => {} }, 1);
+        });
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('mobile-overlay');

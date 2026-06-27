@@ -20,15 +20,19 @@
                 ✓ Finalizar Venda
             </button>
         </form>
+        {% if not is_operador %}
         <button type="button" onclick="document.getElementById('modal_cancelar').style.display='flex'"
            class="bg-red-700 hover:bg-red-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
             ✕ Cancelar Venda
         </button>
         {% endif %}
+        {% endif %}
+        {% if not is_operador %}
         <button type="button" onclick="document.getElementById('modal_eliminar').style.display='flex'"
            class="bg-stone-700 hover:bg-stone-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
             🗑 Eliminar Venda
         </button>
+        {% endif %}
         <a href="{% url 'gestao_vendas' %}"
            class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
             ← Voltar às Vendas

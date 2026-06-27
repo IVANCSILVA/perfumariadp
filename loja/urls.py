@@ -9,6 +9,7 @@ urlpatterns = [
     path('gestao/newsletter/enviar/', views.gestao_enviar_newsletter, name='gestao_enviar_newsletter'),
     path('', views.home, name='home'),
     path('colecoes/', views.colecoes, name='colecoes'),
+    path('produto/<int:pk>/', views.produto_detalhe, name='produto_detalhe'),
     path('promocao/<slug:slug>/', views.promocao_publica, name='promocao_publica'),
     path('encomendas/', views.encomendas, name='encomendas'),
     path('encomendas/sucesso/', views.encomenda_sucesso, name='encomenda_sucesso'),
@@ -108,4 +109,12 @@ urlpatterns = [
     path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/editar/', views.gestao_importacao_item_salvar, name='gestao_importacao_item_editar'),
     path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/apagar/', views.gestao_importacao_item_apagar, name='gestao_importacao_item_apagar'),
     path('gestao/importacoes/<int:lote_pk>/item/<int:item_pk>/toggle/', views.gestao_importacao_item_toggle, name='gestao_importacao_item_toggle'),
+    # Cupões
+    path('gestao/cupoes/', views.gestao_cupoes, name='gestao_cupoes'),
+    path('gestao/cupoes/novo/', views.gestao_cupao_criar, name='gestao_cupao_novo'),
+    path('gestao/cupoes/<int:pk>/editar/', views.gestao_cupao_criar, name='gestao_cupao_editar'),
+    path('gestao/cupoes/<int:pk>/apagar/', views.gestao_cupao_apagar, name='gestao_cupao_apagar'),
+    path('gestao/cupoes/<int:pk>/toggle/', views.gestao_cupao_toggle, name='gestao_cupao_toggle'),
+    # API pública
+    path('api/validar-cupao/', views.validar_cupao, name='validar_cupao'),
 ]

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Categoria, Produto, Encomenda, ItemEncomenda,
     Cliente, HistoricoFidelidade, Banner, Newsletter,
-    Funcionario, VisitaSite, Promocao,
+    Funcionario, VisitaSite, Promocao, Cupao,
 )
 from .models import NewsletterInscricao
 from django.utils.html import format_html
@@ -219,4 +219,13 @@ class PromocaoAdmin(admin.ModelAdmin):
     ordering = ('data_inicio',)
     prepopulated_fields = {'slug': ('nome',)}
     filter_horizontal = ('produtos',)
+
+
+@admin.register(Cupao)
+class CupaoAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'tipo_desconto', 'valor_desconto', 'valor_minimo_compra', 'limite_uso', 'usos', 'data_inicio', 'data_fim', 'ativo')
+    list_filter = ('tipo_desconto', 'ativo')
+    search_fields = ('codigo', 'descricao')
+    list_editable = ('ativo',)
+    readonly_fields = ('criado_em', 'usos')
 

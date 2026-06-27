@@ -51,6 +51,14 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
 
+# ---------------------------------------------------------------------------
+# Acesso ao painel de gestão (subdomínio gestao.decentprive.ao)
+# ---------------------------------------------------------------------------
+# Caminho secreto para aceder ao login de gestão.
+# Link de acesso: https://gestao.decentprive.ao/acesso/
+# Quem não conhece o caminho é redirecionado para www.decentprive.ao
+GESTAO_SECRET_PATH = os.environ.get('GESTAO_SECRET_PATH', 'acesso')
+
 
 # Application definition
 
@@ -75,6 +83,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'loja.middleware.GestaoAccessMiddleware',
+    'loja.middleware.SessionTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'

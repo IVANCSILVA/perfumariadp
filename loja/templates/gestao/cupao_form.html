@@ -1,0 +1,141 @@
+{% extends 'gestao/base.html' %}
+{% load humanize %}
+{% block title %}{{ instancia|yesno:'Editar Cupão,Novo Cupão' }}{% endblock %}
+{% block page_title %}{{ instancia|yesno:'Editar Cupão,Novo Cupão' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+    <div class="flex items-center justify-between mb-6">
+        <a href="{% url 'gestao_cupoes' %}" class="text-stone-400 hover:text-amber-700 text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+            </svg>
+            Voltar
+        </a>
+    </div>
+
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm p-6">
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Código -->
+            <div>
+                <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Código <span class="text-amber-700">*</span></label>
+                <input type="text" name="codigo" value="{% if post.codigo %}{{ post.codigo }}{% elif instancia.codigo %}{{ instancia.codigo }}{% endif %}" required
+                       maxlength="50" style="text-transform:uppercase"
+                       placeholder="Ex: VERAO20"
+                       class="w-full text-sm font-mono font-bold bg-stone-50 border border-stone-200 text-amber-800 px-3 py-2.5 focus:outline-none focus:border-amber-500 tracking-wider">
+                {% if erros.codigo %}<p class="text-[10px] text-red-600 mt-1">{{ erros.codigo }}</p>{% endif %}
+            </div>
+
+            <!-- Descrição -->
+            <div>
+                <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Descrição <span class="text-stone-400">(interno)</span></label>
+                <input type="text" name="descricao" value="{% if post.descricao %}{{ post.descricao }}{% elif instancia.descricao %}{{ instancia.descricao }}{% endif %}"
+                       maxlength="200"
+                       placeholder="Ex: Promoção de Verão 2026"
+                       class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2 focus:outline-none focus:border-amber-500">
+            </div>
+
+            <!-- Tipo + Valor -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Tipo de Desconto <span class="text-amber-700">*</span></label>
+                    <select name="tipo_desconto"
+                            class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500">
+                        <option value="percentagem" {% if post.tipo_desconto == 'percentagem' or instancia.tipo_desconto == 'percentagem' or not instancia %}selected{% endif %}>Percentagem (%)</option>
+                        <option value="valor" {% if post.tipo_desconto == 'valor' or instancia.tipo_desconto == 'valor' %}selected{% endif %}>Valor Fixo (Kz)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Valor <span class="text-amber-700">*</span></label>
+                    <input type="number" step="0.01" min="0.01" name="valor_desconto"
+                           value="{% if post.valor_desconto %}{{ post.valor_desconto }}{% elif instancia.valor_desconto %}{{ instancia.valor_desconto }}{% endif %}" required
+                           placeholder="Ex: 20"
+                           class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500 font-mono">
+                    {% if erros.valor_desconto %}<p class="text-[10px] text-red-600 mt-1">{{ erros.valor_desconto }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Mínimo compra + Limite uso -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Compra Mínima (Kz)</label>
+                    <input type="number" step="0.01" min="0" name="valor_minimo_compra"
+                           value="{% if post.valor_minimo_compra %}{{ post.valor_minimo_compra }}{% elif instancia.valor_minimo_compra %}{{ instancia.valor_minimo_compra }}{% else %}0{% endif %}"
+                           placeholder="0 = sem mínimo"
+                           class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500 font-mono">
+                    {% if erros.valor_minimo_compra %}<p class="text-[10px] text-red-600 mt-1">{{ erros.valor_minimo_compra }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Limite de Usos</label>
+                    <input type="number" min="0" name="limite_uso"
+                           value="{% if post.limite_uso %}{{ post.limite_uso }}{% elif instancia.limite_uso %}{{ instancia.limite_uso }}{% else %}0{% endif %}"
+                           placeholder="0 = ilimitado"
+                           class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500 font-mono">
+                    {% if erros.limite_uso %}<p class="text-[10px] text-red-600 mt-1">{{ erros.limite_uso }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Datas -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Data de Início <span class="text-amber-700">*</span></label>
+                    <input type="datetime-local" name="data_inicio"
+                           value="{% if post.data_inicio %}{{ post.data_inicio }}{% elif instancia.data_inicio %}{{ instancia.data_inicio|date:'Y-m-d\TH:i' }}{% endif %}" required
+                           class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500">
+                    {% if erros.data_inicio %}<p class="text-[10px] text-red-600 mt-1">{{ erros.data_inicio }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Data de Fim <span class="text-amber-700">*</span></label>
+                    <input type="datetime-local" name="data_fim"
+                           value="{% if post.data_fim %}{{ post.data_fim }}{% elif instancia.data_fim %}{{ instancia.data_fim|date:'Y-m-d\TH:i' }}{% endif %}" required
+                           class="w-full text-xs bg-stone-50 border border-stone-200 text-stone-800 px-3 py-2.5 focus:outline-none focus:border-amber-500">
+                    {% if erros.data_fim %}<p class="text-[10px] text-red-600 mt-1">{{ erros.data_fim }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Activo -->
+            <div class="flex items-center gap-3 pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="ativo" class="accent-amber-700 w-4 h-4"
+                           {% if not instancia or instancia.ativo or post.ativo %}checked{% endif %}>
+                    <span class="text-xs text-stone-700 uppercase tracking-widest">Cupão Activo</span>
+                </label>
+            </div>
+
+            {% if instancia and instancia.usos > 0 %}
+            <div class="bg-stone-50 border border-stone-200 px-4 py-3 text-[11px] text-stone-500">
+                Este cupão já foi utilizado {{ instancia.usos }} vez{{ instancia.usos|pluralize:"es" }}.
+            </div>
+            {% endif %}
+
+            <!-- Produtos -->
+            <div>
+                <label class="text-[9px] uppercase tracking-widest text-stone-500 block mb-1.5">Produtos <span class="text-stone-400">(opcional)</span></label>
+                <p class="text-[10px] text-stone-400 mb-2">Se nenhum produto for seleccionado, o cupão aplica-se a todo o carrinho.</p>
+                <div class="border border-stone-200 bg-stone-50 max-h-48 overflow-y-auto p-2 space-y-1">
+                    {% for p in produtos %}
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-amber-50 rounded cursor-pointer transition-colors">
+                        <input type="checkbox" name="produtos" value="{{ p.id }}" class="accent-amber-700 w-3.5 h-3.5"
+                               {% if p.id in produtos_selecionados %}checked{% endif %}>
+                        <span class="text-xs text-stone-700">{{ p.nome }} <span class="text-stone-400">— {{ p.marca }}</span></span>
+                    </label>
+                    {% empty %}
+                    <p class="text-[11px] text-stone-400 px-2 py-2">Nenhum produto disponível.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="pt-3">
+                <button type="submit"
+                        class="w-full bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] py-3.5 transition-colors">
+                    Guardar Cupão
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

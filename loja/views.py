@@ -79,7 +79,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao, Banner, ImagemGaleria
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao, Banner, ImagemGaleria, Cupao
 from .forms import NewsletterInscricaoForm
 
 logger = logging.getLogger(__name__)
@@ -177,6 +177,7 @@ def home(request):
         request.session.set_expiry(1800)
 
     total_visitas = VisitaSite.objects.count()
+    total_clientes = Cliente.objects.count()
 
     # Promoções activas (em curso) marcadas para landing/carrossel
     from .models import Promocao
@@ -201,6 +202,7 @@ def home(request):
 
     return render(request, 'loja/index.html', {
         'total_visitas': total_visitas,
+        'total_clientes': total_clientes,
         'promocoes_carrossel': promocoes_carrossel,
         'promocoes_landing': promocoes_landing,
         'banners_carrossel': banners_carrossel,
@@ -221,6 +223,17 @@ def colecoes(request):
         'femininos': femininos,
         'unissex': unissex,
         'total': masculinos.count() + femininos.count() + unissex.count(),
+    })
+
+
+def produto_detalhe(request, pk):
+    produto = get_object_or_404(Produto, pk=pk, disponivel=True)
+    relacionados = Produto.objects.filter(
+        disponivel=True, genero=produto.genero
+    ).exclude(pk=pk).order_by('?')[:4]
+    return render(request, 'loja/produto_detalhe.html', {
+        'produto': produto,
+        'relacionados': relacionados,
     })
 
 
@@ -256,6 +269,20 @@ def encomendas(request):
         if forma_pag not in ('avista', 'parcelado'):
             forma_pag = 'avista'
 
+        # Cupão de desconto
+        cupao_codigo = request.POST.get('cupao_codigo', '').strip().upper()
+        cupao_desconto = float(request.POST.get('cupao_desconto', '0') or 0)
+        cupao_obj = None
+        if cupao_codigo and cupao_desconto > 0:
+            try:
+                cupao_obj = Cupao.objects.get(codigo=cupao_codigo)
+                valido, msg = cupao_obj.esta_valido()
+                if not valido:
+                    cupao_obj = None
+                    cupao_desconto = 0
+            except Cupao.DoesNotExist:
+                cupao_desconto = 0
+
         from django.db import transaction
         with transaction.atomic():
             encomenda = Encomenda.objects.create(
@@ -271,6 +298,8 @@ def encomendas(request):
 
             try:
                 itens = json.loads(itens_json)
+                total_carrinho = sum(float(item.get('price', 0)) * int(item.get('qty', 1)) for item in itens)
+
                 for item in itens:
                     nome_prod = item.get('name', '').strip()
                     preco = float(item.get('price', 0))
@@ -304,6 +333,13 @@ def encomendas(request):
                             )
             except (json.JSONDecodeError, ValueError, TypeError):
                 pass
+
+            # Incrementar uso do cupão
+            if cupao_obj:
+                cupao_obj.usos += 1
+                cupao_obj.save(update_fields=['usos'])
+                encomenda.notas = (encomenda.notas or '') + f'\n[Cupão: {cupao_obj.codigo} — Desconto: {cupao_desconto:,.0f} Kz]'
+                encomenda.save(update_fields=['notas'])
 
         request.session['ultima_encomenda_id'] = encomenda.pk
         return redirect('encomenda_sucesso')
@@ -538,6 +574,7 @@ def gestao_fatura(request, pk):
 
 
 @staff_member_required(login_url='/gestao/login/')
+@_block_operador
 def gestao_venda_detalhe(request, pk):
     """Exibe os detalhes completos de uma venda/encomenda."""
     encomenda = get_object_or_404(Encomenda.objects.prefetch_related('itens__produto'), pk=pk)
@@ -750,6 +787,7 @@ def gestao_venda_nova(request):
 
 
 @staff_member_required(login_url='/gestao/login/')
+@_block_operador
 def gestao_cancelar_encomenda(request, pk):
     """Cancelar uma encomenda finalizada e reverter stock."""
     encomenda = get_object_or_404(Encomenda, pk=pk)
@@ -1164,6 +1202,7 @@ def gestao_produto_criar(request, pk=None):
     categorias = Categoria.objects.order_by('nome')
     genero_choices = Produto.GENERO_CHOICES
     concentracao_choices = Produto.CONCENTRACAO_CHOICES
+    origem_choices = Produto.ORIGEM_CHOICES
     erros = {}
     post = {}
 
@@ -1178,6 +1217,7 @@ def gestao_produto_criar(request, pk=None):
         categoria_id = post.get('categoria', '').strip()
         genero = post.get('genero', 'unissex')
         concentracao = post.get('concentracao', '').strip()
+        origem = post.get('origem', 'europeu')
         stock_raw = post.get('stock', '0').strip()
         disponivel = post.get('disponivel') == 'on'
         codigo_barras = post.get('codigo_barras', '').strip() or None
@@ -1244,6 +1284,7 @@ def gestao_produto_criar(request, pk=None):
                     'categorias': categorias,
                     'genero_choices': genero_choices,
                     'concentracao_choices': concentracao_choices,
+                    'origem_choices': origem_choices,
                     'erros': erros,
                     'post': post,
                     'instancia': instancia,
@@ -1261,6 +1302,7 @@ def gestao_produto_criar(request, pk=None):
                 instancia.categoria = categoria
                 instancia.genero = genero
                 instancia.concentracao = concentracao
+                instancia.origem = origem
                 instancia.stock = stock
                 instancia.disponivel = disponivel
                 if imagem:
@@ -1281,6 +1323,7 @@ def gestao_produto_criar(request, pk=None):
                     categoria=categoria,
                     genero=genero,
                     concentracao=concentracao,
+                    origem=origem,
                     stock=stock,
                     disponivel=disponivel,
                     imagem=imagem,
@@ -1299,6 +1342,7 @@ def gestao_produto_criar(request, pk=None):
             'categoria': str(instancia.categoria_id) if instancia.categoria_id else '',
             'genero': instancia.genero,
             'concentracao': instancia.concentracao,
+            'origem': instancia.origem,
             'stock': str(instancia.stock),
             'disponivel': 'on' if instancia.disponivel else '',
             'codigo_barras': instancia.codigo_barras or '',
@@ -1311,6 +1355,7 @@ def gestao_produto_criar(request, pk=None):
         'categorias': categorias,
         'genero_choices': genero_choices,
         'concentracao_choices': concentracao_choices,
+        'origem_choices': origem_choices,
         'erros': erros,
         'post': post,
         'instancia': instancia,
@@ -3184,3 +3229,191 @@ def gestao_banner_apagar(request, pk):
         banner.delete()
         messages.success(request, 'Banner eliminado.')
     return redirect('gestao_banners')
+
+
+# ---------------------------------------------------------------------------
+# Cupões de Desconto
+# ---------------------------------------------------------------------------
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_cupoes(request):
+    cupoes = Cupao.objects.all().order_by('-criado_em')
+    return render(request, 'gestao/cupoes.html', {
+        'active_page': 'cupoes',
+        'cupoes': cupoes,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_cupao_criar(request, pk=None):
+    instancia = get_object_or_404(Cupao, pk=pk) if pk else None
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo', '').strip().upper()
+        descricao = request.POST.get('descricao', '').strip()
+        tipo_desconto = request.POST.get('tipo_desconto', 'percentagem')
+        valor_desconto = request.POST.get('valor_desconto', '0').strip()
+        valor_minimo_compra = request.POST.get('valor_minimo_compra', '0').strip()
+        limite_uso = request.POST.get('limite_uso', '0').strip()
+        data_inicio = request.POST.get('data_inicio', '').strip()
+        data_fim = request.POST.get('data_fim', '').strip()
+        ativo = request.POST.get('ativo') == 'on'
+
+        erros = {}
+        if not codigo:
+            erros['codigo'] = 'Código é obrigatório.'
+        elif Cupao.objects.filter(codigo=codigo).exclude(pk=instancia.pk if instancia else None).exists():
+            erros['codigo'] = 'Já existe um cupão com este código.'
+
+        try:
+            valor_desconto = float(valor_desconto)
+            if valor_desconto <= 0:
+                erros['valor_desconto'] = 'Valor deve ser maior que zero.'
+            if tipo_desconto == 'percentagem' and valor_desconto > 100:
+                erros['valor_desconto'] = 'Percentagem não pode exceder 100%.'
+        except (ValueError, TypeError):
+            erros['valor_desconto'] = 'Valor inválido.'
+
+        try:
+            valor_minimo_compra = float(valor_minimo_compra or 0)
+            if valor_minimo_compra < 0:
+                erros['valor_minimo_compra'] = 'Valor mínimo não pode ser negativo.'
+        except (ValueError, TypeError):
+            erros['valor_minimo_compra'] = 'Valor inválido.'
+
+        try:
+            limite_uso = int(limite_uso or 0)
+            if limite_uso < 0:
+                erros['limite_uso'] = 'Limite não pode ser negativo.'
+        except (ValueError, TypeError):
+            erros['limite_uso'] = 'Valor inválido.'
+
+        if not data_inicio:
+            erros['data_inicio'] = 'Data de início é obrigatória.'
+        if not data_fim:
+            erros['data_fim'] = 'Data de fim é obrigatória.'
+
+        if erros:
+            produtos = Produto.objects.filter(disponivel=True).order_by('nome')
+            produtos_selecionados = set(int(x) for x in request.POST.getlist('produtos'))
+            return render(request, 'gestao/cupao_form.html', {
+                'active_page': 'cupoes',
+                'instancia': instancia,
+                'erros': erros,
+                'post': request.POST,
+                'produtos': produtos,
+                'produtos_selecionados': produtos_selecionados,
+            })
+
+        from datetime import datetime
+        dt_inicio = datetime.strptime(data_inicio, '%Y-%m-%dT%H:%M')
+        dt_fim = datetime.strptime(data_fim, '%Y-%m-%dT%H:%M')
+
+        if dt_fim <= dt_inicio:
+            produtos = Produto.objects.filter(disponivel=True).order_by('nome')
+            produtos_selecionados = set(int(x) for x in request.POST.getlist('produtos'))
+            return render(request, 'gestao/cupao_form.html', {
+                'active_page': 'cupoes',
+                'instancia': instancia,
+                'erros': {'data_fim': 'Data de fim deve ser posterior à data de início.'},
+                'post': request.POST,
+                'produtos': produtos,
+                'produtos_selecionados': produtos_selecionados,
+            })
+
+        obj = instancia or Cupao()
+        obj.codigo = codigo
+        obj.descricao = descricao
+        obj.tipo_desconto = tipo_desconto
+        obj.valor_desconto = valor_desconto
+        obj.valor_minimo_compra = valor_minimo_compra
+        obj.limite_uso = limite_uso
+        obj.data_inicio = dt_inicio
+        obj.data_fim = dt_fim
+        obj.ativo = ativo
+        obj.save()
+
+        # Associar produtos (se seleccionados)
+        produtos_ids = request.POST.getlist('produtos')
+        if produtos_ids:
+            obj.produtos.set(Produto.objects.filter(id__in=produtos_ids))
+        else:
+            obj.produtos.clear()
+
+        messages.success(request, f'Cupão "{codigo}" guardado com sucesso.')
+        return redirect('gestao_cupoes')
+
+    produtos = Produto.objects.filter(disponivel=True).order_by('nome')
+    produtos_selecionados = set(instancia.produtos.values_list('id', flat=True)) if instancia else set()
+    return render(request, 'gestao/cupao_form.html', {
+        'active_page': 'cupoes',
+        'instancia': instancia,
+        'produtos': produtos,
+        'produtos_selecionados': produtos_selecionados,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_cupao_apagar(request, pk):
+    cupao = get_object_or_404(Cupao, pk=pk)
+    if request.method == 'POST':
+        codigo = cupao.codigo
+        cupao.delete()
+        messages.success(request, f'Cupão "{codigo}" eliminado.')
+    return redirect('gestao_cupoes')
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_cupao_toggle(request, pk):
+    if request.method != 'POST':
+        return redirect('gestao_cupoes')
+    cupao = get_object_or_404(Cupao, pk=pk)
+    cupao.ativo = not cupao.ativo
+    cupao.save(update_fields=['ativo'])
+    messages.success(request, f'Cupão "{cupao.codigo}" {"activado" if cupao.ativo else "desactivado"}.')
+    return redirect('gestao_cupoes')
+
+
+@require_POST
+def validar_cupao(request):
+    """Endpoint AJAX para validar um cupão no checkout da loja."""
+    import json
+    data = json.loads(request.body or '{}')
+    codigo = (data.get('codigo') or '').strip().upper()
+    total_carrinho = float(data.get('total', 0))
+
+    if not codigo:
+        return JsonResponse({'ok': False, 'erro': 'Informe um código.'})
+
+    try:
+        cupao = Cupao.objects.get(codigo=codigo)
+    except Cupao.DoesNotExist:
+        return JsonResponse({'ok': False, 'erro': 'Cupão não encontrado.'})
+
+    valido, msg = cupao.esta_valido()
+    if not valido:
+        return JsonResponse({'ok': False, 'erro': msg})
+
+    if float(cupao.valor_minimo_compra) > 0 and total_carrinho < float(cupao.valor_minimo_compra):
+        return JsonResponse({
+            'ok': False,
+            'erro': f'Compra mínima de {float(cupao.valor_minimo_compra):,.0f} Kz para este cupão.'
+        })
+
+    desconto = cupao.calcular_desconto(total_carrinho, itens=data.get('itens'))
+    if desconto == 0 and cupao.produtos.exists():
+        return JsonResponse({
+            'ok': False,
+            'erro': 'Este cupão só se aplica a produtos específicos que não estão no carrinho.'
+        })
+    return JsonResponse({
+        'ok': True,
+        'desconto': round(desconto, 2),
+        'total_final': round(total_carrinho - desconto, 2),
+        'tipo': cupao.tipo_desconto,
+        'valor': float(cupao.valor_desconto),
+        'codigo': cupao.codigo,
+    })

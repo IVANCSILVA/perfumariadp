@@ -50,7 +50,7 @@
                 </div>
                 {% endif %}
 
-                <form method="POST" action="{% url 'gestao_login' %}" class="space-y-5">
+                <form method="POST" action="" class="space-y-5">
                     {% csrf_token %}
 
                     <div>
@@ -120,6 +120,13 @@
         function togglePwd() {
             const i = document.getElementById('password');
             i.type = i.type === 'password' ? 'text' : 'password';
+        }
+
+        // Limpar caminho visível apenas no subdomínio gestao
+        if (window.location.hostname === 'gestao.decentprive.ao'
+            && window.location.pathname !== '/'
+            && window.location.pathname !== '/gestao/') {
+            window.history.replaceState({}, document.title, '/');
         }
     </script>
 

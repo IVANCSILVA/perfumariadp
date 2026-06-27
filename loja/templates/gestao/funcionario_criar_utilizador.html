@@ -115,4 +115,31 @@
     </div>
 
 </div>
+
+<script>
+document.querySelectorAll('.nivel-opt').forEach(function(label) {
+    label.addEventListener('click', function() {
+        var radio = this.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.checked = true;
+            // Trigger peer styling manually
+            document.querySelectorAll('.nivel-opt > div').forEach(function(d) {
+                d.classList.remove('border-amber-700', 'bg-amber-50', 'shadow-sm',
+                                   'border-sky-600', 'bg-sky-50',
+                                   'border-stone-700', 'bg-stone-100');
+                d.classList.add('border-stone-200');
+            });
+            var div = this.querySelector('div');
+            div.classList.remove('border-stone-200');
+            if (radio.value === 'administrador') {
+                div.classList.add('border-amber-700', 'bg-amber-50', 'shadow-sm');
+            } else if (radio.value === 'gerente') {
+                div.classList.add('border-sky-600', 'bg-sky-50', 'shadow-sm');
+            } else if (radio.value === 'operador') {
+                div.classList.add('border-stone-700', 'bg-stone-100', 'shadow-sm');
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

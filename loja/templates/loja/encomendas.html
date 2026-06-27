@@ -11,6 +11,12 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; }
         .font-serif { font-family: 'Playfair Display', serif; }
+        @keyframes pulseRing {
+            0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.55); }
+            70%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        .wa-pulse { animation: pulseRing 2s infinite; }
     </style>
 </head>
 
@@ -22,7 +28,7 @@
             <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-16 md:h-52 w-auto">
         </a>
         <div class="flex items-center gap-5 pt-4">
-            <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
+            <div class="gap-1 text-xs uppercase tracking-widest hidden md:flex md:gap-4 lg:gap-6">
                 <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Início</a>
                 <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
                 <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Galeria</a>
@@ -146,6 +152,57 @@
             <div id="cart-summary" class="hidden border border-stone-200 bg-stone-50 p-5">
                 <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-3">Itens do Carrinho</p>
                 <div id="cart-items-list" class="space-y-2 text-sm text-stone-700"></div>
+                <div class="border-t border-stone-200 mt-3 pt-3 flex justify-between text-sm">
+                    <span class="text-stone-500 uppercase tracking-widest text-[10px]">Subtotal</span>
+                    <span id="cart-subtotal" class="font-semibold text-stone-800 font-mono">0 Kz</span>
+                </div>
+            </div>
+
+            <!-- Cupão de Desconto -->
+            <div id="cupao-section" class="hidden">
+                <div class="border border-stone-200 bg-gradient-to-br from-amber-50 to-stone-50 p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9.75l.008.008h.008l-.008-.008Z"/>
+                        </svg>
+                        <p class="text-[10px] uppercase tracking-widest text-amber-700 font-semibold">Cupão de Desconto</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="cupao-input" placeholder="Digite o código"
+                               style="text-transform:uppercase"
+                               class="flex-1 border border-stone-300 px-3 py-2.5 text-sm font-mono tracking-wider text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-700 transition-colors">
+                        <button type="button" id="cupao-btn"
+                                class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-widest px-5 py-2.5 transition-colors whitespace-nowrap">
+                            Aplicar
+                        </button>
+                    </div>
+                    <div id="cupao-feedback" class="hidden mt-3 text-xs"></div>
+                    <div id="cupao-aplicado" class="hidden mt-3 flex items-center justify-between bg-emerald-50 border border-emerald-200 px-4 py-2.5">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <span id="cupao-info" class="text-emerald-700 text-xs font-medium"></span>
+                        </div>
+                        <button type="button" id="cupao-remover" class="text-emerald-600 hover:text-red-600 text-[10px] uppercase tracking-widest transition-colors">
+                            Remover
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total com desconto -->
+            <div id="total-section" class="hidden border border-amber-700 bg-amber-50 p-5">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] uppercase tracking-widest text-stone-500">Total</span>
+                    <span id="total-original" class="text-stone-400 line-through text-sm font-mono">0 Kz</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span id="total-label" class="text-sm font-semibold text-stone-700 uppercase tracking-widest">A Pagar</span>
+                    <span id="total-final" class="text-2xl font-bold text-amber-800 font-mono">0 Kz</span>
+                </div>
+                <input type="hidden" name="cupao_codigo" id="cupao-codigo-hidden" value="">
+                <input type="hidden" name="cupao_desconto" id="cupao-desconto-hidden" value="0">
             </div>
 
             <!-- Botão -->
@@ -180,6 +237,16 @@
             <p class="text-xs text-stone-500">&copy; 2026 Décent Privé</p>
         </div>
     </footer>
+
+    <!-- WhatsApp Flutuante -->
+    <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20D%C3%A9cent%20Priv%C3%A9."
+       target="_blank" rel="noopener noreferrer"
+       class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
+       aria-label="Falar no WhatsApp">
+        <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </svg>
+    </a>
 
     <!-- Menu Móvel -->
     <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
@@ -233,22 +300,131 @@
                 }))
             );
 
-            // Mostra resumo visual
+            // Mostra resumo visual + calcula subtotal
             const summary = document.getElementById('cart-summary');
             const list = document.getElementById('cart-items-list');
+            let subtotal = 0;
             cart.forEach(item => {
+                const price = Number(item.price) || 0;
+                const qty = Number(item.qty) || 1;
+                subtotal += price * qty;
                 const div = document.createElement('div');
                 div.className = 'flex justify-between';
-                div.innerHTML = `<span>${item.qty || 1}× ${item.name}</span><span class="text-stone-500">${Number(item.price).toLocaleString('pt-AO')} Kz</span>`;
+                div.innerHTML = `<span>${qty}× ${item.name}</span><span class="text-stone-500">${price.toLocaleString('pt-AO')} Kz</span>`;
                 list.appendChild(div);
             });
+            document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString('pt-AO') + ' Kz';
             summary.classList.remove('hidden');
+
+            // Mostra secção de cupão e total
+            document.getElementById('cupao-section').classList.remove('hidden');
+            updateTotal(subtotal, 0);
+        });
+
+        // --- Cupão de Desconto ---
+        let cartSubtotal = 0;
+        let cupaoAplicado = null;
+
+        function updateTotal(subtotal, desconto) {
+            cartSubtotal = subtotal;
+            const totalFinal = subtotal - desconto;
+            const totalSection = document.getElementById('total-section');
+            const totalOriginal = document.getElementById('total-original');
+            const totalFinalEl = document.getElementById('total-final');
+            const totalLabel = document.getElementById('total-label');
+
+            if (desconto > 0) {
+                totalSection.classList.remove('hidden');
+                totalOriginal.textContent = subtotal.toLocaleString('pt-AO') + ' Kz';
+                totalOriginal.classList.remove('hidden');
+                totalLabel.textContent = 'A Pagar (com desconto)';
+            } else {
+                totalSection.classList.remove('hidden');
+                totalOriginal.classList.add('hidden');
+                totalLabel.textContent = 'Total';
+            }
+            totalFinalEl.textContent = totalFinal.toLocaleString('pt-AO') + ' Kz';
+        }
+
+        function getCartSubtotal() {
+            const raw = localStorage.getItem('dp_cart');
+            let cart = [];
+            try { cart = JSON.parse(raw) || []; } catch(e) { cart = []; }
+            return cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.qty) || 1), 0);
+        }
+
+        document.getElementById('cupao-btn').addEventListener('click', function() {
+            const codigo = document.getElementById('cupao-input').value.trim();
+            if (!codigo) return;
+
+            const total = getCartSubtotal();
+            const feedback = document.getElementById('cupao-feedback');
+            const btn = this;
+
+            btn.disabled = true;
+            btn.textContent = '...';
+            feedback.classList.add('hidden');
+
+            const raw = localStorage.getItem('dp_cart');
+            let cartItems = [];
+            try { cartItems = JSON.parse(raw) || []; } catch(e) { cartItems = []; }
+
+            fetch('/api/validar-cupao/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({ codigo: codigo, total: total, itens: cartItems }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = 'Aplicar';
+                if (data.ok) {
+                    cupaoAplicado = data;
+                    document.getElementById('cupao-info').textContent =
+                        data.tipo === 'percentagem'
+                            ? `${data.valor}% de desconto aplicado (-${data.desconto.toLocaleString('pt-AO')} Kz)`
+                            : `Desconto de ${data.desconto.toLocaleString('pt-AO')} Kz aplicado`;
+                    document.getElementById('cupao-aplicado').classList.remove('hidden');
+                    document.getElementById('cupao-feedback').classList.add('hidden');
+                    document.getElementById('cupao-input').value = '';
+                    document.getElementById('cupao-codigo-hidden').value = data.codigo;
+                    document.getElementById('cupao-desconto-hidden').value = data.desconto;
+                    updateTotal(total, data.desconto);
+                } else {
+                    feedback.textContent = data.erro;
+                    feedback.className = 'mt-3 text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2';
+                    feedback.classList.remove('hidden');
+                    removerCupao();
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Aplicar';
+                feedback.textContent = 'Erro ao validar cupão. Tente novamente.';
+                feedback.className = 'mt-3 text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2';
+                feedback.classList.remove('hidden');
+            });
+        });
+
+        function removerCupao() {
+            cupaoAplicado = null;
+            document.getElementById('cupao-aplicado').classList.add('hidden');
+            document.getElementById('cupao-codigo-hidden').value = '';
+            document.getElementById('cupao-desconto-hidden').value = '0';
+            updateTotal(getCartSubtotal(), 0);
+        }
+
+        document.getElementById('cupao-remover').addEventListener('click', removerCupao);
+
+        document.getElementById('cupao-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('cupao-btn').click();
+            }
         });
     </script>
-
-    <!-- Rodapé -->
-    <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-10 border-t border-stone-800">
-        &copy; 2026 Décent Privé. Todos os direitos reservados.
-    </footer>
 </body>
 </html>

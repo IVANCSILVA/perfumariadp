@@ -48,6 +48,10 @@ class Produto(models.Model):
         ('edc',       'Eau de Cologne (EDC)'),
         ('body_mist', 'Body Mist / Splash'),
     ]
+    ORIGEM_CHOICES = [
+        ('europeu',   'Europeu'),
+        ('oriental',  'Oriental'),
+    ]
 
     nome = models.CharField(max_length=200)
     marca = models.CharField(max_length=100)
@@ -78,6 +82,11 @@ class Produto(models.Model):
         max_length=20, choices=CONCENTRACAO_CHOICES, blank=True,
         verbose_name='Concentração',
         help_text='Tipo de concentração da fragrância (EDP, EDT, Parfum, etc.).'
+    )
+    origem = models.CharField(
+        max_length=20, choices=ORIGEM_CHOICES, blank=True, default='europeu',
+        verbose_name='Origem',
+        help_text='Origem do perfume: Europeu ou Oriental.'
     )
     imagem = models.ImageField(upload_to='produtos/', blank=True, null=True)
     codigo_barras = models.CharField(
@@ -119,6 +128,21 @@ class Produto(models.Model):
         if self.tem_desconto:
             return round(float(self.preco_venda) * (100 - self.desconto_percentagem) / 100, 2)
         return float(self.preco_venda)
+
+    @property
+    def estrelas(self):
+        """Sistema de avaliação por estrelas baseado na categoria.
+        Produtos de Nicho: 5 estrelas douradas.
+        Demais categorias (masculino, feminino, unissex): 4 estrelas.
+        """
+        if self.categoria and self.categoria.nome.lower() == 'nicho':
+            return 5
+        return 4
+
+    @property
+    def estrelas_douradas(self):
+        """True se o produto tem estrelas douradas (Nicho), False se cinzas."""
+        return self.categoria and self.categoria.nome.lower() == 'nicho'
 
     @property
     def margem(self):
@@ -1014,4 +1038,93 @@ class ImagemGaleria(models.Model):
 
     def __str__(self):
         return self.legenda or f'Imagem #{self.pk}'
+
+
+class Cupao(models.Model):
+    TIPO_DESCONTO_CHOICES = [
+        ('percentagem', 'Percentagem'),
+        ('valor', 'Valor Fixo (Kz)'),
+    ]
+
+    codigo = models.CharField(
+        max_length=50, unique=True,
+        verbose_name='Código',
+        help_text='Código do cupão (ex: VERAO20)'
+    )
+    descricao = models.CharField(
+        max_length=200, blank=True,
+        verbose_name='Descrição',
+        help_text='Nota interna sobre o cupão'
+    )
+    tipo_desconto = models.CharField(
+        max_length=15, choices=TIPO_DESCONTO_CHOICES, default='percentagem',
+        verbose_name='Tipo de Desconto'
+    )
+    valor_desconto = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name='Valor do Desconto',
+        help_text='Percentagem (1-100) ou valor fixo em Kz'
+    )
+    valor_minimo_compra = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name='Valor Mínimo de Compra',
+        help_text='Valor mínimo do carrinho para o cupão ser válido (0 = sem mínimo)'
+    )
+    limite_uso = models.PositiveIntegerField(
+        default=0, verbose_name='Limite de Usos',
+        help_text='Número máximo de utilizações (0 = ilimitado)'
+    )
+    usos = models.PositiveIntegerField(default=0, verbose_name='Utilizações')
+    data_inicio = models.DateTimeField(verbose_name='Data de Início')
+    data_fim = models.DateTimeField(verbose_name='Data de Fim')
+    ativo = models.BooleanField(default=True, verbose_name='Activo')
+    produtos = models.ManyToManyField(
+        Produto, blank=True,
+        verbose_name='Produtos',
+        help_text='Se vazio, aplica-se a todo o carrinho. Se seleccionado, apenas a esses produtos.'
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Cupão'
+        verbose_name_plural = 'Cupões'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f'{self.codigo} ({self.get_tipo_desconto_display()})'
+
+    def esta_valido(self):
+        """Verifica se o cupão está dentro do período e limite de uso."""
+        from django.utils import timezone
+        agora = timezone.now()
+        if not self.ativo:
+            return False, 'Cupão inactivo.'
+        if agora < self.data_inicio:
+            return False, 'Cupão ainda não está disponível.'
+        if agora > self.data_fim:
+            return False, 'Cupão expirado.'
+        if self.limite_uso > 0 and self.usos >= self.limite_uso:
+            return False, 'Cupão esgotado (limite de utilizações atingido).'
+        return True, ''
+
+    def calcular_desconto(self, total_carrinho, itens=None):
+        """Calcula o valor do desconto a aplicar.
+        Se itens for fornecido (lista de dicts com name, price, qty) e houver
+        produtos seleccionados, o desconto aplica-se apenas aos produtos do cupão.
+        """
+        base = total_carrinho
+        if itens and self.produtos.exists():
+            nomes_produtos = set(self.produtos.values_list('nome', flat=True))
+            base = sum(
+                float(item.get('price', 0)) * int(item.get('qty', 1))
+                for item in itens
+                if item.get('name', '').strip() in nomes_produtos
+            )
+            if base == 0:
+                return 0
+
+        if self.tipo_desconto == 'percentagem':
+            return float(base) * (float(self.valor_desconto) / 100)
+        else:
+            return min(float(self.valor_desconto), float(base))
 

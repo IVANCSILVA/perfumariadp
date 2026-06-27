@@ -37,10 +37,10 @@
     <!-- Barra superior -->
     <div class="bg-stone-900 h-2"></div>
 
-    <div class="px-12 py-10">
+    <div class="px-10 py-8">
 
         <!-- Topo: Empresa + Número de Fatura -->
-        <div class="flex items-start justify-between mb-10">
+        <div class="flex items-start justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold tracking-[0.08em] uppercase text-stone-900 font-serif">Décent Privé</h1>
                 <p class="text-xs text-stone-400 tracking-widest mt-1 uppercase">Além do Essencial</p>
@@ -65,10 +65,10 @@
 
         <!-- Separador duplo -->
         <div class="border-t-2 border-stone-900 mb-1"></div>
-        <div class="border-t border-amber-700 mb-8"></div>
+        <div class="border-t border-amber-700 mb-6"></div>
 
         <!-- Cliente + Informações de Pagamento -->
-        <div class="grid grid-cols-2 gap-10 mb-8">
+        <div class="grid grid-cols-2 gap-8 mb-6">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-3">Faturado a</p>
                 {% if encomenda.tipo_cliente == 'empresa' and encomenda.nome_empresa %}
@@ -139,13 +139,13 @@
         </table>
 
         <!-- Bloco de Totais -->
-        <div class="flex justify-end mt-4 mb-8">
+        <div class="flex justify-end mt-3 mb-6">
             <div class="w-80">
-                <div class="flex justify-between py-2.5 border-b border-stone-100">
+                <div class="flex justify-between py-2 border-b border-stone-100">
                     <span class="text-sm text-stone-500">Subtotal</span>
                     <span class="text-sm font-medium text-stone-700 font-mono">{{ total|floatformat:0|intcomma }} Kz</span>
                 </div>
-                <div class="flex justify-between py-2.5 border-b border-stone-100">
+                <div class="flex justify-between py-2 border-b border-stone-100">
                     <span class="text-sm text-stone-400 italic">Isento de IVA</span>
                     <span class="text-sm text-stone-400">—</span>
                 </div>
@@ -158,7 +158,7 @@
 
         {% if encomenda.forma_pagamento == 'parcelado' %}
         <!-- Detalhe das Parcelas -->
-        <div class="mb-8 border border-amber-200 bg-amber-50 p-5">
+        <div class="mb-6 border border-amber-200 bg-amber-50 p-4">
             <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-amber-700 mb-4">Plano de Pagamento Parcelado</p>
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-white border border-amber-100 px-4 py-3 flex items-center justify-between">
@@ -193,20 +193,21 @@
 
         {% if encomenda.notas %}
         <!-- Observações -->
-        <div class="mb-8 border-t border-stone-100 pt-5">
+        <div class="mb-6 border-t border-stone-100 pt-4">
             <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-2">Observações</p>
             <p class="text-sm text-stone-600 leading-relaxed">{{ encomenda.notas }}</p>
         </div>
         {% endif %}
 
         <!-- Rodapé da Fatura -->
-        <div class="border-t border-stone-300 pt-5 mt-6 flex items-end justify-between">
+        <div class="border-t border-stone-300 pt-4 mt-4 flex items-end justify-between">
             <div>
                 <p class="text-[9px] text-stone-600 uppercase tracking-widest font-semibold">Processado por computador</p>
                 <p class="text-[9px] text-stone-500 mt-1">Décent Privé · NIF: 5002884747 · Huambo, Angola</p>
             </div>
             <div class="text-right">
-                <p class="text-xs font-semibold text-stone-600 italic">Obrigado pela sua preferência</p>
+                <p class="text-xs font-semibold text-stone-600 italic">Obrigado pela sua visita</p>
+                <p class="text-xs font-semibold text-amber-800 italic mt-0.5">Tenha um dia perfumado</p>
                 <p class="text-[9px] text-stone-500 mt-1">www.decentprive.ao</p>
             </div>
         </div>
@@ -221,14 +222,31 @@
 <!-- Estilos de impressão -->
 <style>
 @media print {
-    /* ── Ocultar toda a interface de gestão ── */
+    /* ── Ocultar TUDO excepto a fatura ── */
+    body * {
+        visibility: hidden !important;
+    }
+    #fatura,
+    #fatura * {
+        visibility: visible !important;
+    }
+    #fatura {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+    }
     aside,
     header,
     nav,
     .no-print,
     .flash-msg,
     [class*="sidebar"],
-    [class*="topbar"] {
+    [class*="topbar"],
+    #sidebar-overlay,
+    #sidebar,
+    #clock-date,
+    #clock-time {
         display: none !important;
     }
 
@@ -280,7 +298,7 @@
     /* ── Configuração da página A4 ── */
     @page {
         size: A4 portrait;
-        margin: 12mm 15mm 12mm 15mm;
+        margin: 8mm 12mm 8mm 12mm;
     }
 }
 </style>
