@@ -381,11 +381,14 @@ def gestao_login(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
+        logger.warning(f'[LOGIN] POST recebido: username={username!r}, host={request.get_host()}, path={request.path_info}, method={request.method}')
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_staff:
+            logger.warning(f'[LOGIN] Autenticado: user={user.username}, is_staff={user.is_staff}, is_active={user.is_active}')
             login(request, user)
             return redirect('gestao_dashboard')
         else:
+            logger.warning(f'[LOGIN] Falhou: user={user}, username={username!r}')
             erro = 'Utilizador ou senha inválidos, ou sem permissão de acesso.'
 
     return render(request, 'gestao/login.html', {'erro': erro})
