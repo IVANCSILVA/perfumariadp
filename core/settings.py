@@ -38,11 +38,19 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['decentprive.ao','www.decentprive.ao','gestao.decentprive.ao','127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://decentprive.ao',
+    'https://www.decentprive.ao',
+    'https://gestao.decentprive.ao',
+    'http://127.0.0.1',
+]
+
 # ---------------------------------------------------------------------------
 # Segurança de produção
 # ---------------------------------------------------------------------------
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
