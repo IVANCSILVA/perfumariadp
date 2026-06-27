@@ -215,7 +215,42 @@
 {% if not is_operador %}
 
 <!-- ══════════════════════════════════════════════════
-     06 — VENDAS E FATURAÇÃO
+     06 — LOTES DE IMPORTAÇÃO
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="importacoes" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">06</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Lotes de Importação</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Compras ao estrangeiro com cálculo automático de custos e preços</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Lotes de Importação"</strong> no menu Stock. Clique em <strong>"Novo Lote"</strong> para registar uma compra ao fornecedor estrangeiro.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Preencha a <strong>referência</strong> (ex: "Junho 2026 — Portugal"), a <strong>data da encomenda</strong>, o <strong>câmbio EUR → Kz</strong> e o <strong>custo de transporte por unidade</strong> em kwanzas.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>No detalhe do lote, <strong>adicione itens</strong>: seleccione o produto do catálogo (ou crie um novo), indique a quantidade e o preço de compra em euros. O sistema calcula automaticamente o custo total por unidade em kwanzas (preço + transporte).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>À medida que as mercadorias chegam, marque cada item como <strong>"Recebido"</strong> usando o toggle. O estado do lote evolui automaticamente: Em Preparação → Em Trânsito → Recebido (ou Recebido Parcialmente).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Use <strong>"Aplicar Preços"</strong> para actualizar o preço de custo dos produtos no catálogo com os valores calculados do lote, garantindo que a análise de lucro reflecte o custo real importado.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Registe o câmbio correcto na data da encomenda. O sistema usa este valor para converter o preço de compra em kwanzas e calcular a margem de lucro real de cada produto importado.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     07 — VENDAS E FATURAÇÃO
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="vendas" class="gestao-card overflow-hidden guia-section section-sky">
@@ -227,7 +262,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">06</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">07</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Vendas e Faturação</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Histórico completo de transacções e emissão de faturas</p>
@@ -250,7 +285,7 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     07 — FINANCEIRO
+     08 — FINANCEIRO
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="financeiro" class="gestao-card overflow-hidden guia-section section-sky">
@@ -262,7 +297,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">07</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">08</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Financeiro</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Caixa, salários e relatórios financeiros</p>
@@ -292,7 +327,7 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     08 — FUNCIONÁRIOS
+     09 — FUNCIONÁRIOS
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="funcionarios" class="gestao-card overflow-hidden guia-section section-sky">
@@ -304,7 +339,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">08</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">09</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Funcionários</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Gestão da equipa e acessos ao sistema</p>
@@ -326,7 +361,7 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     09 — PROMOÇÕES
+     10 — PROMOÇÕES
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="promocoes" class="gestao-card overflow-hidden guia-section section-sky">
@@ -339,7 +374,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">09</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">10</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Promoções</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Campanhas de desconto visíveis no website</p>
@@ -362,7 +397,113 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     10 — NEWSLETTER
+     11 — CUPÕES DE DESCONTO
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="cupoes" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9.75l.008.008h.008l-.008-.008Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">11</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Cupões de Desconto</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Códigos promocionais para clientes na loja online</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Cupões de Desconto"</strong> no menu Marketing. Clique em <strong>"Novo Cupão"</strong> para criar um código promocional.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Defina o <strong>código</strong> (ex: VERAO20), o <strong>tipo de desconto</strong> — Percentagem (%) ou Valor Fixo (Kz) — e o <strong>valor</strong> a descontar.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Opcionalmente, defina uma <strong>compra mínima</strong> (o cupão só se aplica se o total atingir o valor) e um <strong>limite de usos</strong> (0 = ilimitado).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Indique as <strong>datas de início e fim</strong> da validade do cupão. Fora deste período, o código não funciona na loja.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Selecciona <strong>produtos específicos</strong> se o cupão se aplica apenas a eles. Se nenhum produto for seleccionado, o cupão aplica-se a todo o carrinho.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">6</span><span>Use o checkbox <strong>"Cupão Activo"</strong> para activar ou desactivar sem eliminar. O contador de usos mostra quantas vezes o cupão já foi aplicado.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Crie cupões com limite de usos para campanhas exclusivas (ex: "primeiros 50 clientes") ou para parcerias com influenciadores, onde pode controlar exactamente quantas vezes o código pode ser usado.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     12 — BANNERS / CARROSSEL
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="banners" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">12</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Banners / Carrossel</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Slides rotativos na página principal da loja</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Banners / Carrossel"</strong> no menu Conteúdo. Aqui vê todos os slides do carrossel da página inicial da loja.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Clique em <strong>"Novo Banner"</strong> → preencha o <strong>título</strong>, <strong>subtítulo</strong>, o <strong>texto do botão</strong> (ex: "Ver Colecção") e o <strong>link</strong> de destino.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Carregue uma <strong>imagem de fundo</strong> de alta qualidade (use imagens amplas, em formato paisagem). Defina a <strong>cor de fundo</strong> como fallback.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Defina a <strong>ordem</strong> dos banners — o número determina a posição no carrossel (menor = aparece primeiro).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Use o toggle <strong>"Activo"</strong> para mostrar ou ocultar banners sem os eliminar — útil para reutilizar slides sazonais.</span></li>
+        </ol>
+        <div class="callout-warn rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-amber-800 leading-relaxed"><strong>Atenção:</strong> Use imagens optimizadas (máx. 500KB) com resolução adequada (1920×600px ou similar). Imagens pesadas tornam o carregamento da loja mais lento, afectando a experiência do cliente.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     13 — GALERIA DE IMAGENS
+     Perfil: Gerente / Administrador
+════════════════════════════════════════════════════ -->
+<div id="galeria" class="gestao-card overflow-hidden guia-section section-sky">
+    <div class="px-6 py-4 flex items-center gap-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+        <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">13</span>
+                <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Galeria de Imagens</h3>
+            </div>
+            <p class="text-[11px] text-sky-700/70 mt-0.5">Galeria visual da loja exibida no website público</p>
+        </div>
+        <span class="badge-mgr text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex-shrink-0">Gerente / Admin</span>
+    </div>
+    <div class="p-6 space-y-4">
+        <ol class="space-y-3">
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">1</span><span>Aceda a <strong>"Galeria de Imagens"</strong> no menu Conteúdo para gerir as fotografias exibidas na galeria pública da loja.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">2</span><span>Clique em <strong>"Nova Imagem"</strong> → carregue a fotografia → adicione uma <strong>legenda</strong> descritiva (opcional) → guarde.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">3</span><span>Defina a <strong>ordem</strong> de exibição — o número determina a posição da imagem na galeria (menor = aparece primeiro).</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">4</span><span>Use o toggle <strong>"Activo"</strong> para mostrar ou ocultar imagens sem as eliminar. Imagens inactivas não aparecem na loja pública.</span></li>
+            <li class="flex gap-3 text-xs text-stone-600"><span class="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold flex-shrink-0 text-[10px] mt-0.5">5</span><span>Para editar uma imagem existente, clique na imagem na listagem → altere a legenda, a ordem ou substitua o ficheiro → guarde.</span></li>
+        </ol>
+        <div class="callout-tip rounded-lg px-4 py-3 flex gap-3">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/></svg>
+            <p class="text-[11px] text-emerald-800 leading-relaxed"><strong>Dica:</strong> Use fotografias profissionais da loja, eventos ou campanhas para criar uma galeria atractiva. Imagens em formato quadrado (ex: 800×800px) funcionam melhor na grelha da galeria.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     14 — NEWSLETTER
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="newsletter" class="gestao-card overflow-hidden guia-section section-sky">
@@ -374,7 +515,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">10</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">14</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Newsletter</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Comunicações em massa para clientes subscritos</p>
@@ -396,7 +537,7 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     11 — ANIVERSÁRIOS
+     15 — ANIVERSÁRIOS
      Perfil: Gerente / Administrador
 ════════════════════════════════════════════════════ -->
 <div id="aniversarios" class="gestao-card overflow-hidden guia-section section-sky">
@@ -408,7 +549,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">11</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-widest">15</span>
                 <h3 class="text-sm font-bold text-sky-900 uppercase tracking-wide">Aniversários</h3>
             </div>
             <p class="text-[11px] text-sky-700/70 mt-0.5">Felicitações automáticas a clientes e funcionários</p>
@@ -433,7 +574,7 @@
 {% endif %}
 
 <!-- ══════════════════════════════════════════════════
-     12 — SESSÃO E SEGURANÇA
+     16 — SESSÃO E SEGURANÇA
      Perfil: Todos
 ════════════════════════════════════════════════════ -->
 <div id="sessao" class="gestao-card overflow-hidden guia-section section-rose">
@@ -445,7 +586,7 @@
         </div>
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold text-rose-700 uppercase tracking-widest">{% if is_operador %}06{% else %}12{% endif %}</span>
+                <span class="text-[9px] font-bold text-rose-700 uppercase tracking-widest">{% if is_operador %}06{% else %}16{% endif %}</span>
                 <h3 class="text-sm font-bold text-rose-900 uppercase tracking-wide">Sessão e Segurança</h3>
             </div>
             <p class="text-[11px] text-rose-700/70 mt-0.5">Regras essenciais de segurança para todos os utilizadores</p>
