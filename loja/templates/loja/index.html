@@ -5,10 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Décent Privé | Além do Essencial — Huambo, Angola</title>
+    <title>DÃ©cent PrivÃ© | AlÃ©m do Essencial â€” Huambo, Angola</title>
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
-    <meta name="description" content="Décent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rápida e segura.">
+    <meta name="description" content="DÃ©cent PrivÃ© â€” curadoria de fragrÃ¢ncias localizada na ProvÃ­ncia do Huambo, Angola. FragrÃ¢ncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rÃ¡pida e segura.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -48,19 +48,19 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-4 md:px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
         <a href="{% url 'home' %}" class="md:-mt-8">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Prive" class="h-16 md:h-52 w-auto">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="DÃ©cent Prive" class="h-16 md:h-52 w-auto">
         </a>
         <div class="flex flex-col items-end gap-1 pt-4">
             <div class="flex items-center gap-5">
                 <div class="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.18em] hidden md:flex">
-                    <a href="{% url 'home' %}" class="text-amber-900 px-3 py-2 border-b-2 border-amber-800 transition-all duration-200">Início</a>
-                    <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Colecções</a>
+                    <a href="{% url 'home' %}" class="text-amber-900 px-3 py-2 border-b-2 border-amber-800 transition-all duration-200">InÃ­cio</a>
+                    <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">ColecÃ§Ãµes</a>
                     <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Galeria</a>
                     <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Encomendas</a>
                     <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Fidelidade</a>
                     <a href="{% url 'contactos' %}" class="text-amber-800 px-3 py-2 hover:text-amber-600 hover:border-b-2 hover:border-amber-400 border-b-2 border-transparent transition-all duration-200">Contactos</a>
                 </div>
-                <!-- Ícone do Carrinho -->
+                <!-- Ãcone do Carrinho -->
                 <button onclick="toggleCart()" class="relative text-amber-800 hover:text-amber-600 transition-colors duration-200" aria-label="Carrinho">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.892-7.143a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.273M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
@@ -79,7 +79,7 @@
                 <input
                     id="search-input-mobile"
                     type="text"
-                    placeholder="Pesquisar marca ou fragrância..."
+                    placeholder="Pesquisar marca ou fragrÃ¢ncia..."
                     onkeydown="if(event.key==='Enter') searchPerfumeMobile()"
                     class="bg-white border border-stone-300 border-r-0 text-stone-700 text-sm placeholder-stone-400 px-4 py-3 w-80 focus:outline-none focus:border-amber-700 transition-colors duration-200"
                 >
@@ -125,7 +125,7 @@
         }
     </script>
 
-    <!-- Banner Promocional — Carrossel -->
+    <!-- Banner Promocional â€” Carrossel -->
     <div id="banner" class="banner-wrap relative w-full overflow-hidden bg-stone-900">
 
         <!-- Slides -->
@@ -143,14 +143,14 @@
                     <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">{{ p.icone }} {{ p.subtitulo|default:p.get_tipo_display }}</span>
                     <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">{{ p.nome }}</h2>
                     {% if p.desconto_percentagem %}
-                    <p class="text-amber-300 text-xs uppercase tracking-widest mb-3">Até {{ p.desconto_percentagem }}% de desconto</p>
+                    <p class="text-amber-300 text-xs uppercase tracking-widest mb-3">AtÃ© {{ p.desconto_percentagem }}% de desconto</p>
                     {% endif %}
                     {% if p.descricao %}
                     <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 max-w-xl md:max-w-2xl px-2 hidden sm:block">{{ p.descricao|truncatewords:18 }}</p>
                     {% else %}
-                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Promoção por tempo limitado</p>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">PromoÃ§Ã£o por tempo limitado</p>
                     {% endif %}
-                    <a href="{% if p.link_botao %}{{ p.link_botao }}{% else %}{{ p.get_absolute_url }}{% endif %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ p.texto_botao|default:'Ver Promoção' }}</a>
+                    <a href="{% if p.link_botao %}{{ p.link_botao }}{% else %}{{ p.get_absolute_url }}{% endif %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">{{ p.texto_botao|default:'Ver PromoÃ§Ã£o' }}</a>
                 </div>
             </div>
 {% endfor %}
@@ -170,13 +170,13 @@
 {% endfor %}
 {% else %}
             <div class="slide relative min-w-full h-full flex-shrink-0">
-                <img src="{% static 'loja/images/imag1.jpeg' %}" alt="Fragrâncias Exclusivas" class="w-full h-full object-cover opacity-80">
+                <img src="{% static 'loja/images/imag1.jpeg' %}" alt="FragrÃ¢ncias Exclusivas" class="w-full h-full object-cover opacity-80">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
-                    <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">Promoção da Época</span>
-                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">Fragrâncias Exclusivas</h2>
-                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Descubra a nossa curadoria de aromas únicos</p>
-                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecção</a>
+                    <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">PromoÃ§Ã£o da Ã‰poca</span>
+                    <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">FragrÃ¢ncias Exclusivas</h2>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Descubra a nossa curadoria de aromas Ãºnicos</p>
+                    <a href="{% url 'colecoes' %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver ColecÃ§Ã£o</a>
                 </div>
             </div>
             <div class="slide relative min-w-full h-full flex-shrink-0">
@@ -185,7 +185,7 @@
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 md:px-8">
                     <span class="text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] text-amber-300 mb-2 md:mb-3">Oferta Especial</span>
                     <h2 class="font-serif italic text-white text-2xl md:text-6xl mb-3 md:mb-4 px-2">O Presente Perfeito</h2>
-                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Presentes únicos para momentos inesquecíveis</p>
+                    <p class="text-stone-300 text-[10px] md:text-xs uppercase tracking-widest mb-6 md:mb-8 hidden sm:block">Presentes Ãºnicos para momentos inesquecÃ­veis</p>
                     <a href="{% url 'encomendas' %}" class="border border-amber-400 text-amber-300 text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] px-5 md:px-8 py-2.5 md:py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Encomendar Agora</a>
                 </div>
             </div>
@@ -255,22 +255,22 @@
         updateCarousel();
     </script>
 
-    <!-- Sobre Nós -->
+    <!-- Sobre NÃ³s -->
     <section class="bg-white py-20 px-4 md:px-8 border-b border-stone-100">
         <div class="max-w-4xl mx-auto text-center">
-            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">A Nossa História</span>
-            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-3 mb-6">A Arte de Uma Fragrância</h2>
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">A Nossa HistÃ³ria</span>
+            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-3 mb-6">A Arte de Uma FragrÃ¢ncia</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mb-10"></div>
             <p class="text-stone-500 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-6">
-                A <span class="font-semibold text-stone-700">Décent Privé</span> nasceu da paixão pelas fragrâncias raras e pela elegância atemporal. Actualmente localizados na Província do Huambo, Angola, somos mais do que uma perfumaria — somos um destino sensorial para quem aprecia o requinte e a autenticidade.
+                A <span class="font-semibold text-stone-700">DÃ©cent PrivÃ©</span> nasceu da paixÃ£o pelas fragrÃ¢ncias raras e pela elegÃ¢ncia atemporal. Actualmente localizados na ProvÃ­ncia do Huambo, Angola, somos mais do que uma perfumaria â€” somos um destino sensorial para quem aprecia o requinte e a autenticidade.
             </p>
             <p class="text-stone-400 text-sm leading-relaxed tracking-wide max-w-2xl mx-auto mb-10">
-                Cada frasco que seleccionamos conta uma história. Do Médio Oriente à Europa, trazemos até si as melhores casas de perfumaria do mundo, com atendimento personalizado e uma curadoria que privilegia a qualidade acima de tudo.
+                Cada frasco que seleccionamos conta uma histÃ³ria. Do MÃ©dio Oriente Ã  Europa, trazemos atÃ© si as melhores casas de perfumaria do mundo, com atendimento personalizado e uma curadoria que privilegia a qualidade acima de tudo.
             </p>
             <div class="flex flex-wrap justify-center gap-12">
                 <div class="text-center">
                     <p class="font-serif italic text-4xl text-amber-700">200+</p>
-                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">Fragrâncias</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-400 mt-1">FragrÃ¢ncias</p>
                 </div>
                 <div class="text-center">
                     <p class="font-serif italic text-4xl text-amber-700">5?</p>
@@ -289,11 +289,11 @@
     </section>
 
     {% if promocoes_landing %}
-    <!-- Promoções a decorrer (landing) -->
+    <!-- PromoÃ§Ãµes a decorrer (landing) -->
     <section id="promocoes" class="bg-white py-16 px-4 md:px-8 border-t border-stone-100">
         <div class="text-center mb-12">
             <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Tempo Limitado</span>
-            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Promoções a Decorrer</h2>
+            <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">PromoÃ§Ãµes a Decorrer</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
         </div>
 
@@ -313,7 +313,7 @@
                 <div class="md:col-span-7">
                     {% if p.subtitulo %}<span class="text-xs uppercase tracking-[0.3em] text-amber-700">{{ p.subtitulo }}</span>{% endif %}
                     <h3 class="font-serif italic text-3xl text-stone-800 mt-2">{{ p.icone }} {{ p.nome }}</h3>
-                    <p class="text-xs uppercase tracking-widest text-stone-500 mt-2">{{ p.data_inicio|date:"d M" }} — {{ p.data_fim|date:"d M Y" }}</p>
+                    <p class="text-xs uppercase tracking-widest text-stone-500 mt-2">{{ p.data_inicio|date:"d M" }} â€” {{ p.data_fim|date:"d M Y" }}</p>
                     {% if p.descricao %}<p class="text-stone-600 mt-4 leading-relaxed">{{ p.descricao }}</p>{% endif %}
 
                     {% if p.produtos.all %}
@@ -333,7 +333,7 @@
                     {% endif %}
 
                     <a href="{{ p.get_absolute_url }}" class="inline-block mt-6 border border-amber-700 text-amber-700 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white transition-all">
-                        {{ p.texto_botao|default:'Ver Promoção' }}
+                        {{ p.texto_botao|default:'Ver PromoÃ§Ã£o' }}
                     </a>
                 </div>
             </article>
@@ -342,12 +342,12 @@
     </section>
     {% endif %}
 
-    <!-- Secção de Produtos em Destaque -->
+    <!-- SecÃ§Ã£o de Produtos em Destaque -->
     <section id="produtos" class="bg-stone-50 py-16 px-4 md:px-8">
 
-        <!-- Cabeçalho principal -->
+        <!-- CabeÃ§alho principal -->
         <div class="text-center mb-14">
-            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Selecção da Semana</span>
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-700">SelecÃ§Ã£o da Semana</span>
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Produtos em Destaque</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
         </div>
@@ -389,7 +389,7 @@
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} Â· {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
@@ -454,7 +454,7 @@
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} Â· {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
@@ -484,7 +484,7 @@
 
         {% if not masculinos and not femininos and not unissex %}
         <div class="max-w-6xl mx-auto text-center py-16">
-            <p class="text-stone-400 text-sm uppercase tracking-widest">Produtos em breve. Consulte as nossas <a href="{% url 'colecoes' %}" class="text-amber-700 hover:underline">Colecções</a>.</p>
+            <p class="text-stone-400 text-sm uppercase tracking-widest">Produtos em breve. Consulte as nossas <a href="{% url 'colecoes' %}" class="text-amber-700 hover:underline">ColecÃ§Ãµes</a>.</p>
         </div>
         {% endif %}
 
@@ -525,7 +525,7 @@
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
+                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} Â· {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
@@ -553,10 +553,10 @@
         </div>
         {% endif %}
 
-        <!-- Botão ver todos -->
+        <!-- BotÃ£o ver todos -->
         <div class="text-center mt-4">
             <a href="{% url 'colecoes' %}" class="border border-amber-800 text-amber-800 text-[10px] uppercase tracking-[0.4em] px-10 py-3 hover:bg-amber-800 hover:text-white transition-all duration-300">
-                Ver Toda a Colecção
+                Ver Toda a ColecÃ§Ã£o
             </a>
         </div>
 
@@ -572,7 +572,7 @@
             </div>
             <div class="map-wrap w-full overflow-hidden">
                 <iframe
-                    title="Localização Décent Privé"
+                    title="LocalizaÃ§Ã£o DÃ©cent PrivÃ©"
                     src="https://maps.google.com/maps?q=SIAC+Huambo&output=embed&z=17"
                     width="100%"
                     height="300"
@@ -584,29 +584,29 @@
         </div>
     </section>
 
-    <!-- Rodapé -->
+    <!-- RodapÃ© -->
     <footer class="bg-stone-900 text-stone-200">
 
         <!-- Faixa superior decorativa -->
         <div class="h-px bg-amber-800 w-full"></div>
 
-        <!-- Conteúdo principal do rodapé -->
+        <!-- ConteÃºdo principal do rodapÃ© -->
         <div class="max-w-6xl mx-auto px-4 md:px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
 
             <!-- Logo + Quem Somos -->
             <div class="md:col-span-1">
-                <h4 class="font-serif italic text-amber-500 text-xl mb-4">Décent Privé</h4>
+                <h4 class="font-serif italic text-amber-500 text-xl mb-4">DÃ©cent PrivÃ©</h4>
                 <p class="text-stone-300 text-xs leading-relaxed tracking-wide">
-                    Somos uma perfumaria dedicada à exclusividade e à arte das fragrâncias. Curámos cada peça com rigor, oferecendo experiências sensoriais únicas para quem valoriza o detalhe.
+                    Somos uma perfumaria dedicada Ã  exclusividade e Ã  arte das fragrÃ¢ncias. CurÃ¡mos cada peÃ§a com rigor, oferecendo experiÃªncias sensoriais Ãºnicas para quem valoriza o detalhe.
                 </p>
             </div>
 
-            <!-- Links rápidos -->
+            <!-- Links rÃ¡pidos -->
             <div>
-                <h5 class="text-xs uppercase tracking-[0.3em] text-stone-300 mb-5">Navegação</h5>
+                <h5 class="text-xs uppercase tracking-[0.3em] text-stone-300 mb-5">NavegaÃ§Ã£o</h5>
                 <ul class="space-y-3 text-xs">
-                    <li><a href="{% url 'home' %}" class="hover:text-amber-500 transition-colors duration-200">Página Inicial</a></li>
-                    <li><a href="{% url 'colecoes' %}" class="hover:text-amber-500 transition-colors duration-200">Colecções</a></li>
+                    <li><a href="{% url 'home' %}" class="hover:text-amber-500 transition-colors duration-200">PÃ¡gina Inicial</a></li>
+                    <li><a href="{% url 'colecoes' %}" class="hover:text-amber-500 transition-colors duration-200">ColecÃ§Ãµes</a></li>
                     <li><a href="{% url 'encomendas' %}" class="hover:text-amber-500 transition-colors duration-200">Encomendas</a></li>
                     <li><a href="{% url 'fidelidade' %}" class="hover:text-amber-500 transition-colors duration-200">Fidelidade</a></li>
                 </ul>
@@ -674,15 +674,15 @@
 
         </div>
 
-        <!-- Newsletter + Métodos de Pagamento -->
+        <!-- Newsletter + MÃ©todos de Pagamento -->
         <div class="border-t border-stone-800 py-10 px-4 md:px-8">
             <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
 
                 <!-- Newsletter -->
                 <div class="flex flex-col gap-4">
                     <h5 class="text-xs uppercase tracking-[0.4em] text-stone-300">Subscreva a nossa Newsletter</h5>
-                    <p class="text-xs text-stone-300 tracking-wide">Receba em primeira mão as nossas novidades, promoções e lançamentos exclusivos.
-                        Junte-se à nossa comunidade e seja o primeiro a saber das nossas ofertas especiais.
+                    <p class="text-xs text-stone-300 tracking-wide">Receba em primeira mÃ£o as nossas novidades, promoÃ§Ãµes e lanÃ§amentos exclusivos.
+                        Junte-se Ã  nossa comunidade e seja o primeiro a saber das nossas ofertas especiais.
                     </p>
                     <form onsubmit="submitNewsletter(event)" class="flex flex-col sm:flex-row items-center gap-3 w-full mt-2">
                         <input
@@ -704,20 +704,20 @@
                     <p id="newsletter-msg" class="text-xs text-amber-500 hidden"></p>
                 </div>
 
-                <!-- Métodos de Pagamento -->
+                <!-- MÃ©todos de Pagamento -->
                 <div class="flex flex-col gap-4">
-                    <h5 class="text-xs uppercase tracking-[0.35em] text-stone-300">Métodos de Pagamento</h5>
-                    <p class="text-xs text-stone-300 tracking-wide">Oferecemos opções de pagamento seguras e convenientes para a sua encomenda.
-                        Após confirmação do pagamento, a sua encomenda é processada de imediato.
+                    <h5 class="text-xs uppercase tracking-[0.35em] text-stone-300">MÃ©todos de Pagamento</h5>
+                    <p class="text-xs text-stone-300 tracking-wide">Oferecemos opÃ§Ãµes de pagamento seguras e convenientes para a sua encomenda.
+                        ApÃ³s confirmaÃ§Ã£o do pagamento, a sua encomenda Ã© processada de imediato.
                     </p>
                     <div class="flex flex-wrap gap-3">
 
-                        <!-- Transferência Bancária -->
+                        <!-- TransferÃªncia BancÃ¡ria -->
                         <div class="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded px-4 py-3 flex-1 min-w-[150px]">
                             <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l9-3 9 3M3 6v2m18-2v2M3 8h18M5 8v10m4-10v10m4-10v10m4-10v10M3 18h18M3 20h18"/>
                             </svg>
-                            <p class="text-white text-[9px] uppercase tracking-wider leading-tight">Transferência<br>Bancária</p>
+                            <p class="text-white text-[9px] uppercase tracking-wider leading-tight">TransferÃªncia<br>BancÃ¡ria</p>
                         </div>
 
                         <!-- Multicaixa Express -->
@@ -753,7 +753,7 @@
             const email = input.value.trim();
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                msg.textContent = 'E-mail inválido.';
+                msg.textContent = 'E-mail invÃ¡lido.';
                 msg.classList.remove('hidden');
                 msg.classList.remove('text-amber-500');
                 msg.classList.add('text-red-400');
@@ -770,7 +770,7 @@
             .then(r => r.json().then(j => ({ok: r.ok, status: r.status, ...j})))
             .then(res => {
                 if (res.ok) {
-                    msg.textContent = 'Obrigado pela subscrição!';
+                    msg.textContent = 'Obrigado pela subscriÃ§Ã£o!';
                     msg.classList.remove('text-red-400');
                     msg.classList.add('text-amber-500');
                     input.value = '';
@@ -783,7 +783,7 @@
                 setTimeout(() => msg.classList.add('hidden'), 4000);
             })
             .catch(() => {
-                msg.textContent = 'Erro de ligação.';
+                msg.textContent = 'Erro de ligaÃ§Ã£o.';
                 msg.classList.remove('text-amber-500');
                 msg.classList.add('text-red-400');
                 msg.classList.remove('hidden');
@@ -795,7 +795,7 @@
         <!-- Faixa de copyright -->
         <div class="border-t border-stone-800 py-5 px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-2">
             <p class="text-xs text-stone-400 tracking-wide">
-                &copy; 2026 Décent Privé. Todos os direitos reservados.
+                &copy; 2026 DÃ©cent PrivÃ©. Todos os direitos reservados.
             </p>
             <p class="text-xs text-stone-400 tracking-wide flex items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800/80 border border-stone-700 text-amber-400">
@@ -821,7 +821,7 @@
             <button onclick="toggleCart()" class="text-stone-400 hover:text-white text-4xl leading-none transition-colors">&times;</button>
         </div>
         <div id="cart-items" class="flex-1 overflow-y-auto px-8 py-6 space-y-6">
-            <p id="cart-empty" class="text-sm text-stone-400 uppercase tracking-widest text-center mt-16">O seu carrinho está vazio.</p>
+            <p id="cart-empty" class="text-sm text-stone-400 uppercase tracking-widest text-center mt-16">O seu carrinho estÃ¡ vazio.</p>
         </div>
         <div class="px-8 py-6 border-t border-stone-700 space-y-5 bg-stone-800">
             <div class="flex justify-between items-center">
@@ -925,7 +925,7 @@
 
         function finalizarEncomenda() {
             if (cartItems.length === 0) {
-                alert('O seu carrinho está vazio.');
+                alert('O seu carrinho estÃ¡ vazio.');
                 return;
             }
             window.location.href = '{% url "encomendas" %}';
@@ -940,16 +940,16 @@
         });
     </script>
 
-    <!-- -- Menu Móvel -- -->
+    <!-- -- Menu MÃ³vel -- -->
     <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
     <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[16rem] sm:w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
-            <span class="font-serif italic text-amber-700 text-2xl">Décent Privé</span>
+            <span class="font-serif italic text-amber-700 text-2xl">DÃ©cent PrivÃ©</span>
             <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none" aria-label="Fechar">&times;</button>
         </div>
         <nav class="flex flex-col p-6 gap-1">
-            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
-            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">InÃ­cio</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">ColecÃ§Ãµes</a>
             <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
             <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
             <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>
@@ -974,7 +974,7 @@
     </div>
 
     <!-- -- WhatsApp Flutuante -- -->
-    <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20Décent%20Priv%C3%A9."
+    <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20DÃ©cent%20Priv%C3%A9."
        target="_blank" rel="noopener noreferrer"
        class="wa-pulse fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
        aria-label="Falar no WhatsApp">

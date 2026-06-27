@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% block page_title %}Gest„o de Newsletter{% endblock %}
+{% block page_title %}Gest√£o de Newsletter{% endblock %}
 {% block content %}
 <div class="max-w-[900px] mx-auto">
 
@@ -7,7 +7,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <p class="text-xs text-stone-500">
-                <span class="font-semibold text-amber-700">{{ inscritos_ativos }}</span> inscrito(s) ativo(s) receber„o o e-mail
+                <span class="font-semibold text-amber-700">{{ inscritos_ativos }}</span> inscrito(s) ativo(s) receber√£o o e-mail
             </p>
         </div>
         <button onclick="document.getElementById('modal-newsletter').classList.remove('hidden')"
@@ -30,7 +30,7 @@
                 <thead class="bg-stone-50 border-b border-stone-200">
                     <tr>
                         <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">E-mail</th>
-                        <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Data de InscriÁ„o</th>
+                        <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Data de Inscri√ß√£o</th>
                         <th class="text-left px-5 py-3 text-[9px] uppercase tracking-[0.25em] text-stone-500 font-semibold">Estado</th>
                     </tr>
                 </thead>
@@ -60,17 +60,17 @@
 <div id="modal-newsletter" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div class="bg-white w-full max-w-xl mx-4 shadow-2xl">
 
-        <!-- CabeÁalho do modal -->
+        <!-- Cabe√ßalho do modal -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-stone-900">
             <div>
                 <h2 class="text-sm font-semibold text-white uppercase tracking-widest">Compor E-mail em Grupo</h2>
-                <p class="text-[10px] text-stone-400 mt-0.5">Ser· enviado para <span class="text-amber-400 font-bold">{{ inscritos_ativos }}</span> inscrito(s) ativo(s)</p>
+                <p class="text-[10px] text-stone-400 mt-0.5">Ser√° enviado para <span class="text-amber-400 font-bold">{{ inscritos_ativos }}</span> inscrito(s) ativo(s)</p>
             </div>
             <button type="button" onclick="document.getElementById('modal-newsletter').classList.add('hidden')"
                     class="text-stone-400 hover:text-white transition-colors text-lg leading-none">&times;</button>
         </div>
 
-        <!-- Formul·rio -->
+        <!-- Formul√°rio -->
         <form method="POST" action="{% url 'gestao_enviar_newsletter' %}" id="form-newsletter">
             {% csrf_token %}
             <div class="px-6 py-5 space-y-4">
@@ -78,21 +78,21 @@
                 <div>
                     <label class="block text-[9px] uppercase tracking-[0.3em] text-stone-500 mb-1.5 font-semibold">Assunto</label>
                     <input type="text" name="assunto" required maxlength="150"
-                           placeholder="Ex: Novidades DÈcent PrivÈ ó Junho 2026"
+                           placeholder="Ex: Novidades D√©cent Priv√© ‚Äî Junho 2026"
                            class="w-full px-3 py-2.5 text-sm bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
                 </div>
 
                 <div>
                     <label class="block text-[9px] uppercase tracking-[0.3em] text-stone-500 mb-1.5 font-semibold">Mensagem</label>
                     <textarea name="mensagem" required rows="8"
-                              placeholder="Escreva aqui o conte˙do do e-mailÖ"
+                              placeholder="Escreva aqui o conte√∫do do e-mail‚Ä¶"
                               class="w-full px-3 py-2.5 text-sm bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors resize-none"></textarea>
-                    <p class="mt-1 text-[9px] text-stone-400">O e-mail ser· enviado em texto simples para todos os inscritos ativos.</p>
+                    <p class="mt-1 text-[9px] text-stone-400">O e-mail ser√° enviado em texto simples para todos os inscritos ativos.</p>
                 </div>
 
             </div>
 
-            <!-- RodapÈ do modal -->
+            <!-- Rodap√© do modal -->
             <div class="flex items-center justify-between px-6 py-4 border-t border-stone-100 bg-stone-50">
                 <button type="button" onclick="document.getElementById('modal-newsletter').classList.add('hidden')"
                         class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
@@ -114,7 +114,7 @@
 document.getElementById('form-newsletter').addEventListener('submit', function() {
     var btn = document.getElementById('btn-enviar');
     btn.disabled = true;
-    btn.textContent = 'A enviarÖ';
+    btn.textContent = 'A enviar‚Ä¶';
 });
 // Fechar modal ao clicar fora
 document.getElementById('modal-newsletter').addEventListener('click', function(e) {

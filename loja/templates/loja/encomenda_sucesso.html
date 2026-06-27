@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Décent Privé | Encomenda Recebida</title>
+    <title>DÃ©cent PrivÃ© | Encomenda Recebida</title>
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,12 +18,12 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-4 md:px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50">
         <a href="{% url 'home' %}" class="md:-mt-8">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-16 md:h-52 w-auto">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="DÃ©cent PrivÃ©" class="h-16 md:h-52 w-auto">
         </a>
         <div class="flex items-center gap-5 pt-4">
             <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
-                <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Início</a>
-                <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
+                <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">InÃ­cio</a>
+                <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">ColecÃ§Ãµes</a>
                 <a href="{% url 'galeria' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Galeria</a>
                 <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
                 <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
@@ -37,9 +37,9 @@
         </div>
     </nav>
 
-    <!-- Conteúdo -->
+    <!-- ConteÃºdo -->
     <section class="min-h-[70vh] flex flex-col items-center justify-center text-center px-8 py-20">
-        <!-- Ícone de confirmação -->
+        <!-- Ãcone de confirmaÃ§Ã£o -->
         <div class="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-8">
             <svg class="w-8 h-8 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
@@ -49,7 +49,7 @@
         <p class="text-[10px] uppercase tracking-[0.35em] text-amber-800 mb-3">Encomenda Recebida</p>
         <h1 class="text-5xl font-serif italic text-stone-900 mb-5">Obrigado!</h1>
         {% if encomenda_id %}
-        <p class="text-xs uppercase tracking-widest text-stone-400 mb-2">Número de referência</p>
+        <p class="text-xs uppercase tracking-widest text-stone-400 mb-2">NÃºmero de referÃªncia</p>
         <p class="text-2xl font-semibold text-amber-800 mb-6">#{{ encomenda_id|stringformat:'04d' }}</p>
         {% endif %}
         <p class="text-stone-500 text-xs uppercase tracking-widest max-w-sm mx-auto leading-relaxed mb-10">
@@ -72,27 +72,27 @@
         </a>
 
         <a href="{% url 'home' %}" class="text-[10px] uppercase tracking-widest text-stone-400 hover:text-amber-800 transition-colors duration-200">
-            ? Voltar à loja
+            ? Voltar Ã  loja
         </a>
     </section>
 
     <footer class="bg-stone-900 text-stone-300 border-t border-stone-800">
         <div class="max-w-6xl mx-auto px-4 md:px-8 py-8 text-center">
-            <p class="font-serif italic text-amber-500 text-lg">Décent Privé</p>
-            <p class="text-xs text-stone-500 mt-1">&copy; 2026 — Huambo, Angola</p>
+            <p class="font-serif italic text-amber-500 text-lg">DÃ©cent PrivÃ©</p>
+            <p class="text-xs text-stone-500 mt-1">&copy; 2026 â€” Huambo, Angola</p>
         </div>
     </footer>
 
-    <!-- Menu Móvel -->
+    <!-- Menu MÃ³vel -->
     <div id="mobile-overlay" onclick="toggleMobileMenu()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
     <div id="mobile-menu" class="fixed top-0 left-0 h-full w-[18rem] bg-stone-50 shadow-2xl z-50 -translate-x-full transition-transform duration-300 flex flex-col">
         <div class="flex items-center justify-between px-6 py-5 border-b border-stone-200">
-            <span class="font-serif italic text-amber-700 text-2xl">Décent Privé</span>
+            <span class="font-serif italic text-amber-700 text-2xl">DÃ©cent PrivÃ©</span>
             <button onclick="toggleMobileMenu()" class="text-stone-400 hover:text-stone-700 text-3xl leading-none">&times;</button>
         </div>
         <nav class="flex flex-col p-6 gap-1">
-            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Início</a>
-            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Colecções</a>
+            <a href="{% url 'home' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">InÃ­cio</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">ColecÃ§Ãµes</a>
             <a href="{% url 'galeria' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Galeria</a>
             <a href="{% url 'encomendas' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Encomendas</a>
             <a href="{% url 'fidelidade' %}" class="text-amber-800 hover:bg-amber-50 text-xs uppercase tracking-[0.3em] py-3 px-3 transition-colors">Fidelidade</a>

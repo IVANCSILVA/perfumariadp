@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DÈcent PrivÈ | Sistema de Gest„o</title>
+    <title>D√©cent Priv√© | Sistema de Gest√£o</title>
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +36,7 @@
 
             <!-- Brand -->
             <div class="text-center px-8 pt-4 pb-3 border-b border-stone-700/60">
-                <img src="{% static 'loja/images/logo2.png' %}" alt="DÈcent PrivÈ" class="logo-dourado">
+                <img src="{% static 'loja/images/logo2.png' %}" alt="D√©cent Priv√©" class="logo-dourado">
                 <p class="text-amber-400 text-[10px] uppercase tracking-[0.4em] mt-1">Painel de Login</p>
             </div>
 
@@ -84,7 +84,7 @@
                                 name="password"
                                 required
                                 autocomplete="current-password"
-                                placeholder="ïïïïïïïï"
+                                placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢‚Ä¢"
                                 class="w-full bg-stone-900/70 border border-stone-700 text-stone-100 text-sm rounded-md pl-10 pr-10 py-3 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 placeholder-stone-600 transition"
                             >
                             <button type="button" onclick="togglePwd()" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-400 p-1" aria-label="Mostrar/ocultar senha">
@@ -112,7 +112,7 @@
         </div>
 
         <p class="text-center text-[10px] uppercase tracking-[0.35em] mt-6">
-            <a href="{% url 'home' %}" class="text-amber-400/90 hover:text-amber-300 transition-colors">? Voltar ‡ loja</a>
+            <a href="{% url 'home' %}" class="text-amber-400/90 hover:text-amber-300 transition-colors">? Voltar √† loja</a>
         </p>
     </div>
 
@@ -122,7 +122,7 @@
             i.type = i.type === 'password' ? 'text' : 'password';
         }
 
-        // Limpar caminho visÌvel apenas no subdomÌnio gestao
+        // Limpar caminho vis√≠vel apenas no subdom√≠nio gestao
         if (window.location.hostname === 'gestao.decentprive.ao'
             && window.location.pathname !== '/'
             && window.location.pathname !== '/gestao/') {
