@@ -1205,12 +1205,18 @@ def gestao_produto_criar(request, pk=None):
     # Garantir que as duas categorias fixas existem e obter os IDs
     cat_ids = []
     for nome_cat in ['Nicho', 'Diversos']:
-        obj, created = Categoria.objects.get_or_create(
-            nome__iexact=nome_cat,
-            defaults={'nome': nome_cat, 'slug': gerar_slug_unico(Categoria, nome_cat)},
-        )
-        cat_ids.append(obj.id)
+        try:
+            obj = Categoria.objects.filter(nome__iexact=nome_cat).first()
+            if not obj:
+                obj = Categoria.objects.create(
+                    nome=nome_cat,
+                    slug=gerar_slug_unico(Categoria, nome_cat),
+                )
+            cat_ids.append(obj.id)
+        except Exception as e:
+            logger.error('Erro ao garantir categoria %s: %s', nome_cat, e)
     categorias = Categoria.objects.filter(id__in=cat_ids).order_by('nome')
+    logger.warning('[PRODUTO_FORM] cat_ids=%s, categorias_count=%d', cat_ids, categorias.count())
     genero_choices = Produto.GENERO_CHOICES
     concentracao_choices = Produto.CONCENTRACAO_CHOICES
     origem_choices = Produto.ORIGEM_CHOICES
