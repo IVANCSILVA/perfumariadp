@@ -121,6 +121,19 @@
             </div>
             <div class="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-5">
 
+                <!-- Categoria (Nicho, Designer, etc.) -->
+                <div class="md:col-span-2">
+                    <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">Categoria / Segmento</label>
+                    <select name="categoria"
+                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border border-stone-200 text-stone-800 focus:outline-none focus:border-amber-500 transition-colors appearance-none">
+                        <option value="">— Sem categoria —</option>
+                        {% for c in categorias %}
+                        <option value="{{ c.id }}" {% if post.categoria == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-[9px] text-stone-400">Produtos na categoria "Nicho" exibem 5 estrelas douradas na loja. Gerir categorias em <a href="{% url 'gestao_categorias' %}" class="text-amber-700 hover:underline">Categorias</a>.</p>
+                </div>
+
                 <!-- Género (público-alvo) -->
                 <div>
                     <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
