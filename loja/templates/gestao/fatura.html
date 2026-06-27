@@ -1,10 +1,10 @@
-Ôªø{% extends 'gestao/base.html' %}
+{% extends 'gestao/base.html' %}
 {% load humanize %}
 {% block title %}Fatura #{{ encomenda.pk }}{% endblock %}
 {% block page_title %}Fatura / Recibo{% endblock %}
 
 {% block content %}
-<!-- Bot√µes de ac√ß√£o (n√£o imprimem) -->
+<!-- Botıes de acÁ„o (n„o imprimem) -->
 <div class="no-print flex items-center gap-3 mb-6 max-w-4xl mx-auto flex-wrap">
     <a href="{% url 'gestao_venda_nova' %}"
        class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
@@ -19,13 +19,13 @@
     </button>
     <a href="{% url 'gestao_vendas' %}"
        class="text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-5 py-2.5 transition-colors">
-        ‚Üê Ver Todas as Vendas
+        ? Ver Todas as Vendas
     </a>
     {% if encomenda.forma_pagamento == 'parcelado' and not encomenda.parcela2_paga %}
     <form method="POST" action="{% url 'gestao_registar_pagamento_parcela2' encomenda.pk %}" style="display: inline;">
         {% csrf_token %}
         <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
-            ‚úì Registar 2¬™ Parcela
+            ? Registar 2™ Parcela
         </button>
     </form>
     {% endif %}
@@ -39,13 +39,13 @@
 
     <div class="px-10 py-8">
 
-        <!-- Topo: Empresa + N√∫mero de Fatura -->
+        <!-- Topo: Empresa + N˙mero de Fatura -->
         <div class="flex items-start justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold tracking-[0.08em] uppercase text-stone-900 font-serif">D√©cent Priv√©</h1>
-                <p class="text-xs text-stone-400 tracking-widest mt-1 uppercase">Al√©m do Essencial</p>
+                <h1 class="text-2xl font-bold tracking-[0.08em] uppercase text-stone-900 font-serif">DÈcent PrivÈ</h1>
+                <p class="text-xs text-stone-400 tracking-widest mt-1 uppercase">AlÈm do Essencial</p>
                 <div class="mt-4 space-y-1 text-xs text-stone-500">
-                    <p>Banild ‚Äî Com√©rcio e Servi√ßos, Lda.</p>
+                    <p>Banild ó ComÈrcio e ServiÁos, Lda.</p>
                     <p>NIF: <span class="font-semibold text-stone-700">5002884747</span></p>
                     <p>Tel: <span class="font-semibold text-stone-700">+244 940 385 564</span></p>
                     <p>Huambo, Angola</p>
@@ -53,7 +53,7 @@
             </div>
             <div class="text-right">
                 <div class="inline-block bg-amber-800 text-white px-4 py-1.5 text-xs uppercase tracking-[0.2em] font-semibold mb-4">
-                    Fatura ‚Äî Recibo
+                    Fatura ó Recibo
                 </div>
                 <p class="text-5xl font-bold text-stone-900 font-mono">#{{ encomenda.pk|stringformat:"05d" }}</p>
                 <div class="mt-3 text-xs text-stone-500 space-y-1">
@@ -67,7 +67,7 @@
         <div class="border-t-2 border-stone-900 mb-1"></div>
         <div class="border-t border-amber-700 mb-6"></div>
 
-        <!-- Cliente + Informa√ß√µes de Pagamento -->
+        <!-- Cliente + InformaÁıes de Pagamento -->
         <div class="grid grid-cols-2 gap-8 mb-6">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-3">Faturado a</p>
@@ -78,7 +78,7 @@
                 {% else %}
                 <p class="text-base font-bold text-stone-900">{{ encomenda.nome_cliente }}</p>
                 {% endif %}
-                {% if encomenda.telefone and encomenda.telefone != '‚Äî' %}
+                {% if encomenda.telefone and encomenda.telefone != 'ó' %}
                 <p class="text-sm text-stone-600 mt-1">Tel: {{ encomenda.telefone }}</p>
                 {% endif %}
                 {% if encomenda.email %}
@@ -89,7 +89,7 @@
                 {% endif %}
             </div>
             <div class="text-right">
-                <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-3">Informa√ß√µes</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-3">InformaÁıes</p>
                 <div class="space-y-2">
                     <div>
                         <p class="text-[9px] uppercase tracking-widest text-stone-400">Forma de Pagamento</p>
@@ -112,9 +112,9 @@
             <thead>
                 <tr class="bg-stone-900 text-white">
                     <th class="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-semibold w-10">#</th>
-                    <th class="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-semibold">Descri√ß√£o do Produto</th>
+                    <th class="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-semibold">DescriÁ„o do Produto</th>
                     <th class="px-4 py-3 text-center text-[10px] uppercase tracking-[0.2em] font-semibold">Qtd.</th>
-                    <th class="px-4 py-3 text-right text-[10px] uppercase tracking-[0.2em] font-semibold">Pre√ßo Unit.</th>
+                    <th class="px-4 py-3 text-right text-[10px] uppercase tracking-[0.2em] font-semibold">PreÁo Unit.</th>
                     <th class="px-4 py-3 text-right text-[10px] uppercase tracking-[0.2em] font-semibold">Subtotal</th>
                 </tr>
             </thead>
@@ -126,7 +126,7 @@
                         <p class="font-semibold text-stone-900">{{ item.nome_produto }}</p>
                         {% if item.produto and item.produto.marca %}
                         <p class="text-xs text-stone-400 mt-0.5">
-                            {{ item.produto.marca }}{% if item.produto.quantidade %} ¬∑ {{ item.produto.quantidade }}{% endif %}
+                            {{ item.produto.marca }}{% if item.produto.quantidade %} ∑ {{ item.produto.quantidade }}{% endif %}
                         </p>
                         {% endif %}
                     </td>
@@ -147,7 +147,7 @@
                 </div>
                 <div class="flex justify-between py-2 border-b border-stone-100">
                     <span class="text-sm text-stone-400 italic">Isento de IVA</span>
-                    <span class="text-sm text-stone-400">‚Äî</span>
+                    <span class="text-sm text-stone-400">ó</span>
                 </div>
                 <div class="flex justify-between items-center py-4 px-5 bg-stone-900 mt-2">
                     <span class="text-sm font-bold text-white uppercase tracking-[0.2em]">Total a Pagar</span>
@@ -163,26 +163,26 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-white border border-amber-100 px-4 py-3 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-stone-500 uppercase tracking-widest">1¬™ Parcela</p>
+                        <p class="text-xs text-stone-500 uppercase tracking-widest">1™ Parcela</p>
                         <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</p>
                         <p class="text-[10px] text-stone-400 mt-1">Paga na data de venda</p>
                     </div>
                     {% if encomenda.parcela1_paga %}
-                    <span class="text-xs font-bold text-green-700 uppercase tracking-widest">‚úì Paga</span>
+                    <span class="text-xs font-bold text-green-700 uppercase tracking-widest">? Paga</span>
                     {% else %}
                     <span class="text-xs font-bold text-red-600 uppercase tracking-widest">Pendente</span>
                     {% endif %}
                 </div>
                 <div class="bg-white border border-amber-100 px-4 py-3 flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-stone-500 uppercase tracking-widest">2¬™ Parcela</p>
+                        <p class="text-xs text-stone-500 uppercase tracking-widest">2™ Parcela</p>
                         <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</p>
                         {% if encomenda.data_proxima_parcela %}
                         <p class="text-[10px] text-amber-700 font-semibold mt-1">Vence: {{ encomenda.data_proxima_parcela|date:"d/m/Y" }}</p>
                         {% endif %}
                     </div>
                     {% if encomenda.parcela2_paga %}
-                    <span class="text-xs font-bold text-green-700 uppercase tracking-widest">‚úì Paga</span>
+                    <span class="text-xs font-bold text-green-700 uppercase tracking-widest">? Paga</span>
                     {% else %}
                     <span class="text-xs font-bold text-red-600 uppercase tracking-widest">Pendente</span>
                     {% endif %}
@@ -192,18 +192,18 @@
         {% endif %}
 
         {% if encomenda.notas %}
-        <!-- Observa√ß√µes -->
+        <!-- ObservaÁıes -->
         <div class="mb-6 border-t border-stone-100 pt-4">
-            <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-2">Observa√ß√µes</p>
+            <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-stone-400 mb-2">ObservaÁıes</p>
             <p class="text-sm text-stone-600 leading-relaxed">{{ encomenda.notas }}</p>
         </div>
         {% endif %}
 
-        <!-- Rodap√© da Fatura -->
+        <!-- RodapÈ da Fatura -->
         <div class="border-t border-stone-300 pt-4 mt-4 flex items-end justify-between">
             <div>
                 <p class="text-[9px] text-stone-600 uppercase tracking-widest font-semibold">Processado por computador</p>
-                <p class="text-[9px] text-stone-500 mt-1">D√©cent Priv√© ¬∑ NIF: 5002884747 ¬∑ Huambo, Angola</p>
+                <p class="text-[9px] text-stone-500 mt-1">DÈcent PrivÈ ∑ NIF: 5002884747 ∑ Huambo, Angola</p>
             </div>
             <div class="text-right">
                 <p class="text-xs font-semibold text-stone-600 italic">Obrigado pela sua visita</p>
@@ -219,10 +219,10 @@
 
 </div>
 
-<!-- Estilos de impress√£o -->
+<!-- Estilos de impress„o -->
 <style>
 @media print {
-    /* ‚îÄ‚îÄ Ocultar TUDO excepto a fatura ‚îÄ‚îÄ */
+    /* -- Ocultar TUDO excepto a fatura -- */
     body * {
         visibility: hidden !important;
     }
@@ -250,7 +250,7 @@
         display: none !important;
     }
 
-    /* ‚îÄ‚îÄ Anular o layout flex + overflow do base.html ‚îÄ‚îÄ */
+    /* -- Anular o layout flex + overflow do base.html -- */
     html, body {
         height: auto !important;
         overflow: visible !important;
@@ -266,12 +266,12 @@
         overflow: visible !important;
     }
 
-    /* Overlay do sidebar mobile ‚Äî manter escondido na impress√£o */
+    /* Overlay do sidebar mobile ó manter escondido na impress„o */
     #sidebar-overlay {
         display: none !important;
     }
 
-    /* Coluna de conte√∫do (flex-1 flex flex-col overflow-hidden) */
+    /* Coluna de conte˙do (flex-1 flex flex-col overflow-hidden) */
     .flex-1.flex.flex-col,
     .flex-1.flex.flex-col.overflow-hidden {
         display: block !important;
@@ -286,7 +286,7 @@
         padding: 0 !important;
     }
 
-    /* ‚îÄ‚îÄ Fatura: ocupa toda a largura ‚îÄ‚îÄ */
+    /* -- Fatura: ocupa toda a largura -- */
     #fatura {
         max-width: 100% !important;
         width: 100% !important;
@@ -295,7 +295,7 @@
         margin: 0 !important;
     }
 
-    /* ‚îÄ‚îÄ Configura√ß√£o da p√°gina A4 ‚îÄ‚îÄ */
+    /* -- ConfiguraÁ„o da p·gina A4 -- */
     @page {
         size: A4 portrait;
         margin: 8mm 12mm 8mm 12mm;

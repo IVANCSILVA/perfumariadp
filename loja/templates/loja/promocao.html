@@ -1,10 +1,11 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DÃ©cent PrivÃ© | {{ promo.nome }}</title>
+    <title>Décent Privé | {{ promo.nome }}</title>
     {% load static %}
+{% load loja_filters %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -23,11 +24,11 @@
     <!-- Navbar -->
     <nav class="flex justify-between items-start px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50 sticky top-0 z-30">
         <a href="{% url 'home' %}" class="-mt-16">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="DÃ©cent PrivÃ©" class="h-56 w-auto">
+            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-56 w-auto">
         </a>
         <div class="space-x-8 text-xs uppercase tracking-widest hidden md:flex pt-4">
-            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">PÃ¡gina Inicial</a>
-            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">ColecÃ§Ãµes</a>
+            <a href="{% url 'home' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Página Inicial</a>
+            <a href="{% url 'colecoes' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Colecções</a>
             <a href="{% url 'encomendas' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Encomendas</a>
             <a href="{% url 'fidelidade' %}" class="text-amber-800 px-3 py-1 hover:drop-shadow transition-all duration-200">Fidelidade</a>
         </div>
@@ -48,10 +49,10 @@
             <h1 class="font-serif italic text-4xl md:text-6xl mt-3">{{ promo.icone }} {{ promo.nome }}</h1>
             <div class="w-16 h-px bg-amber-500 mx-auto mt-5"></div>
             <p class="text-amber-200 text-xs md:text-sm uppercase tracking-widest mt-6">
-                {{ promo.data_inicio|date:"d M" }} â€” {{ promo.data_fim|date:"d M Y" }}
+                {{ promo.data_inicio|date:"d M" }} — {{ promo.data_fim|date:"d M Y" }}
             </p>
             {% if promo.desconto_percentagem %}
-            <p class="font-serif italic text-3xl md:text-5xl text-amber-300 mt-4">AtÃ© {{ promo.desconto_percentagem }}% de desconto</p>
+            <p class="font-serif italic text-3xl md:text-5xl text-amber-300 mt-4">Até {{ promo.desconto_percentagem }}% de desconto</p>
             {% endif %}
             {% if promo.descricao %}
             <p class="text-stone-200 text-sm md:text-base mt-6 max-w-2xl mx-auto leading-relaxed">{{ promo.descricao }}</p>
@@ -63,8 +64,8 @@
     <section class="px-4 md:px-8 py-16">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-10">
-                <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Os perfumes em promoÃ§Ã£o</span>
-                <h2 class="font-serif italic text-3xl text-stone-800 mt-2">SelecÃ§Ã£o desta promoÃ§Ã£o</h2>
+                <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Os perfumes em promoção</span>
+                <h2 class="font-serif italic text-3xl text-stone-800 mt-2">Selecção desta promoção</h2>
                 <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
             </div>
 
@@ -85,13 +86,13 @@
                     <div class="p-4">
                         <p class="text-[10px] uppercase tracking-widest text-stone-500">{{ prod.marca }}</p>
                         <h3 class="font-serif italic text-lg text-stone-800 truncate">{{ prod.nome }}</h3>
-                        <p class="text-[11px] text-stone-500 mt-1">{{ prod.get_genero_display }}{% if prod.concentracao %} Â· {{ prod.get_concentracao_display }}{% endif %}</p>
-                        <div class="mt-2">
+                        <p class="text-[11px] text-stone-500 mt-1">{{ prod.get_genero_display }}{% if prod.concentracao %} · {{ prod.get_concentracao_display }}{% endif %}</p>
+                        <div class="mt-2 flex items-center gap-2 flex-wrap min-h-[24px]">
                             {% if promo.desconto_percentagem %}
-                            <span class="text-stone-400 line-through text-xs mr-2">{{ prod.preco_venda|floatformat:0 }} Kz</span>
-                            <span class="text-amber-700 font-semibold text-base">{{ prod.preco_promocional|floatformat:0 }} Kz</span>
+                            <span class="text-stone-400 line-through text-xs mr-2 whitespace-nowrap">{{ prod.preco_venda|kz }} Kz</span>
+                            <span class="text-amber-700 font-semibold text-base whitespace-nowrap">{{ prod.preco_promocional|kz }} Kz</span>
                             {% else %}
-                            <span class="text-amber-700 font-semibold text-base">{{ prod.preco_venda|floatformat:0 }} Kz</span>
+                            <span class="text-amber-700 font-semibold text-base whitespace-nowrap">{{ prod.preco_venda|kz }} Kz</span>
                             {% endif %}
                         </div>
                     </div>
@@ -99,7 +100,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-center text-stone-500 italic">Em breve serÃ£o anunciados os perfumes desta promoÃ§Ã£o.</p>
+            <p class="text-center text-stone-500 italic">Em breve serão anunciados os perfumes desta promoção.</p>
             {% endif %}
 
             <div class="text-center mt-12">
@@ -110,9 +111,9 @@
         </div>
     </section>
 
-    <!-- RodapÃ© -->
+    <!-- Rodapé -->
     <footer class="bg-stone-900 text-stone-300 py-8 px-4 md:px-8 text-center text-xs tracking-wide">
-        &copy; 2026 DÃ©cent PrivÃ© â€” Curadoria de fragrÃ¢ncias raras.
+        &copy; 2026 Décent Privé — Curadoria de fragrâncias raras.
     </footer>
 </body>
 </html>

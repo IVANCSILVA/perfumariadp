@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ produto.nome }} — {{ produto.marca }} | Décent Privé</title>
     {% load static %}
+{% load loja_filters %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <meta name="description" content="{{ produto.nome }} by {{ produto.marca }} — {{ produto.get_concentracao_display|default:'' }} {{ produto.quantidade|default:'' }}. Disponível na Décent Privé, Huambo, Angola.">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -123,12 +124,12 @@
                 </div>
 
                 <!-- Preço -->
-                <div class="flex items-center gap-3 mb-6">
+                <div class="flex items-center gap-3 mb-6 flex-wrap min-h-[36px]">
                     {% if produto.tem_desconto %}
-                    <span class="text-stone-400 line-through text-lg">{{ produto.preco_venda|floatformat:0 }} Kz</span>
-                    <span class="text-amber-800 font-bold text-3xl">{{ produto.preco_promocional|floatformat:0 }} Kz</span>
+                    <span class="text-stone-400 line-through text-lg whitespace-nowrap">{{ produto.preco_venda|kz }} Kz</span>
+                    <span class="text-amber-800 font-bold text-3xl whitespace-nowrap">{{ produto.preco_promocional|kz }} Kz</span>
                     {% else %}
-                    <span class="text-amber-800 font-bold text-3xl">{{ produto.preco_venda|floatformat:0 }} Kz</span>
+                    <span class="text-amber-800 font-bold text-3xl whitespace-nowrap">{{ produto.preco_venda|kz }} Kz</span>
                     {% endif %}
                 </div>
 
@@ -209,9 +210,9 @@
                         {% endif %}
                     </div>
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
-                    <h4 class="font-serif italic text-stone-800 text-base mb-1">{{ p.nome }}</h4>
+                    <h4 class="font-serif italic text-stone-800 text-base mb-1 truncate">{{ p.nome }}</h4>
                     {% if p.quantidade %}<p class="text-[10px] text-stone-400 mb-1">{{ p.quantidade }}</p>{% endif %}
-                    <span class="text-amber-800 font-semibold text-sm">{% if p.tem_desconto %}{{ p.preco_promocional|floatformat:0 }}{% else %}{{ p.preco_venda|floatformat:0 }}{% endif %} Kz</span>
+                    <span class="text-amber-800 font-semibold text-sm whitespace-nowrap">{% if p.tem_desconto %}{{ p.preco_promocional|kz }}{% else %}{{ p.preco_venda|kz }}{% endif %} Kz</span>
                     <div class="flex items-center justify-center gap-0.5 mt-1.5">
                         {% for i in '12345'|make_list %}
                             {% if forloop.counter <= p.estrelas %}
@@ -278,7 +279,7 @@
     </div>
 
     <!-- WhatsApp Flutuante -->
-    <a href="https://wa.me/244929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20{{ produto.nome }}."
+    <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20{{ produto.nome }}."
        target="_blank" rel="noopener noreferrer"
        class="fixed bottom-6 right-6 z-30 w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-colors"
        aria-label="Falar no WhatsApp">
