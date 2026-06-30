@@ -182,7 +182,7 @@
                 {% endif %}
 
                 <!-- Botão Carrinho -->
-                <button data-name="{{ produto.nome }}" data-price="{% if produto.tem_desconto %}{{ produto.preco_promocional|floatformat:0 }}{% else %}{{ produto.preco_venda|floatformat:0 }}{% endif %}" data-img="{% if produto.imagem %}{{ produto.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="w-full bg-amber-800 text-white text-[10px] uppercase tracking-[0.4em] py-4 hover:bg-amber-700 transition-all duration-200 font-semibold mb-3">+ Adicionar ao Carrinho</button>
+                <button data-name="{{ produto.nome }}" data-price="{% if produto.tem_desconto %}{{ produto.preco_promocional|stringformat:'.0f' }}{% else %}{{ produto.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if produto.imagem %}{{ produto.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="w-full bg-amber-800 text-white text-[10px] uppercase tracking-[0.4em] py-4 hover:bg-amber-700 transition-all duration-200 font-semibold mb-3">+ Adicionar ao Carrinho</button>
                 <a href="{% url 'colecoes' %}" class="text-center text-[10px] uppercase tracking-widest text-stone-500 hover:text-amber-700 transition-colors">← Voltar à Colecção</a>
             </div>
         </div>

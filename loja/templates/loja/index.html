@@ -441,7 +441,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|kz }}{% else %}{{ p.preco_venda|kz }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -506,7 +506,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|kz }}{% else %}{{ p.preco_venda|kz }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image9.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -577,7 +577,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|kz }}{% else %}{{ p.preco_venda|kz }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image13.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -985,7 +985,7 @@
             const existing = cartItems.find(i => i.name === name);
             if (existing) { existing.qty++; } else { cartItems.push({ name, price, img, qty: 1 }); }
             saveCart(); updateBadge(); renderCart();
-            btn.textContent = '? Adicionado';
+            btn.textContent = '✓ Adicionado';
             btn.classList.replace('bg-amber-800', 'bg-green-700');
             setTimeout(() => { btn.textContent = '+ Carrinho'; btn.classList.replace('bg-green-700', 'bg-amber-800'); }, 1200);
         }

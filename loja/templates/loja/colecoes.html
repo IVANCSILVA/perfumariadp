@@ -205,7 +205,7 @@
                         <div class="px-3 pb-4">
                             <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
                                     data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
-                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}"
                                     onclick="quickAddCart(this)">
                                 + Adicionar
                             </button>
@@ -286,7 +286,7 @@
                         <div class="px-3 pb-4">
                             <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
                                     data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
-                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}"
                                     onclick="quickAddCart(this)">
                                 + Adicionar
                             </button>
@@ -367,7 +367,7 @@
                         <div class="px-3 pb-4">
                             <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
                                     data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
-                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}"
                                     onclick="quickAddCart(this)">
                                 + Adicionar
                             </button>
