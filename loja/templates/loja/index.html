@@ -780,6 +780,7 @@
                         Junte-se à nossa comunidade e seja o primeiro a saber das nossas ofertas especiais.
                     </p>
                     <form onsubmit="submitNewsletter(event)" class="flex flex-col sm:flex-row items-center gap-3 w-full mt-2">
+                        {% csrf_token %}
                         <input
                             id="newsletter-email"
                             type="email"
@@ -859,7 +860,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]')||{}).value || ''
+                    'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]')||{}).value || (document.cookie.split(';').find(c=>c.trim().startsWith('csrftoken='))||'=').split('=')[1] || ''
                 },
                 body: 'email=' + encodeURIComponent(email)
             })
