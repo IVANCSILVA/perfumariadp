@@ -26,14 +26,34 @@
             100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
         }
         .wa-pulse { animation: pulseRing 2s infinite; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .ticker-track { animation: marquee 40s linear infinite; display: flex; width: max-content; gap: 2.5rem; white-space: nowrap; }
+        .ticker-track:hover { animation-play-state: paused; }
+        @keyframes cartPop { 0%{opacity:0;transform:translateY(10px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-6px)} }
+        .cart-toast { animation: cartPop 2.4s ease forwards; }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-900">
 
+    <!-- Faixa de Anúncios -->
+    <div class="bg-amber-900 text-amber-100 overflow-hidden py-2 select-none">
+        <div class="ticker-track text-[9px] uppercase tracking-[0.32em]">
+            <span>✦&ensp;Novas fragrâncias disponíveis</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Entrega em toda parte de Angola</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Programa de Fidelidade — acumule pontos</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;WhatsApp · 929 006 478</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Autenticidade garantida</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Novas fragrâncias disponíveis</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Entrega em toda parte de Angola</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Programa de Fidelidade — acumule pontos</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;WhatsApp · 929 006 478</span><span class="opacity-40 mx-2">·</span>
+            <span>✦&ensp;Autenticidade garantida</span><span class="opacity-40 mx-2">·</span>
+        </div>
+    </div>
     <!-- Navbar -->
-    <nav class="flex justify-between items-start px-4 md:px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50 sticky top-0 z-30">
-        <a href="{% url 'home' %}" class="md:-mt-8">
-            <img src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-16 md:h-52 w-auto">
+    <nav id="main-nav" class="flex justify-between items-start px-4 md:px-8 pt-2 pb-0 border-b border-stone-200 bg-stone-50 sticky top-0 z-30 transition-all duration-300">
+        <a href="{% url 'home' %}" id="logo-link" class="md:-mt-8 transition-all duration-300">
+            <img id="nav-logo" src="{% static 'loja/images/logo2.png' %}" alt="Décent Privé" class="h-16 md:h-52 w-auto transition-all duration-300">
         </a>
         <div class="flex items-center gap-5 pt-4">
             <div class="space-x-6 text-xs uppercase tracking-widest hidden md:flex">
@@ -109,7 +129,8 @@
                 {% endif %}
                 {% if promocoes_publicas %}
                 <button data-tab="promocao" class="tab-btn inline-flex items-center gap-2 px-4 md:px-5 py-2 rounded-full border border-amber-700 bg-amber-50 text-xs uppercase tracking-widest text-amber-800 hover:bg-amber-100 transition">
-                    ?? Em Promoção <span class="tab-count text-[10px] bg-amber-700 text-white px-2 py-0.5 rounded-full">{{ promocoes_publicas|length }}</span>
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    Em Promoção <span class="tab-count text-[10px] bg-amber-700 text-white px-2 py-0.5 rounded-full">{{ promocoes_publicas|length }}</span>
                 </button>
                 {% endif %}
             </div>
@@ -155,12 +176,12 @@
                                 {% if p.quantidade %}<p class="text-[10px] text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                                 {% if p.origem %}<p class="text-[9px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                                 {% if p.essencia %}<p class="text-[9px] text-stone-400 mt-1 line-clamp-2 text-center">{{ p.essencia|truncatewords:10 }}</p>{% endif %}
-                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver ?</span>
+                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver Detalhes →</span>
                             </div>
                         </div>
                         <div class="p-4 text-center">
                             <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
-                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h3>
+                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 min-h-[2.8em]">{{ p.nome }}</h3>
                             {% if p.quantidade %}<p class="text-[10px] text-stone-400 mt-0.5">{{ p.quantidade }}</p>{% endif %}
                             <div class="flex items-center justify-center gap-2 mt-2 flex-wrap min-h-[20px]">
                                 {% if p.tem_desconto %}
@@ -181,6 +202,14 @@
                             </div>
                         </div>
                         </a>
+                        <div class="px-3 pb-4">
+                            <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
+                                    data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    onclick="quickAddCart(this)">
+                                + Adicionar
+                            </button>
+                        </div>
                     </article>
                     {% endfor %}
                 </div>
@@ -228,12 +257,12 @@
                                 {% if p.quantidade %}<p class="text-[10px] text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                                 {% if p.origem %}<p class="text-[9px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                                 {% if p.essencia %}<p class="text-[9px] text-stone-400 mt-1 line-clamp-2 text-center">{{ p.essencia|truncatewords:10 }}</p>{% endif %}
-                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver ?</span>
+                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver Detalhes →</span>
                             </div>
                         </div>
                         <div class="p-4 text-center">
                             <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
-                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h3>
+                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 min-h-[2.8em]">{{ p.nome }}</h3>
                             {% if p.quantidade %}<p class="text-[10px] text-stone-400 mt-0.5">{{ p.quantidade }}</p>{% endif %}
                             <div class="flex items-center justify-center gap-2 mt-2 flex-wrap min-h-[20px]">
                                 {% if p.tem_desconto %}
@@ -254,6 +283,14 @@
                             </div>
                         </div>
                         </a>
+                        <div class="px-3 pb-4">
+                            <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
+                                    data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    onclick="quickAddCart(this)">
+                                + Adicionar
+                            </button>
+                        </div>
                     </article>
                     {% endfor %}
                 </div>
@@ -301,12 +338,12 @@
                                 {% if p.quantidade %}<p class="text-[10px] text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                                 {% if p.origem %}<p class="text-[9px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                                 {% if p.essencia %}<p class="text-[9px] text-stone-400 mt-1 line-clamp-2 text-center">{{ p.essencia|truncatewords:10 }}</p>{% endif %}
-                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver ?</span>
+                                <span class="text-[8px] uppercase tracking-widest text-amber-300 mt-2 border border-amber-400/50 px-2 py-0.5 rounded">Ver Detalhes →</span>
                             </div>
                         </div>
                         <div class="p-4 text-center">
                             <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
-                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h3>
+                            <h3 class="font-serif italic text-base text-stone-800 leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 min-h-[2.8em]">{{ p.nome }}</h3>
                             {% if p.quantidade %}<p class="text-[10px] text-stone-400 mt-0.5">{{ p.quantidade }}</p>{% endif %}
                             <div class="flex items-center justify-center gap-2 mt-2 flex-wrap min-h-[20px]">
                                 {% if p.tem_desconto %}
@@ -327,6 +364,14 @@
                             </div>
                         </div>
                         </a>
+                        <div class="px-3 pb-4">
+                            <button class="add-cart-btn w-full bg-stone-900 hover:bg-amber-800 text-white text-[9px] uppercase tracking-[0.2em] py-2.5 transition-colors duration-200"
+                                    data-nome="{{ p.nome }}" data-marca="{{ p.marca }}"
+                                    data-preco="{% if p.tem_desconto %}{{ p.preco_promocional }}{% else %}{{ p.preco_venda }}{% endif %}"
+                                    onclick="quickAddCart(this)">
+                                + Adicionar
+                            </button>
+                        </div>
                     </article>
                     {% endfor %}
                 </div>
@@ -422,20 +467,43 @@
         </div>
     </section>
 
+    <!-- Scroll-to-top -->
+    <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="hidden fixed bottom-24 right-6 z-30 w-10 h-10 bg-stone-800/90 hover:bg-amber-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200" aria-label="Topo">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+    </button>
+
     <!-- Rodapé -->
     <footer class="bg-stone-900 text-stone-300 border-t border-stone-800">
-        <div class="max-w-6xl mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="max-w-6xl mx-auto px-4 md:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-                <p class="font-serif italic text-amber-500 text-lg">Décent Privé</p>
-                <p class="text-xs text-stone-400 mt-1 tracking-wide">Curadoria de fragrâncias exclusivas — Huambo, Angola</p>
+                <p class="font-serif italic text-amber-500 text-xl mb-2">Décent Privé</p>
+                <p class="text-xs text-stone-400 leading-relaxed">Curadoria de fragrâncias exclusivas — Huambo, Angola</p>
+                <a href="https://maps.google.com/?q=Em+frente+ao+SIAC,+Huambo,+Angola" target="_blank" class="inline-flex items-center gap-1.5 mt-3 text-[10px] uppercase tracking-wider text-amber-600 hover:text-amber-400 transition-colors">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                    Em frente ao SIAC, Huambo
+                </a>
             </div>
-            <div class="flex flex-wrap gap-6 text-xs uppercase tracking-widest">
-                <a href="{% url 'home' %}" class="hover:text-amber-400 transition-colors">Início</a>
-                <a href="{% url 'encomendas' %}" class="hover:text-amber-400 transition-colors">Encomendas</a>
-                <a href="{% url 'fidelidade' %}" class="hover:text-amber-400 transition-colors">Fidelidade</a>
-                <a href="{% url 'contactos' %}" class="hover:text-amber-400 transition-colors">Contactos</a>
+            <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-stone-400 mb-4">Navegação</p>
+                <div class="flex flex-col gap-2 text-xs uppercase tracking-widest">
+                    <a href="{% url 'home' %}" class="hover:text-amber-400 transition-colors">Início</a>
+                    <a href="{% url 'colecoes' %}" class="text-amber-400">Colecções</a>
+                    <a href="{% url 'galeria' %}" class="hover:text-amber-400 transition-colors">Galeria</a>
+                    <a href="{% url 'encomendas' %}" class="hover:text-amber-400 transition-colors">Encomendas</a>
+                    <a href="{% url 'fidelidade' %}" class="hover:text-amber-400 transition-colors">Fidelidade</a>
+                    <a href="{% url 'contactos' %}" class="hover:text-amber-400 transition-colors">Contactos</a>
+                </div>
             </div>
-            <p class="text-xs text-stone-500">&copy; 2026 Décent Privé</p>
+            <div>
+                <p class="text-xs uppercase tracking-[0.35em] text-stone-400 mb-4">Contacto</p>
+                <a href="https://wa.me/929006478" class="flex items-center gap-2 text-xs text-stone-300 hover:text-amber-400 transition-colors mb-2">
+                    <svg class="w-4 h-4 fill-current text-green-500" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                    929 006 478
+                </a>
+            </div>
+        </div>
+        <div class="border-t border-stone-800 py-4 px-4 md:px-8 text-center">
+            <p class="text-xs text-stone-500">&copy; {% now "Y" %} Décent Privé. Todos os direitos reservados.</p>
         </div>
     </footer>
 
@@ -508,7 +576,53 @@
 
             btnPesquisar.addEventListener('click', () => filtrar(input.value.trim()));
             input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); filtrar(input.value.trim()); } });
-            input.addEventListener('input', () => { if (!input.value.trim()) filtrar(''); });
+            input.addEventListener('input', () => filtrar(input.value.trim()));
+        })();
+
+        function quickAddCart(btn) {
+            const nome = btn.dataset.nome || '';
+            const preco = parseFloat(btn.dataset.preco) || 0;
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem('dp_cart') || '[]'); } catch(e) {}
+            const existing = cart.find(i => i.name === nome);
+            if (existing) { existing.qty = (existing.qty || 1) + 1; }
+            else { cart.push({ name: nome, price: preco, qty: 1 }); }
+            localStorage.setItem('dp_cart', JSON.stringify(cart));
+            const toast = document.createElement('div');
+            toast.className = 'cart-toast fixed bottom-20 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-xs px-5 py-3 shadow-xl z-50 flex items-center gap-2 whitespace-nowrap';
+            toast.innerHTML = '<svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg><span>' + nome + ' adicionado</span>';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scroll-top');
+            if (btn) { btn.classList.toggle('hidden', window.scrollY <= 400); }
+        });
+
+        (function () {
+            const nav = document.getElementById('main-nav');
+            const logoLink = document.getElementById('logo-link');
+            const navLogo = document.getElementById('nav-logo');
+            if (!nav || !navLogo) return;
+            let compact = false;
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 80 && !compact) {
+                    compact = true;
+                    nav.classList.add('shadow-md', 'py-2', 'items-center');
+                    nav.classList.remove('pt-2', 'items-start');
+                    logoLink.classList.remove('md:-mt-8');
+                    navLogo.classList.remove('md:h-52');
+                    navLogo.classList.add('md:h-14');
+                } else if (window.scrollY <= 80 && compact) {
+                    compact = false;
+                    nav.classList.remove('shadow-md', 'py-2', 'items-center');
+                    nav.classList.add('pt-2', 'items-start');
+                    logoLink.classList.add('md:-mt-8');
+                    navLogo.classList.remove('md:h-14');
+                    navLogo.classList.add('md:h-52');
+                }
+            });
         })();
 
         function toggleMobileMenu() {
