@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}{{ cliente.nome }}{% endblock %}
 {% block page_title %}Detalhes do Cliente{% endblock %}
 
@@ -100,12 +100,12 @@
         </div>
         <div class="bg-white border border-stone-200 px-5 py-4">
             <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-2">Total gasto</p>
-            <p class="text-2xl font-light text-stone-900">{{ total_gasto|floatformat:0|intcomma }}</p>
+            <p class="text-2xl font-light text-stone-900">{{ total_gasto|kz }}</p>
             <p class="text-[10px] text-stone-400 mt-1">Kz · finalizadas</p>
         </div>
         <div class="bg-white border border-stone-200 px-5 py-4">
             <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-2">Ticket médio</p>
-            <p class="text-2xl font-light text-stone-900">{{ ticket_medio|floatformat:0|intcomma }}</p>
+            <p class="text-2xl font-light text-stone-900">{{ ticket_medio|kz }}</p>
             <p class="text-[10px] text-stone-400 mt-1">Kz por encomenda</p>
         </div>
     </div>
@@ -219,7 +219,7 @@
                                     {{ e.get_status_display }}
                                 </span>
                             </td>
-                            <td class="px-5 py-3 text-right text-stone-800 font-medium">{{ e.total|floatformat:0|intcomma }}</td>
+                            <td class="px-5 py-3 text-right text-stone-800 font-medium">{{ e.total|kz }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

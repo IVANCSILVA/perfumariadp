@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block page_title %}Gestão de Salários{% endblock %}
 
 {% block content %}
@@ -98,32 +98,32 @@
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
         <div class="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-stone-400">Bruto Total</p>
-            <p class="text-lg font-bold text-stone-800 font-mono mt-1">{{ total_bruto|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-stone-800 font-mono mt-1">{{ total_bruto|kz }}</p>
             <p class="text-[9px] text-stone-400 mt-0.5">Kz · base + comissão</p>
         </div>
         <div class="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-amber-600">Comissões</p>
-            <p class="text-lg font-bold text-amber-700 font-mono mt-1">{{ total_comissoes|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-amber-700 font-mono mt-1">{{ total_comissoes|kz }}</p>
             <p class="text-[9px] text-stone-400 mt-0.5">Kz · op. caixa</p>
         </div>
         <div class="bg-white border border-red-100 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-red-500">INSS {{ taxa_inss }}%</p>
-            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_inss|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_inss|kz }}</p>
             <p class="text-[9px] text-stone-400 mt-0.5">Kz · trabalhador</p>
         </div>
         <div class="bg-white border border-red-100 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-red-500">IRT</p>
-            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_irt|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-red-600 font-mono mt-1">{{ total_irt|kz }}</p>
             <p class="text-[9px] text-stone-400 mt-0.5">Kz · progressivo</p>
         </div>
         <div class="bg-white border border-blue-100 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-blue-600">Subsídios</p>
-            <p class="text-lg font-bold text-blue-700 font-mono mt-1">{{ total_subsidios|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-blue-700 font-mono mt-1">{{ total_subsidios|kz }}</p>
             <p class="text-[9px] text-stone-400 mt-0.5">Kz · alim. + transp.</p>
         </div>
         <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 shadow-sm">
             <p class="text-[9px] uppercase tracking-widest text-emerald-700">Líquido Total</p>
-            <p class="text-lg font-bold text-emerald-800 font-mono mt-1">{{ total_liquido|floatformat:0|intcomma }}</p>
+            <p class="text-lg font-bold text-emerald-800 font-mono mt-1">{{ total_liquido|kz }}</p>
             <p class="text-[9px] text-emerald-600 mt-0.5">Kz · a pagar</p>
         </div>
     </div>
@@ -131,9 +131,9 @@
     <!-- Custo total para a empresa -->
     <div class="bg-stone-50 border border-stone-200 px-4 py-2.5 mb-4 flex flex-wrap items-center gap-4 text-xs text-stone-600">
         <span class="font-semibold text-stone-700 uppercase tracking-widest text-[10px]">Custo empresa:</span>
-        <span>INSS Patronal <strong>{{ taxa_inss_patronal }}%</strong>: <span class="font-mono font-semibold text-stone-800">{{ total_custo_patronal|floatformat:0|intcomma }} Kz</span></span>
+        <span>INSS Patronal <strong>{{ taxa_inss_patronal }}%</strong>: <span class="font-mono font-semibold text-stone-800">{{ total_custo_patronal|kz }} Kz</span></span>
         <span class="text-stone-300">|</span>
-        <span>Custo total (salários + INSS patronal): <span class="font-mono font-semibold text-stone-800">{{ custo_total_empresa|floatformat:0|intcomma }} Kz</span></span>
+        <span>Custo total (salários + INSS patronal): <span class="font-mono font-semibold text-stone-800">{{ custo_total_empresa|kz }} Kz</span></span>
         <span class="text-stone-300">|</span>
         <span>{{ pendentes }} pendente(s) / {{ pagamentos|length }} total</span>
     </div>
@@ -186,16 +186,16 @@
                             <a href="{% url 'gestao_funcionario_detalhe' p.funcionario.pk %}" class="font-semibold text-stone-900 hover:text-amber-700 transition-colors">{{ p.funcionario.nome }}</a>
                         </td>
                         <td class="px-3 py-2.5 text-stone-500">{{ p.funcionario.get_cargo_display }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-stone-700">{{ p.salario_base|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-stone-700">{{ p.salario_base|kz }}</td>
                         <td class="px-3 py-2.5 text-right font-mono text-amber-700">
-                            {% if p.comissao_valor %}{{ p.comissao_valor|floatformat:0|intcomma }}<span class="text-[9px] text-stone-400 ml-0.5">({{ p.percentagem_comissao }}%)</span>{% else %}—{% endif %}
+                            {% if p.comissao_valor %}{{ p.comissao_valor|kz }}<span class="text-[9px] text-stone-400 ml-0.5">({{ p.percentagem_comissao }}%)</span>{% else %}—{% endif %}
                         </td>
-                        <td class="px-3 py-2.5 text-right font-mono font-semibold text-stone-900">{{ p.salario_bruto|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_inss|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_irt|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_alimentacao|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_transporte|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-700 bg-emerald-50">{{ p.salario_liquido|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono font-semibold text-stone-900">{{ p.salario_bruto|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_inss|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ p.desconto_irt|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_alimentacao|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-600">+{{ p.subsidio_transporte|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-700 bg-emerald-50">{{ p.salario_liquido|kz }}</td>
                         <td class="px-3 py-2.5 text-center">
                             {% if p.pago %}
                                 <span class="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wider rounded">✓ Pago</span>
@@ -226,14 +226,14 @@
                 <tfoot class="bg-stone-100 border-t-2 border-stone-300 text-[10px] font-bold text-stone-700">
                     <tr>
                         <td colspan="2" class="px-3 py-2.5 uppercase tracking-widest">Totais</td>
-                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-amber-700">{{ total_comissoes|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_inss|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_irt|floatformat:0|intcomma }}</td>
-                        <td class="px-3 py-2.5 text-right font-mono text-blue-700">+{{ total_subsidios|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-amber-700">{{ total_comissoes|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono">{{ total_bruto|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_inss|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-red-600">−{{ total_irt|kz }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-blue-700">+{{ total_subsidios|kz }}</td>
                         <td class="px-3 py-2.5"></td>
-                        <td class="px-3 py-2.5 text-right font-mono text-emerald-700 bg-emerald-50">{{ total_liquido|floatformat:0|intcomma }}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-emerald-700 bg-emerald-50">{{ total_liquido|kz }}</td>
                         <td colspan="2" class="px-3 py-2.5"></td>
                     </tr>
                 </tfoot>

@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Fatura #{{ encomenda.pk }}{% endblock %}
 {% block page_title %}Fatura / Recibo{% endblock %}
 
@@ -131,8 +131,8 @@
                         {% endif %}
                     </td>
                     <td class="px-4 py-3 text-center text-stone-700 font-medium">{{ item.quantidade }}</td>
-                    <td class="px-4 py-3 text-right text-stone-700 font-mono">{{ item.preco_unitario|floatformat:0|intcomma }} Kz</td>
-                    <td class="px-4 py-3 text-right font-bold text-stone-900 font-mono">{{ item.subtotal|floatformat:0|intcomma }} Kz</td>
+                    <td class="px-4 py-3 text-right text-stone-700 font-mono">{{ item.preco_unitario|kz }} Kz</td>
+                    <td class="px-4 py-3 text-right font-bold text-stone-900 font-mono">{{ item.subtotal|kz }} Kz</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -143,7 +143,7 @@
             <div class="w-80">
                 <div class="flex justify-between py-2 border-b border-stone-100">
                     <span class="text-sm text-stone-500">Subtotal</span>
-                    <span class="text-sm font-medium text-stone-700 font-mono">{{ total|floatformat:0|intcomma }} Kz</span>
+                    <span class="text-sm font-medium text-stone-700 font-mono">{{ total|kz }} Kz</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-stone-100">
                     <span class="text-sm text-stone-400 italic">Isento de IVA</span>
@@ -151,7 +151,7 @@
                 </div>
                 <div class="flex justify-between items-center py-4 px-5 bg-stone-900 mt-2">
                     <span class="text-sm font-bold text-white uppercase tracking-[0.2em]">Total a Pagar</span>
-                    <span class="text-xl font-bold text-white font-mono">{{ total|floatformat:0|intcomma }} Kz</span>
+                    <span class="text-xl font-bold text-white font-mono">{{ total|kz }} Kz</span>
                 </div>
             </div>
         </div>
@@ -164,7 +164,7 @@
                 <div class="bg-white border border-amber-100 px-4 py-3 flex items-center justify-between">
                     <div>
                         <p class="text-xs text-stone-500 uppercase tracking-widest">1ª Parcela</p>
-                        <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</p>
+                        <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela1|kz }} Kz</p>
                         <p class="text-[10px] text-stone-400 mt-1">Paga na data de venda</p>
                     </div>
                     {% if encomenda.parcela1_paga %}
@@ -176,7 +176,7 @@
                 <div class="bg-white border border-amber-100 px-4 py-3 flex items-center justify-between">
                     <div>
                         <p class="text-xs text-stone-500 uppercase tracking-widest">2ª Parcela</p>
-                        <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</p>
+                        <p class="text-lg font-bold text-stone-900 font-mono mt-1">{{ encomenda.valor_parcela2|kz }} Kz</p>
                         {% if encomenda.data_proxima_parcela %}
                         <p class="text-[10px] text-amber-700 font-semibold mt-1">Vence: {{ encomenda.data_proxima_parcela|date:"d/m/Y" }}</p>
                         {% endif %}

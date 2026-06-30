@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Caixa{% endblock %}
 {% block page_title %}Caixa / Relatório de Vendas{% endblock %}
 
@@ -21,21 +21,21 @@
         <!-- Hoje -->
         <div class="bg-white border border-stone-200 p-6">
             <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-3">Hoje</p>
-            <p class="text-2xl font-bold text-stone-800 font-mono">{{ receita_hoje|floatformat:0|intcomma }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
+            <p class="text-2xl font-bold text-stone-800 font-mono">{{ receita_hoje|kz }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
             <p class="text-xs text-stone-500 mt-1">{{ vendas_hoje }} venda{{ vendas_hoje|pluralize:"s" }} concluída{{ vendas_hoje|pluralize:"s" }}</p>
         </div>
 
         <!-- Esta semana -->
         <div class="bg-white border border-stone-200 p-6">
             <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 mb-3">Esta Semana</p>
-            <p class="text-2xl font-bold text-stone-800 font-mono">{{ receita_semana|floatformat:0|intcomma }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
+            <p class="text-2xl font-bold text-stone-800 font-mono">{{ receita_semana|kz }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
             <p class="text-xs text-stone-500 mt-1">{{ vendas_semana }} venda{{ vendas_semana|pluralize:"s" }} concluída{{ vendas_semana|pluralize:"s" }}</p>
         </div>
 
         <!-- Este mês -->
         <div class="bg-amber-800 border border-amber-700 p-6">
             <p class="text-[9px] uppercase tracking-[0.3em] text-amber-200 mb-3">Este Mês</p>
-            <p class="text-2xl font-bold text-white font-mono">{{ receita_mes|floatformat:0|intcomma }} <span class="text-sm font-normal text-amber-200">Kz</span></p>
+            <p class="text-2xl font-bold text-white font-mono">{{ receita_mes|kz }} <span class="text-sm font-normal text-amber-200">Kz</span></p>
             <p class="text-xs text-amber-200 mt-1">{{ vendas_mes }} venda{{ vendas_mes|pluralize:"s" }} concluída{{ vendas_mes|pluralize:"s" }}</p>
         </div>
     </div>
@@ -64,7 +64,7 @@
                             <td class="px-5 py-3 text-stone-400 font-mono">#{{ v.pk|stringformat:"05d" }}</td>
                             <td class="px-5 py-3 text-stone-700 font-medium">{{ v.nome_cliente }}</td>
                             <td class="px-5 py-3 text-stone-400">{{ v.criado_em|date:"d/m/Y H:i" }}</td>
-                            <td class="px-5 py-3 text-right font-semibold text-stone-800">{{ v.total_calc|floatformat:0|intcomma }} Kz</td>
+                            <td class="px-5 py-3 text-right font-semibold text-stone-800">{{ v.total_calc|kz }} Kz</td>
                             <td class="px-3 py-3 text-right">
                                 <a href="{% url 'gestao_fatura' v.pk %}" class="text-stone-400 hover:text-amber-700 transition-colors" title="Ver Fatura">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

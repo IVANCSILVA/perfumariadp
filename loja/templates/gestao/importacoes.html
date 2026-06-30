@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Lotes de Importação{% endblock %}
 {% block page_title %}Lotes de Importação{% endblock %}
 
@@ -37,8 +37,8 @@
                         </a>
                     </td>
                     <td class="px-5 py-3 text-stone-500">{{ lote.data_encomenda|date:"d/m/Y" }}</td>
-                    <td class="px-5 py-3 text-right text-stone-700 font-mono">{{ lote.cambio|floatformat:2|intcomma }}</td>
-                    <td class="px-5 py-3 text-right text-stone-500 font-mono">{{ lote.custo_transporte_unidade|floatformat:0|intcomma }}</td>
+                    <td class="px-5 py-3 text-right text-stone-700 font-mono">{{ lote.cambio|kz }}</td>
+                    <td class="px-5 py-3 text-right text-stone-500 font-mono">{{ lote.custo_transporte_unidade|kz }}</td>
                     <td class="px-5 py-3 text-center text-stone-600">{{ lote.total_itens }}</td>
                     <td class="px-5 py-3 text-center">
                         {% with total=lote.total_itens rec=lote.total_recebidos %}

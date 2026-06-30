@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Confirmar Pagamento - 2ª Parcela #{{ encomenda.pk }}{% endblock %}
 {% block page_title %}Confirmar Pagamento - 2ª Parcela{% endblock %}
 
@@ -17,11 +17,11 @@
             <div class="space-y-2">
                 <div class="flex justify-between">
                     <span class="text-sm text-stone-600">1ª Parcela</span>
-                    <span class="text-sm font-semibold text-green-600">✓ {{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</span>
+                    <span class="text-sm font-semibold text-green-600">✓ {{ encomenda.valor_parcela1|kz }} Kz</span>
                 </div>
                 <div class="flex justify-between border-t border-amber-100 pt-2">
                     <span class="text-sm text-stone-600">2ª Parcela (a registar)</span>
-                    <span class="text-lg font-bold text-amber-700">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</span>
+                    <span class="text-lg font-bold text-amber-700">{{ encomenda.valor_parcela2|kz }} Kz</span>
                 </div>
             </div>
         </div>

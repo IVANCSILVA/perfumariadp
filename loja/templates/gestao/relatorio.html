@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Relatório{% endblock %}
 {% block page_title %}Relatório de Vendas e Produtos{% endblock %}
 
@@ -39,12 +39,12 @@
         </div>
         <div class="bg-amber-900 border border-amber-800 px-4 py-4 text-white">
             <p class="text-[9px] uppercase tracking-widest text-amber-200">Receita Total</p>
-            <p class="text-2xl font-bold font-mono mt-1">{{ receita_total|floatformat:0|intcomma }} <span class="text-sm font-normal text-amber-200">Kz</span></p>
+            <p class="text-2xl font-bold font-mono mt-1">{{ receita_total|kz }} <span class="text-sm font-normal text-amber-200">Kz</span></p>
             <p class="text-[10px] text-amber-200 mt-0.5">{{ rotulo|lower }}</p>
         </div>
         <div class="bg-white border border-stone-200 px-4 py-4">
             <p class="text-[9px] uppercase tracking-widest text-stone-400">Ticket Médio</p>
-            <p class="text-2xl font-bold text-stone-800 font-mono mt-1">{{ ticket_medio|floatformat:0|intcomma }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
+            <p class="text-2xl font-bold text-stone-800 font-mono mt-1">{{ ticket_medio|kz }} <span class="text-sm font-normal text-stone-400">Kz</span></p>
         </div>
         <div class="bg-white border border-stone-200 px-4 py-4">
             <p class="text-[9px] uppercase tracking-widest text-blue-700">Online em Curso</p>
@@ -78,7 +78,7 @@
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-xs text-stone-700">Valor em stock</span>
-                <span class="text-sm font-mono font-semibold text-green-700">{{ valor_stock|floatformat:0|intcomma }} Kz</span>
+                <span class="text-sm font-mono font-semibold text-green-700">{{ valor_stock|kz }} Kz</span>
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
                         <td class="px-5 py-2.5 text-stone-400 font-mono">{{ forloop.counter }}</td>
                         <td class="px-5 py-2.5 text-stone-800">{{ p.nome_produto }}</td>
                         <td class="px-5 py-2.5 text-center font-medium text-stone-700">{{ p.qty }}</td>
-                        <td class="px-5 py-2.5 text-right font-semibold text-stone-800">{{ p.receita|floatformat:0|intcomma }} Kz</td>
+                        <td class="px-5 py-2.5 text-right font-semibold text-stone-800">{{ p.receita|kz }} Kz</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="4" class="px-5 py-8 text-center text-stone-400 text-[10px] uppercase tracking-widest">Sem dados no período.</td></tr>
@@ -162,7 +162,7 @@
                 <tr class="hover:bg-stone-50">
                     <td class="px-5 py-2.5 text-stone-800 font-medium">{{ p.nome }}</td>
                     <td class="px-5 py-2.5 text-stone-500">{{ p.marca|default:"—" }}</td>
-                    <td class="px-5 py-2.5 text-right font-mono text-stone-700">{{ p.preco|floatformat:0|intcomma }} Kz</td>
+                    <td class="px-5 py-2.5 text-right font-mono text-stone-700">{{ p.preco|kz }} Kz</td>
                     <td class="px-5 py-2.5 text-center">
                         <span class="font-mono font-bold {% if p.stock == 0 %}text-red-600{% elif p.stock <= 2 %}text-red-500{% else %}text-amber-600{% endif %}">{{ p.stock }}</span>
                     </td>

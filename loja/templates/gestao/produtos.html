@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Produtos{% endblock %}
 {% block page_title %}Produtos{% endblock %}
 
@@ -95,7 +95,7 @@
                         <span class="block truncate" title="{{ p.essencia }}">{{ p.essencia }}</span>
                         {% else %}—{% endif %}
                     </td>
-                    <td class="px-5 py-3 text-right text-stone-700 font-medium">{{ p.preco|floatformat:0|intcomma }}</td>
+                    <td class="px-5 py-3 text-right text-stone-700 font-medium">{{ p.preco|kz }}</td>
                     <td class="px-3 py-3 text-center">
                         {% if p.tem_desconto %}
                         <span class="inline-block bg-amber-100 text-amber-800 text-[9px] uppercase tracking-wider px-2 py-0.5 rounded">-{{ p.desconto_percentagem }}%</span>

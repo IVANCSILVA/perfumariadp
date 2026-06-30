@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load humanize %}{% load loja_filters %}
 {% block title %}Lucro{% endblock %}
 {% block page_title %}Análise de Lucro{% endblock %}
 
@@ -26,17 +26,17 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white border border-stone-200 p-5">
             <p class="text-[9px] uppercase tracking-widest text-stone-500">Receita Total</p>
-            <p class="text-2xl font-bold text-stone-800 font-mono mt-1">{{ receita_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-2xl font-bold text-stone-800 font-mono mt-1">{{ receita_total|kz }} <span class="text-sm font-normal">Kz</span></p>
             <p class="text-[10px] text-stone-400 mt-1">{{ qtd_total|intcomma }} unidade(s) vendida(s)</p>
         </div>
         <div class="bg-white border border-stone-200 p-5">
             <p class="text-[9px] uppercase tracking-widest text-red-700">Custo Total</p>
-            <p class="text-2xl font-bold text-red-700 font-mono mt-1">{{ custo_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-2xl font-bold text-red-700 font-mono mt-1">{{ custo_total|kz }} <span class="text-sm font-normal">Kz</span></p>
             <p class="text-[10px] text-stone-400 mt-1">Mercadoria vendida</p>
         </div>
         <div class="bg-white border border-stone-200 p-5">
             <p class="text-[9px] uppercase tracking-widest text-green-700">Lucro Bruto</p>
-            <p class="text-2xl font-bold text-green-700 font-mono mt-1">{{ lucro_total|floatformat:0|intcomma }} <span class="text-sm font-normal">Kz</span></p>
+            <p class="text-2xl font-bold text-green-700 font-mono mt-1">{{ lucro_total|kz }} <span class="text-sm font-normal">Kz</span></p>
             <p class="text-[10px] text-stone-400 mt-1">Receita − Custo</p>
         </div>
         <div class="bg-white border border-stone-200 p-5">
@@ -50,7 +50,7 @@
     <div class="bg-white border border-stone-200">
         <div class="px-6 py-3 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
             <h2 class="text-[10px] uppercase tracking-[0.3em] text-stone-500 font-semibold">Top 15 Produtos por Lucro</h2>
-            <span class="text-[10px] text-stone-400">Lucro médio por unidade: <span class="font-mono font-semibold text-stone-700">{{ ticket_lucro|floatformat:0|intcomma }} Kz</span></span>
+            <span class="text-[10px] text-stone-400">Lucro médio por unidade: <span class="font-mono font-semibold text-stone-700">{{ ticket_lucro|kz }} Kz</span></span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
@@ -72,9 +72,9 @@
                             {% if p.marca %}<p class="text-[9px] text-stone-400 uppercase tracking-widest">{{ p.marca }}</p>{% endif %}
                         </td>
                         <td class="px-5 py-3 text-center font-mono text-stone-600">{{ p.qty|intcomma }}</td>
-                        <td class="px-5 py-3 text-right font-mono text-stone-700">{{ p.receita|floatformat:0|intcomma }}</td>
-                        <td class="px-5 py-3 text-right font-mono text-red-600">{{ p.custo|floatformat:0|intcomma }}</td>
-                        <td class="px-5 py-3 text-right font-mono font-bold text-green-700">{{ p.lucro|floatformat:0|intcomma }}</td>
+                        <td class="px-5 py-3 text-right font-mono text-stone-700">{{ p.receita|kz }}</td>
+                        <td class="px-5 py-3 text-right font-mono text-red-600">{{ p.custo|kz }}</td>
+                        <td class="px-5 py-3 text-right font-mono font-bold text-green-700">{{ p.lucro|kz }}</td>
                         <td class="px-5 py-3 text-right">
                             <span class="text-[10px] font-semibold {% if p.margem >= 30 %}text-green-700{% elif p.margem >= 10 %}text-amber-700{% else %}text-red-600{% endif %}">
                                 {{ p.margem|floatformat:1 }}%

@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 
 {% block title %}Encomendas — Décent Privé{% endblock %}
 {% block page_title %}Encomendas (Pedidos Online){% endblock %}
@@ -54,7 +54,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-stone-300">{{ enc.itens.count }} item{{ enc.itens.count|pluralize:"s" }}</span>
-                    <span class="font-serif italic text-base text-amber-400">{{ enc.total|floatformat:0|intcomma }} Kz</span>
+                    <span class="font-serif italic text-base text-amber-400">{{ enc.total|kz }} Kz</span>
                     {% if enc.status == 'em_curso' %}
                         <span class="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-yellow-900/40 text-yellow-300 border border-yellow-800">Em Curso</span>
                     {% endif %}
@@ -98,15 +98,15 @@
                             <tr>
                                 <td class="py-2 text-stone-200">{{ item.nome_produto }}</td>
                                 <td class="py-2 text-right text-stone-300">{{ item.quantidade }}</td>
-                                <td class="py-2 text-right text-stone-300">{{ item.preco_unitario|floatformat:0|intcomma }}</td>
-                                <td class="py-2 text-right text-amber-400">{{ item.subtotal|floatformat:0|intcomma }}</td>
+                                <td class="py-2 text-right text-stone-300">{{ item.preco_unitario|kz }}</td>
+                                <td class="py-2 text-right text-amber-400">{{ item.subtotal|kz }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                         <tfoot>
                             <tr class="border-t border-stone-700">
                                 <td colspan="3" class="py-2 text-right text-[10px] uppercase tracking-widest text-stone-500">Total</td>
-                                <td class="py-2 text-right font-serif italic text-base text-amber-400">{{ enc.total|floatformat:0|intcomma }} Kz</td>
+                                <td class="py-2 text-right font-serif italic text-base text-amber-400">{{ enc.total|kz }} Kz</td>
                             </tr>
                         </tfoot>
                     </table>

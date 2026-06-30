@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Funcionários{% endblock %}
 {% block page_title %}Funcionários{% endblock %}
 
@@ -102,7 +102,7 @@
                     </td>
                     <td class="px-5 py-3 text-stone-500">{{ f.get_turno_display }}</td>
                     <td class="px-5 py-3 text-stone-600">
-                        {% if f.salario %}{{ f.salario|floatformat:0|intcomma }}{% else %}<span class="text-stone-300">—</span>{% endif %}
+                        {% if f.salario %}{{ f.salario|kz }}{% else %}<span class="text-stone-300">—</span>{% endif %}
                     </td>
                     <td class="px-5 py-3 text-stone-500">{% if f.data_nascimento %}{{ f.data_nascimento|date:"d/m/Y" }}{% else %}<span class="text-stone-300">—</span>{% endif %}</td>
                     <td class="px-5 py-3 text-stone-500">{{ f.data_admissao|date:"d/m/Y" }}</td>

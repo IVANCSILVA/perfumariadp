@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Detalhe da Venda #{{ encomenda.pk }}{% endblock %}
 {% block page_title %}Detalhe da Venda{% endblock %}
 
@@ -127,8 +127,8 @@
                         {% endif %}
                     </td>
                     <td class="px-6 py-3 text-right text-stone-700">{{ item.quantidade }}</td>
-                    <td class="px-6 py-3 text-right text-stone-700">{{ item.preco_unitario|floatformat:0|intcomma }} Kz</td>
-                    <td class="px-6 py-3 text-right font-semibold text-stone-900">{{ item.subtotal|floatformat:0|intcomma }} Kz</td>
+                    <td class="px-6 py-3 text-right text-stone-700">{{ item.preco_unitario|kz }} Kz</td>
+                    <td class="px-6 py-3 text-right font-semibold text-stone-900">{{ item.subtotal|kz }} Kz</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -139,7 +139,7 @@
             <div class="flex justify-end">
                 <div class="text-right">
                     <p class="text-xs uppercase tracking-widest text-stone-500 mb-1">Total da Venda</p>
-                    <p class="text-3xl font-bold text-amber-700">{{ total|floatformat:0|intcomma }} Kz</p>
+                    <p class="text-3xl font-bold text-amber-700">{{ total|kz }} Kz</p>
                 </div>
             </div>
         </div>
@@ -173,7 +173,7 @@
             <table class="w-full text-sm">
                 <tr class="border-b border-stone-100">
                     <td class="py-2 text-stone-700">1ª Parcela</td>
-                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela1|floatformat:0|intcomma }} Kz</td>
+                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela1|kz }} Kz</td>
                     <td class="py-2 text-right">
                         {% if encomenda.parcela1_paga %}
                         <span class="text-xs font-semibold text-green-700 uppercase tracking-widest">✓ Paga</span>
@@ -184,7 +184,7 @@
                 </tr>
                 <tr>
                     <td class="py-2 text-stone-700">2ª Parcela</td>
-                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela2|floatformat:0|intcomma }} Kz</td>
+                    <td class="py-2 text-right font-semibold text-stone-900">{{ encomenda.valor_parcela2|kz }} Kz</td>
                     <td class="py-2 text-right">
                         {% if encomenda.parcela2_paga %}
                         <span class="text-xs font-semibold text-green-700 uppercase tracking-widest">✓ Paga</span>

@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Adicionar Stock - {{ produto.nome }}{% endblock %}
 {% block page_title %}Adicionar Stock / Recebimento{% endblock %}
 
@@ -35,7 +35,7 @@
             </div>
             <div>
                 <p class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-1">Preço Unitário</p>
-                <p class="text-lg text-stone-700">{{ produto.preco_venda|floatformat:0|intcomma }} Kz</p>
+                <p class="text-lg text-stone-700">{{ produto.preco_venda|kz }} Kz</p>
             </div>
         </div>
     </div>

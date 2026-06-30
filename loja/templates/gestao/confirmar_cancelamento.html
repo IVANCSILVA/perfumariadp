@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Cancelar Encomenda #{{ encomenda.pk }}{% endblock %}
 {% block page_title %}Cancelar Encomenda{% endblock %}
 
@@ -32,7 +32,7 @@
 
         <div class="mt-4 pt-4 border-t border-red-200">
             <p class="text-[10px] text-red-600 font-semibold">Valor Total:</p>
-            <p class="text-2xl font-bold text-red-700 font-mono">{{ encomenda.total|floatformat:0|intcomma }} Kz</p>
+            <p class="text-2xl font-bold text-red-700 font-mono">{{ encomenda.total|kz }} Kz</p>
         </div>
     </div>
 

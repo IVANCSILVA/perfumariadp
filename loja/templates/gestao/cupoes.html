@@ -1,5 +1,5 @@
 {% extends 'gestao/base.html' %}
-{% load humanize %}
+{% load loja_filters %}
 {% block title %}Cupões{% endblock %}
 {% block page_title %}Cupões de Desconto{% endblock %}
 
@@ -40,10 +40,10 @@
                         {% if c.tipo_desconto == 'percentagem' %}
                             {{ c.valor_desconto|floatformat:0 }}%
                         {% else %}
-                            {{ c.valor_desconto|floatformat:0|intcomma }} Kz
+                            {{ c.valor_desconto|kz }} Kz
                         {% endif %}
                         {% if c.valor_minimo_compra > 0 %}
-                            <div class="text-[10px] text-stone-400">mín. {{ c.valor_minimo_compra|floatformat:0|intcomma }} Kz</div>
+                            <div class="text-[10px] text-stone-400">mín. {{ c.valor_minimo_compra|kz }} Kz</div>
                         {% endif %}
                         {% if c.produtos.exists %}
                             <div class="text-[10px] text-amber-600">{{ c.produtos.count }} produto{{ c.produtos.count|pluralize:"s" }}</div>
