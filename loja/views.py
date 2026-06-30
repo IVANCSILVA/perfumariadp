@@ -75,7 +75,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
@@ -578,24 +578,35 @@ def gestao_fatura(request, pk):
 
 @staff_member_required(login_url='/gestao/login/')
 def gestao_fatura_pdf(request, pk):
-    from django.http import HttpResponse
-    from django.template.loader import get_template
+    import io
+    from django.template.loader import render_to_string
     try:
         from xhtml2pdf import pisa
     except ImportError:
-        messages.error(request, 'Biblioteca xhtml2pdf não instalada.')
+        messages.error(request, 'Biblioteca xhtml2pdf não instalada no servidor.')
         return redirect('gestao_fatura', pk=pk)
 
     encomenda = get_object_or_404(Encomenda.objects.prefetch_related('itens__produto'), pk=pk)
-    itens = encomenda.itens.all()
+    itens = list(encomenda.itens.select_related('produto').all())
     total = sum(item.subtotal() for item in itens)
 
-    template = get_template('gestao/fatura_pdf.html')
-    html = template.render({'encomenda': encomenda, 'itens': itens, 'total': total})
+    html = render_to_string('gestao/fatura_pdf.html', {
+        'encomenda': encomenda,
+        'itens': itens,
+        'total': total,
+    }, request=request)
 
-    response = HttpResponse(content_type='application/pdf')
+    buffer = io.BytesIO()
+    result = pisa.CreatePDF(html.encode('utf-8'), dest=buffer, encoding='utf-8')
+
+    if result.err:
+        logger.error(f'Erro ao gerar PDF fatura {pk}: {result.err}')
+        messages.error(request, 'Erro ao gerar o PDF. Tente novamente.')
+        return redirect('gestao_fatura', pk=pk)
+
+    buffer.seek(0)
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="fatura_{encomenda.pk:05d}.pdf"'
-    pisa.CreatePDF(html, dest=response, encoding='utf-8')
     return response
 
 
