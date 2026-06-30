@@ -577,6 +577,29 @@ def gestao_fatura(request, pk):
 
 
 @staff_member_required(login_url='/gestao/login/')
+def gestao_fatura_pdf(request, pk):
+    from django.http import HttpResponse
+    from django.template.loader import get_template
+    try:
+        from xhtml2pdf import pisa
+    except ImportError:
+        messages.error(request, 'Biblioteca xhtml2pdf não instalada.')
+        return redirect('gestao_fatura', pk=pk)
+
+    encomenda = get_object_or_404(Encomenda.objects.prefetch_related('itens__produto'), pk=pk)
+    itens = encomenda.itens.all()
+    total = sum(item.subtotal() for item in itens)
+
+    template = get_template('gestao/fatura_pdf.html')
+    html = template.render({'encomenda': encomenda, 'itens': itens, 'total': total})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="fatura_{encomenda.pk:05d}.pdf"'
+    pisa.CreatePDF(html, dest=response, encoding='utf-8')
+    return response
+
+
+@staff_member_required(login_url='/gestao/login/')
 @_block_operador
 def gestao_venda_detalhe(request, pk):
     """Exibe os detalhes completos de uma venda/encomenda."""

@@ -49,6 +49,7 @@ urlpatterns = [
     path('gestao/vendas/', views.gestao_vendas, name='gestao_vendas'),
     path('gestao/vendas/nova/', views.gestao_venda_nova, name='gestao_venda_nova'),
     path('gestao/vendas/<int:pk>/fatura/', views.gestao_fatura, name='gestao_fatura'),
+    path('gestao/vendas/<int:pk>/fatura/pdf/', views.gestao_fatura_pdf, name='gestao_fatura_pdf'),
     path('gestao/vendas/<int:pk>/detalhe/', views.gestao_venda_detalhe, name='gestao_venda_detalhe'),
     path('gestao/vendas/<int:pk>/pagamento-parcela2/', views.gestao_registar_pagamento_parcela2, name='gestao_registar_pagamento_parcela2'),
     path('gestao/vendas/<int:pk>/cancelar/', views.gestao_cancelar_encomenda, name='gestao_cancelar_encomenda'),
