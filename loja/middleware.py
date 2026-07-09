@@ -2,24 +2,21 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from django.conf import settings
 
 
 class GestaoAccessMiddleware:
     """
-    Middleware que restringe o acesso ao subdomínio gestao.decentprive.ao.
+    Middleware que direciona o subdomínio gestao.decentprive.ao para o
+    painel de gestão.
 
     Fluxo:
-    1. Admin envia o link: gestao.decentprive.ao/acesso/  (caminho secreto)
-    2. Middleware reconhece o caminho, guarda na sessão e serve a página de login
-    3. Utilizador vê apenas gestao.decentprive.ao/acesso/ — sem tokens visíveis
-    4. Acesso directo a gestao.decentprive.ao → redireciona para www.decentprive.ao
+    1. gestao.decentprive.ao/ → mostra sempre a página de login
+    2. gestao.decentprive.ao/gestao/... → segue normalmente para o painel
+    3. Utilizador autenticado como staff → acesso total, sem restrições
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.secret_path = getattr(settings, 'GESTAO_SECRET_PATH', 'acesso')
-        self.redirect_url = 'https://www.decentprive.ao'
 
     def __call__(self, request):
         host = request.get_host().split(':')[0].lower()
@@ -29,26 +26,23 @@ class GestaoAccessMiddleware:
             if request.user.is_authenticated and request.user.is_staff:
                 return self.get_response(request)
 
-            # Ficheiros estáticos e media → sempre permitidos
             path = request.path_info
+
+            # Ficheiros estáticos e media → sempre permitidos
             if path.startswith('/static/') or path.startswith('/media/'):
                 return self.get_response(request)
 
-            # Caminho secreto → autorizar sessão e redirecionar para raiz
-            if path == f'/{self.secret_path}/':
-                request.session['gestao_access'] = True
-                return redirect('https://gestao.decentprive.ao/')
+            # Rotas do painel (login, logout, recuperação de senha) → seguem normalmente
+            if path.startswith('/gestao/'):
+                return self.get_response(request)
 
-            # Sessão autorizada → servir login na raiz (GET e POST)
-            if request.session.get('gestao_access'):
-                if path == '/':
-                    from loja.views import gestao_login
-                    return gestao_login(request)
-                if path.startswith('/gestao/'):
-                    return self.get_response(request)
+            # Raiz do subdomínio → mostra sempre o login
+            if path == '/':
+                from loja.views import gestao_login
+                return gestao_login(request)
 
-            # Tudo o resto → redirecionar para a loja
-            return redirect(self.redirect_url)
+            # Tudo o resto → redirecionar para a raiz do subdomínio
+            return redirect('https://gestao.decentprive.ao/')
 
         return self.get_response(request)
 

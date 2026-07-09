@@ -62,10 +62,7 @@ if not DEBUG:
 # ---------------------------------------------------------------------------
 # Acesso ao painel de gestão (subdomínio gestao.decentprive.ao)
 # ---------------------------------------------------------------------------
-# Caminho secreto para aceder ao login de gestão.
-# Link de acesso: https://gestao.decentprive.ao/acesso/
-# Quem não conhece o caminho é redirecionado para www.decentprive.ao
-GESTAO_SECRET_PATH = os.environ.get('GESTAO_SECRET_PATH', 'acesso')
+# gestao.decentprive.ao/ mostra sempre a página de login diretamente.
 
 
 # Application definition
