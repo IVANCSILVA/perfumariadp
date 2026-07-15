@@ -1,5 +1,5 @@
 from .models import Encomenda
-from .utils.auth import is_operador as _is_operador
+from .utils.auth import is_operador as _is_operador, pode_criar_produtos as _pode_criar_produtos
 
 
 def encomendas_online_pendentes(request):
@@ -21,7 +21,7 @@ def nivel_acesso(request):
     em todos os templates."""
     user = getattr(request, 'user', None)
     if not user or not user.is_authenticated:
-        return {'is_operador': False, 'is_gerente': False, 'is_admin_user': False}
+        return {'is_operador': False, 'is_gerente': False, 'is_admin_user': False, 'pode_criar_produtos': False}
     is_admin_user = bool(user.is_superuser)
     operador = _is_operador(user)
     is_gerente = bool(
@@ -33,4 +33,5 @@ def nivel_acesso(request):
         'is_operador': operador,
         'is_gerente': is_gerente,
         'is_admin_user': is_admin_user,
+        'pode_criar_produtos': _pode_criar_produtos(user),
     }

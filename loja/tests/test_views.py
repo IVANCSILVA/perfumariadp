@@ -46,6 +46,13 @@ def _create_operador(username='operador'):
     return user
 
 
+def _create_secretaria(username='operador_temp'):
+    user = User.objects.create_user(username, password='testpass123', is_staff=True)
+    grupo, _ = Group.objects.get_or_create(name='Secretaria')
+    user.groups.add(grupo)
+    return user
+
+
 def _create_produto(**kwargs):
     defaults = {
         'nome': 'Perfume Test', 'marca': 'Marca',
@@ -575,6 +582,44 @@ class GestaoProdutosViewTest(TestCase):
         op = _create_operador()
         self.client.login(username='operador', password='testpass123')
         resp = self.client.get(reverse('gestao_produto_criar'))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_secretaria_can_create(self):
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_produto_criar'), {
+            'nome': 'Perfume Temp', 'marca': 'MarcaTemp',
+            'preco_venda': '15000', 'preco_compra': '8000',
+            'tipo': 'unissex', 'stock': '10', 'disponivel': 'on',
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Produto.objects.filter(nome='Perfume Temp').exists())
+
+    def test_secretaria_blocked_from_edit(self):
+        p = _create_produto()
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_produto_editar', args=[p.pk]), {
+            'nome': 'Updated', 'marca': 'M',
+            'preco_venda': '20000', 'preco_compra': '10000',
+            'tipo': 'masculino', 'stock': '5',
+        })
+        self.assertEqual(resp.status_code, 302)
+        p.refresh_from_db()
+        self.assertNotEqual(p.nome, 'Updated')
+
+    def test_secretaria_blocked_from_delete(self):
+        p = _create_produto()
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_produto_apagar', args=[p.pk]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Produto.objects.filter(pk=p.pk).exists())
+
+    def test_secretaria_blocked_from_funcionarios(self):
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.get(reverse('gestao_funcionarios'))
         self.assertEqual(resp.status_code, 302)
 
 

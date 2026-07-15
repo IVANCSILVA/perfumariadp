@@ -96,7 +96,7 @@ def newsletter_inscrever(request):
         return JsonResponse({'success': True, 'message': 'Inscrição realizada com sucesso!'}, status=201)
     return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 from django.contrib.auth.models import User, Group
-from .utils.auth import is_operador
+from .utils.auth import is_operador, pode_criar_produtos, GRUPO_OPERADOR, GRUPO_SECRETARIA
 from .utils.validators import limpar_bi, limpar_telefone, BI_REGEX, TELEFONE_REGEX
 from .utils.stock import reverter_stock_encomenda
 from .utils.promotions import get_promocoes_activas
@@ -120,6 +120,25 @@ def _block_operador(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
         if _is_operador(request.user):
+            messages.error(request, 'Sem permissão para aceder a esta área.')
+            return redirect('gestao_dashboard')
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped
+
+
+def _block_operador_exceto_criar_produto(view_func):
+    """Decorador para a view de criar/editar produto: bloqueia operadores,
+    excepto Secretaria — que pode apenas criar (pk=None), não
+    editar produtos existentes."""
+    from functools import wraps
+
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        if _is_operador(request.user):
+            pk = kwargs.get('pk')
+            if pk is None and pode_criar_produtos(request.user):
+                return view_func(request, *args, **kwargs)
             messages.error(request, 'Sem permissão para aceder a esta área.')
             return redirect('gestao_dashboard')
         return view_func(request, *args, **kwargs)
@@ -1056,7 +1075,7 @@ def gestao_funcionario_criar_utilizador(request, pk):
         password = request.POST.get('password') or ''
         password2 = request.POST.get('password2') or ''
         nivel = (request.POST.get('nivel') or 'gerente').strip().lower()
-        if nivel not in ('administrador', 'gerente', 'operador'):
+        if nivel not in ('administrador', 'gerente', 'operador', 'operador_temporario'):
             nivel = 'gerente'
 
         erros = []
@@ -1085,23 +1104,32 @@ def gestao_funcionario_criar_utilizador(request, pk):
             elif nivel == 'gerente':
                 user.is_staff = True
                 user.is_superuser = False
-            else:  # operador
+            else:  # operador / operador_temporario
                 user.is_staff = True
                 user.is_superuser = False
             user.save()
             if nivel == 'operador':
-                grupo_op, _ = Group.objects.get_or_create(name='Operador')
+                grupo_op, _ = Group.objects.get_or_create(name=GRUPO_OPERADOR)
+                user.groups.add(grupo_op)
+            elif nivel == 'operador_temporario':
+                grupo_op, _ = Group.objects.get_or_create(name=GRUPO_SECRETARIA)
                 user.groups.add(grupo_op)
             funcionario.utilizador = user
             funcionario.save(update_fields=['utilizador'])
 
             # Mensagem para envio (email + SMS)
+            nivel_labels = {
+                'administrador': 'Administrador',
+                'gerente': 'Gerente',
+                'operador': 'Operador',
+                'operador_temporario': 'Secretaria',
+            }
             primeiro_nome = (funcionario.nome.split(' ')[0] if funcionario.nome else username)
             mensagem = (
                 f"Olá {primeiro_nome}, os seus dados de acesso para a Décent Privé são:\n"
                 f"Utilizador: {username}\n"
                 f"Senha: {password}\n"
-                f"Nível: {nivel.capitalize()}\n"
+                f"Nível: {nivel_labels.get(nivel, nivel.capitalize())}\n"
                 f"Aceda em: {request.build_absolute_uri('/gestao/login/')}"
             )
 
@@ -1233,7 +1261,7 @@ def gestao_funcionario_detalhe(request, pk):
 
 
 @staff_member_required(login_url='/gestao/login/')
-@_block_operador
+@_block_operador_exceto_criar_produto
 def gestao_produto_criar(request, pk=None):
     instancia = get_object_or_404(Produto, pk=pk) if pk else None
     # Garantir que as duas categorias fixas existem e obter os IDs

@@ -9,7 +9,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
         <p id="contador" class="text-stone-500 text-xs tracking-wide">{{ produtos|length }} produto(s) registado(s)</p>
-        {% if not is_operador %}
+        {% if not is_operador or pode_criar_produtos %}
         <a href="{% url 'gestao_produto_criar' %}"
            class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150">
             + Adicionar
