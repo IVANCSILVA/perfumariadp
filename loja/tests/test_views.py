@@ -624,6 +624,54 @@ class GestaoProdutosViewTest(TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Perfil - Alteração de utilizador e senha
+# ---------------------------------------------------------------------------
+
+class GestaoPerfilViewTest(TestCase):
+
+    def test_get_perfil_requires_login(self):
+        resp = self.client.get(reverse('gestao_perfil'))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_secretaria_can_change_username_and_password(self):
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_perfil'), {
+            'username': 'secretaria_novo',
+            'current_password': 'testpass123',
+            'new_password': 'novasenha123',
+            'new_password2': 'novasenha123',
+        })
+        self.assertEqual(resp.status_code, 200)
+        user = User.objects.get(username='secretaria_novo')
+        self.assertTrue(user.check_password('novasenha123'))
+
+    def test_secretaria_cannot_change_without_current_password(self):
+        _create_secretaria()
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_perfil'), {
+            'username': 'secretaria_novo',
+            'current_password': 'errada',
+            'new_password': 'novasenha123',
+            'new_password2': 'novasenha123',
+        })
+        self.assertEqual(resp.status_code, 200)
+        user = User.objects.get(username='operador_temp')
+        self.assertTrue(user.check_password('testpass123'))
+
+    def test_secretaria_cannot_set_duplicate_username(self):
+        _create_secretaria()
+        User.objects.create_user('existente', password='testpass123', is_staff=True)
+        self.client.login(username='operador_temp', password='testpass123')
+        resp = self.client.post(reverse('gestao_perfil'), {
+            'username': 'existente',
+            'current_password': 'testpass123',
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(User.objects.filter(username='operador_temp').exists())
+
+
+# ---------------------------------------------------------------------------
 # Produto - Entrada de Stock
 # ---------------------------------------------------------------------------
 

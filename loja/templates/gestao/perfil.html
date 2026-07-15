@@ -1,0 +1,74 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+{% block page_title %}Meu Perfil{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-stone-100 bg-gradient-to-r from-stone-50 to-white">
+            <h2 class="font-serif italic text-2xl text-stone-800">Dados de Acesso</h2>
+            <p class="text-xs text-stone-500 mt-1">Altera o nome de utilizador e/ou a senha.</p>
+        </div>
+
+        <form method="POST" class="px-6 py-6 space-y-5">
+            {% csrf_token %}
+
+            {% if sucesso %}
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded-lg">
+                    Perfil atualizado com sucesso.
+                </div>
+            {% endif %}
+
+            {% for erro in erros %}
+                <div class="bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-3 rounded-lg">
+                    {{ erro }}
+                </div>
+            {% endfor %}
+
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">
+                    Nome de Utilizador
+                </label>
+                <input type="text" name="username" value="{{ request.user.username }}" required minlength="3" maxlength="150"
+                       class="w-full px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:border-amber-600 focus:bg-white transition">
+            </div>
+
+            <div class="border-t border-stone-100 pt-4">
+                <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">
+                    Senha Atual
+                </label>
+                <input type="password" name="current_password" required
+                       class="w-full px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                <p class="text-[10px] text-stone-400 mt-1.5">Necessária para confirmar qualquer alteração.</p>
+            </div>
+
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">
+                    Nova Senha
+                </label>
+                <input type="password" name="new_password" minlength="6"
+                       class="w-full px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                <p class="text-[10px] text-stone-400 mt-1.5">Deixa em branco para manter a senha actual.</p>
+            </div>
+
+            <div>
+                <label class="block text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold mb-2">
+                    Confirmar Nova Senha
+                </label>
+                <input type="password" name="new_password2" minlength="6"
+                       class="w-full px-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:border-amber-600 focus:bg-white transition">
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">
+                <a href="{% url 'gestao_dashboard' %}" class="text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 transition">
+                    Cancelar
+                </a>
+                <button type="submit"
+                        class="bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

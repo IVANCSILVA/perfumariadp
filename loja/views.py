@@ -420,6 +420,51 @@ def gestao_logout(request):
 
 
 @staff_member_required(login_url='/gestao/login/')
+def gestao_perfil(request):
+    """Permite ao utilizador staff alterar o próprio nome de utilizador e senha."""
+    from django.contrib.auth import update_session_auth_hash
+
+    user = request.user
+    erros = []
+    sucesso = False
+
+    if request.method == 'POST':
+        username = (request.POST.get('username') or '').strip()
+        current_password = request.POST.get('current_password') or ''
+        new_password = request.POST.get('new_password') or ''
+        new_password2 = request.POST.get('new_password2') or ''
+
+        if not user.check_password(current_password):
+            erros.append('A senha atual está incorreta.')
+        else:
+            if username and username != user.username:
+                if User.objects.filter(username=username).exclude(pk=user.pk).exists():
+                    erros.append('Já existe outro utilizador com esse nome.')
+                else:
+                    user.username = username
+
+            if new_password:
+                if len(new_password) < 6:
+                    erros.append('A nova senha deve ter pelo menos 6 caracteres.')
+                elif new_password != new_password2:
+                    erros.append('As novas senhas não coincidem.')
+                else:
+                    user.set_password(new_password)
+
+            if not erros:
+                user.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Perfil atualizado com sucesso.')
+                sucesso = True
+
+    return render(request, 'gestao/perfil.html', {
+        'active_page': 'perfil',
+        'erros': erros,
+        'sucesso': sucesso,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
 def gestao_guia(request):
     return render(request, 'gestao/guia.html', {'active_page': 'guia'})
 

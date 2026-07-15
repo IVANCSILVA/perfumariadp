@@ -328,13 +328,13 @@
                 <!-- Divisor -->
                 <div class="w-px h-8 bg-stone-200 hidden sm:block"></div>
                 <!-- Utilizador -->
-                <div class="text-right">
-                    <p class="text-[10px] text-stone-700 uppercase tracking-widest font-semibold">{{ request.user.username }}</p>
+                <a href="{% url 'gestao_perfil' %}" class="text-right group">
+                    <p class="text-[10px] text-stone-700 uppercase tracking-widest font-semibold group-hover:text-amber-700 transition">{{ request.user.username }}</p>
                     <p class="text-[9px] uppercase tracking-widest mt-0.5
-                       {% if request.user.is_superuser %}text-amber-600{% elif request.user.is_staff %}text-sky-600{% else %}text-stone-400{% endif %}">
-                        {% if request.user.is_superuser %}Administrador{% elif request.user.is_staff %}Gerente{% else %}Operador{% endif %}
+                       {% if request.user.is_superuser %}text-amber-600{% elif pode_criar_produtos %}text-emerald-600{% elif is_operador %}text-stone-500{% elif is_gerente %}text-sky-600{% else %}text-stone-400{% endif %}">
+                        {% if request.user.is_superuser %}Administrador{% elif pode_criar_produtos %}Secretaria{% elif is_operador %}Operador{% elif is_gerente %}Gerente{% else %}Operador{% endif %}
                     </p>
-                </div>
+                </a>
             </div>
         </header>
 

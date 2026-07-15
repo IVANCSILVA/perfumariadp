@@ -19,6 +19,7 @@ urlpatterns = [
     # Painel de Gestão
     path('gestao/login/', views.gestao_login, name='gestao_login'),
     path('gestao/logout/', views.gestao_logout, name='gestao_logout'),
+    path('gestao/perfil/', views.gestao_perfil, name='gestao_perfil'),
 
     # Recuperação de senha
     path('gestao/recuperar-senha/',
