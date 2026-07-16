@@ -102,6 +102,7 @@
                     <dt class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-1">Preço de venda</dt>
                     <dd class="text-stone-900 font-medium">{{ produto.preco_venda|kz }} Kz</dd>
                 </div>
+                {% if is_gerente or is_admin_user %}
                 <div>
                     <dt class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-1">Preço de compra</dt>
                     <dd class="text-stone-700">{{ produto.preco_compra|kz }} Kz</dd>
@@ -110,6 +111,7 @@
                     <dt class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-1">Margem</dt>
                     <dd class="text-emerald-700 font-medium">{{ produto.margem|kz }} Kz</dd>
                 </div>
+                {% endif %}
                 <div>
                     <dt class="text-[9px] uppercase tracking-[0.25em] text-stone-400 mb-1">Stock</dt>
                     <dd class="{% if produto.stock == 0 %}text-red-600 font-semibold{% elif produto.stock < 5 %}text-amber-600 font-semibold{% else %}text-stone-700{% endif %}">

@@ -185,7 +185,8 @@
                     {% if erros.preco_venda %}<p class="mt-1 text-[9px] text-red-500">{{ erros.preco_venda }}</p>{% endif %}
                 </div>
 
-                <!-- Preço de Compra -->
+                <!-- Preço de Compra — apenas Administrador e Gerente -->
+                {% if is_gerente or is_admin_user %}
                 <div>
                     <label class="block text-[9px] uppercase tracking-widest text-stone-500 mb-1.5">
                         Preço de Compra (Kz)
@@ -196,6 +197,9 @@
                            class="w-full px-3 py-2.5 text-xs bg-stone-50 border {% if erros.preco_compra %}border-red-400{% else %}border-stone-200{% endif %} text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition-colors">
                     {% if erros.preco_compra %}<p class="mt-1 text-[9px] text-red-500">{{ erros.preco_compra }}</p>{% else %}<p class="mt-1 text-[9px] text-stone-400">Custo ao fornecedor — usado para cálculo de lucro.</p>{% endif %}
                 </div>
+                {% else %}
+                <input type="hidden" name="preco_compra" value="{{ post.preco_compra|default:'0' }}">
+                {% endif %}
 
                 <!-- Stock -->
                 <div>
