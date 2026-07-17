@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /gestao/
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://decentprive.ao/sitemap.xml

@@ -9,6 +9,16 @@
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <meta name="description" content="Décent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho. Encomende online com entrega rápida e segura.">
+    <link rel="canonical" href="https://decentprive.ao{% url 'home' %}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Décent Privé | Além do Essencial — Huambo, Angola">
+    <meta property="og:description" content="Décent Privé — curadoria de fragrâncias localizada na Província do Huambo, Angola. Fragrâncias exclusivas masculinas, femininas e de nicho.">
+    <meta property="og:image" content="https://decentprive.ao{% static 'loja/images/logo2.png' %}">
+    <meta property="og:url" content="https://decentprive.ao{% url 'home' %}">
+    <meta property="og:locale" content="pt_AO">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>

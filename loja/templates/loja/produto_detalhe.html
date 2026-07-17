@@ -9,6 +9,14 @@
 {% load loja_filters %}
     <link rel="icon" type="image/png" href="{% static 'loja/images/favicon.png' %}">
     <meta name="description" content="{{ produto.nome }} by {{ produto.marca }} — {{ produto.get_concentracao_display|default:'' }} {{ produto.quantidade|default:'' }}. Disponível na Décent Privé, Huambo, Angola.">
+    <link rel="canonical" href="https://decentprive.ao{% url 'produto_detalhe' produto.pk %}">
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{ produto.nome }} — {{ produto.marca }} | Décent Privé">
+    <meta property="og:description" content="{{ produto.nome }} by {{ produto.marca }} — {{ produto.get_concentracao_display|default:'' }} {{ produto.quantidade|default:'' }}. Disponível na Décent Privé, Huambo, Angola.">
+    {% if produto.imagem %}<meta property="og:image" content="https://decentprive.ao{{ produto.imagem.url }}">{% endif %}
+    <meta property="og:url" content="https://decentprive.ao{% url 'produto_detalhe' produto.pk %}">
+    <meta property="og:locale" content="pt_AO">
+    <meta name="twitter:card" content="summary_large_image">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +28,23 @@
         .product-img-main:hover { transform: scale(1.08) rotate(-1deg); }
         .thumb-active { ring: 2px solid #b45309; }
     </style>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "{{ produto.nome|escapejs }}",
+        "brand": { "@type": "Brand", "name": "{{ produto.marca|escapejs }}" },
+        {% if produto.imagem %}"image": "https://decentprive.ao{{ produto.imagem.url }}",{% endif %}
+        "description": "{{ produto.get_concentracao_display|default:''|escapejs }} {{ produto.quantidade|default:''|escapejs }}",
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "AOA",
+            "price": "{% if produto.tem_desconto %}{{ produto.preco_promocional }}{% else %}{{ produto.preco_venda }}{% endif %}",
+            "availability": "{% if produto.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+            "url": "https://decentprive.ao{% url 'produto_detalhe' produto.pk %}"
+        }
+    }
+    </script>
 </head>
 <body class="bg-stone-50 text-gray-900">
 
