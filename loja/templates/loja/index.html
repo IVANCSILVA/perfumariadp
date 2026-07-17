@@ -421,7 +421,7 @@
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
-                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
+                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes →</span>
                         </div>
                     </div>
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
@@ -444,7 +444,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image5.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
+                    <button data-name="{{ p.nome }}" data-price="{% if p.tem_desconto %}{{ p.preco_promocional|stringformat:'.0f' }}{% else %}{{ p.preco_venda|stringformat:'.0f' }}{% endif %}" data-img="{% if p.imagem %}{{ p.imagem.url }}{% else %}{% static 'loja/images/image7.jpeg' %}{% endif %}" onclick="addToCartFromBtn(this)" class="mt-3 bg-amber-800 text-white text-[10px] uppercase tracking-widest px-5 py-2 hover:bg-amber-700 transition-all duration-200 w-full">+ Carrinho</button>
                 </div>
                 {% endfor %}
             </div>
@@ -489,7 +489,7 @@
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
-                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
+                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes →</span>
                         </div>
                     </div>
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
@@ -563,7 +563,7 @@
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
-                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
+                            <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes →</span>
                         </div>
                     </div>
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
