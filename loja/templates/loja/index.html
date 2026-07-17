@@ -409,18 +409,21 @@
                             </svg>
                         </div>
                         {% endif %}
+                        {% if p.concentracao %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</span>
+                        {% elif p.origem %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_origem_display }}</span>
+                        {% endif %}
                         <!-- Hover overlay com detalhes -->
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white p-4">
                             <p class="text-[10px] uppercase tracking-widest text-amber-300 mb-1">{{ p.marca }}</p>
                             <p class="font-serif italic text-lg leading-tight text-center">{{ p.nome }}</p>
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
-                            {% if p.concentracao %}<p class="text-xs text-stone-300 mt-0.5">{{ p.get_concentracao_display }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
@@ -474,18 +477,21 @@
                             </svg>
                         </div>
                         {% endif %}
+                        {% if p.concentracao %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</span>
+                        {% elif p.origem %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_origem_display }}</span>
+                        {% endif %}
                         <!-- Hover overlay com detalhes -->
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white p-4">
                             <p class="text-[10px] uppercase tracking-widest text-amber-300 mb-1">{{ p.marca }}</p>
                             <p class="font-serif italic text-lg leading-tight text-center">{{ p.nome }}</p>
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
-                            {% if p.concentracao %}<p class="text-xs text-stone-300 mt-0.5">{{ p.get_concentracao_display }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
@@ -545,18 +551,21 @@
                             </svg>
                         </div>
                         {% endif %}
+                        {% if p.concentracao %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</span>
+                        {% elif p.origem %}
+                        <span class="absolute bottom-0 left-0 right-0 bg-stone-900/70 text-white text-[9px] uppercase tracking-widest text-center py-1">{{ p.get_origem_display }}</span>
+                        {% endif %}
                         <!-- Hover overlay com detalhes -->
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white p-4">
                             <p class="text-[10px] uppercase tracking-widest text-amber-300 mb-1">{{ p.marca }}</p>
                             <p class="font-serif italic text-lg leading-tight text-center">{{ p.nome }}</p>
                             {% if p.quantidade %}<p class="text-xs text-stone-300 mt-1">{{ p.quantidade }}</p>{% endif %}
-                            {% if p.concentracao %}<p class="text-xs text-stone-300 mt-0.5">{{ p.get_concentracao_display }}</p>{% endif %}
                             {% if p.origem %}<p class="text-[10px] text-amber-300 mt-0.5 uppercase tracking-widest">{{ p.get_origem_display }}</p>{% endif %}
                             {% if p.essencia %}<p class="text-[10px] text-stone-400 mt-2 line-clamp-2 text-center">{{ p.essencia|truncatewords:12 }}</p>{% endif %}
                             <span class="text-[9px] uppercase tracking-widest text-amber-300 mt-3 border border-amber-400/50 px-3 py-1 rounded">Ver Detalhes ?</span>
                         </div>
                     </div>
-                    {% if p.concentracao %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_concentracao_display }}{% if p.origem %} · {{ p.get_origem_display }}{% endif %}</p>{% elif p.origem %}<p class="text-xs uppercase tracking-widest text-stone-500 mb-1">{{ p.get_origem_display }}</p>{% endif %}
                     <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-0.5">{{ p.marca }}</p>
                     <h4 class="font-serif italic text-stone-800 text-lg mb-2 hover:text-amber-700 transition-colors truncate">{{ p.nome }}</h4>
                     </a>
