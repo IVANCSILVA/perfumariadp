@@ -124,7 +124,7 @@ class ProdutoModelTest(TestCase):
             preco_venda=Decimal('40000.00'),
             preco_compra=Decimal('22000.00'),
             categoria=self.cat,
-            tipo='masculino',
+            genero='masculino',
             stock=10,
         )
 

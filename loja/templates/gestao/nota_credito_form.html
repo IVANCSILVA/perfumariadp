@@ -1,0 +1,61 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Nota de Crédito{% endblock %}
+{% block page_title %}Emitir Nota de Crédito{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+    <div class="bg-amber-50 border border-amber-200 px-5 py-4 mb-6">
+        <p class="text-xs text-amber-800 font-semibold">Rectificação de Documento Fiscal</p>
+        <p class="text-[11px] text-amber-700 mt-1">
+            A nota de crédito anula ou corrige parcialmente a factura {{ encomenda.numero_documento }}.
+            Este documento tem numeração própria (série NC) e assinatura digital encadeada.
+        </p>
+    </div>
+
+    <div class="bg-white border border-stone-200 px-6 py-6">
+        <div class="mb-5 space-y-1">
+            <p class="text-[10px] uppercase tracking-widest text-stone-400">Factura Original</p>
+            <p class="text-sm text-stone-800 font-medium">{{ encomenda.numero_documento }}</p>
+            <p class="text-[11px] text-stone-400">Cliente: {{ encomenda.nome_cliente }} — Total: {{ encomenda.total|floatformat:2 }} Kz</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">Motivo</label>
+                    <select name="motivo" class="w-full border border-stone-300 text-sm px-3 py-2.5 focus:border-stone-800 focus:outline-none">
+                        <option value="anulacao">Anulação Total</option>
+                        <option value="correcao">Correção Parcial</option>
+                        <option value="devolucao">Devolução de Mercadoria</option>
+                        <option value="desconto">Desconto Posterior</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">Valor a Rectificar (Kz)</label>
+                    <input type="number" name="valor" step="0.01" value="{{ encomenda.total|floatformat:2 }}"
+                           class="w-full border border-stone-300 text-sm px-3 py-2.5 focus:border-stone-800 focus:outline-none"
+                           placeholder="Deixe em branco para o valor total">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">Descrição (opcional)</label>
+                    <textarea name="descricao" rows="3"
+                              class="w-full border border-stone-300 text-sm px-3 py-2.5 focus:border-stone-800 focus:outline-none"
+                              placeholder="Motivo detalhado da rectificação..."></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="bg-stone-800 hover:bg-stone-700 text-white text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 transition-colors">
+                        Emitir Nota de Crédito
+                    </button>
+                    <a href="{% url 'gestao_venda_detalhe' pk=encomenda.pk %}"
+                       class="border border-stone-300 text-stone-500 hover:bg-stone-50 text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 transition-colors">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

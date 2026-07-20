@@ -262,7 +262,7 @@ class GestaoLogoutViewTest(TestCase):
     def test_logout_redirects(self):
         staff = _create_staff_user()
         self.client.login(username='staff', password='testpass123')
-        resp = self.client.get(reverse('gestao_logout'))
+        resp = self.client.post(reverse('gestao_logout'))
         self.assertEqual(resp.status_code, 302)
 
 

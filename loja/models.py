@@ -1055,6 +1055,18 @@ class MovimentoStock(models.Model):
     def __str__(self):
         return f'{self.get_tipo_display()}: {self.quantidade} × {self.produto.nome}'
 
+    def _actualizar_stock_produto(self):
+        self.produto.stock = self.produto.calcular_stock_atual()
+        self.produto.save(update_fields=['stock'])
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._actualizar_stock_produto()
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        self._actualizar_stock_produto()
+
 
 class ImagemGaleria(models.Model):
     imagem = models.ImageField(upload_to='galeria/')
@@ -1159,4 +1171,142 @@ class Cupao(models.Model):
             return float(base) * (float(self.valor_desconto) / 100)
         else:
             return min(float(self.valor_desconto), float(base))
+
+
+# ---------------------------------------------------------------------------
+# Conformidade AGT — Decreto Presidencial n.º 312/18
+# Modelos para registo de auditoria, backups, séries documentais e
+# notas de crédito (rectificação de documentos fiscais).
+# ---------------------------------------------------------------------------
+
+class LogAuditoria(models.Model):
+    """Registo de auditoria — trilha de todas as operações relevantes
+    para a fiscalização (logins, emissão/cancelamento de documentos,
+    alterações de configuração, exportações SAF-T, etc.).
+    Exigido pelas Regras de Validação de Software da AGT."""
+    ACAO_CHOICES = [
+        ('login', 'Login'),
+        ('logout', 'Logout'),
+        ('login_falhado', 'Login Falhado'),
+        ('emissao', 'Emissão de Documento Fiscal'),
+        ('cancelamento', 'Cancelamento de Documento Fiscal'),
+        ('rectificacao', 'Rectificação (Nota de Crédito)'),
+        ('exportacao_saft', 'Exportação SAF-T'),
+        ('backup', 'Backup'),
+        ('configuracao', 'Alteração de Configuração'),
+        ('outra', 'Outra'),
+    ]
+    utilizador = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='logs_auditoria',
+    )
+    acao = models.CharField(max_length=30, choices=ACAO_CHOICES)
+    descricao = models.CharField(max_length=500)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    data_hora = models.DateTimeField(auto_now_add=True, db_index=True)
+    objeto_tipo = models.CharField(max_length=100, blank=True)
+    objeto_id = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Registo de Auditoria'
+        verbose_name_plural = 'Registos de Auditoria'
+        ordering = ['-data_hora']
+
+    def __str__(self):
+        return f'{self.data_hora:%Y-%m-%d %H:%M} — {self.get_acao_display()} — {self.descricao}'
+
+
+class RegistoBackup(models.Model):
+    """Registo de backups — a AGT exige que o sistema mantenha um
+    registo de todas as cópias de segurança efectuadas, com data,
+    responsável e localização."""
+    resultado = models.CharField(max_length=20, choices=[
+        ('sucesso', 'Sucesso'),
+        ('falha', 'Falha'),
+    ])
+    ficheiro = models.CharField(max_length=500, blank=True)
+    tamanho_bytes = models.BigIntegerField(null=True, blank=True)
+    observacoes = models.TextField(blank=True)
+    efectuado_por = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='backups',
+    )
+    data_hora = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Registo de Backup'
+        verbose_name_plural = 'Registos de Backups'
+        ordering = ['-data_hora']
+
+    def __str__(self):
+        return f'{self.data_hora:%Y-%m-%d %H:%M} — {self.get_resultado_display()}'
+
+
+class SerieDocumental(models.Model):
+    """Registo de séries documentais — a AGT exige que cada série
+    utilizada (ex: FT, NC, ND) esteja formalmente registada com
+    intervalo de numeração, ano e estado (activa/inactiva)."""
+    TIPO_CHOICES = [
+        ('FT', 'Factura'),
+        ('NC', 'Nota de Crédito'),
+        ('ND', 'Nota de Débito'),
+        ('FR', 'Factura Recibo'),
+    ]
+    serie = models.CharField(max_length=10, choices=TIPO_CHOICES, db_index=True)
+    ano = models.PositiveIntegerField(db_index=True)
+    numero_actual = models.PositiveIntegerField(default=0)
+    activa = models.BooleanField(default=True)
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Série Documental'
+        verbose_name_plural = 'Séries Documentais'
+        ordering = ['-ano', 'serie']
+        constraints = [
+            models.UniqueConstraint(fields=['serie', 'ano'], name='serie_ano_unico'),
+        ]
+
+    def __str__(self):
+        return f'{self.serie} {self.ano} (nº {self.numero_actual})'
+
+
+class NotaCredito(models.Model):
+    """Nota de crédito — documento de rectificação que anula ou
+    corrige parcialmente uma factura emitida. Tem numeração própria
+    (série NC) e assinatura digital encadeada, tal como as facturas."""
+    MOTIVO_CHOICES = [
+        ('anulacao', 'Anulação Total'),
+        ('correcao', 'Correção Parcial'),
+        ('devolucao', 'Devolução de Mercadoria'),
+        ('desconto', 'Desconto Posterior'),
+    ]
+    factura_original = models.ForeignKey(
+        Encomenda, on_delete=models.PROTECT,
+        related_name='notas_credito',
+        verbose_name='Factura Original',
+    )
+    numero_documento = models.CharField(
+        max_length=30, blank=True, null=True, unique=True, db_index=True,
+        verbose_name='Número do Documento',
+    )
+    data_emissao = models.DateTimeField(null=True, blank=True)
+    motivo = models.CharField(max_length=20, choices=MOTIVO_CHOICES)
+    descricao = models.TextField(blank=True)
+    valor = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    hash_anterior = models.TextField(blank=True, null=True)
+    hash_atual = models.TextField(blank=True, null=True)
+    hash_curto = models.CharField(max_length=4, blank=True, null=True)
+    emitida_por = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='notas_credito_emitidas',
+    )
+    criada_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Nota de Crédito'
+        verbose_name_plural = 'Notas de Crédito'
+        ordering = ['-data_emissao']
+
+    def __str__(self):
+        return f'{self.numero_documento or "NC pendente"} — {self.factura_original}'
 

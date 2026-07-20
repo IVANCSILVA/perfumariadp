@@ -74,6 +74,7 @@ urlpatterns = [
     path('gestao/relatorio/exportar/', views.gestao_relatorio_exportar_excel, name='gestao_relatorio_exportar_excel'),
     path('gestao/lucro/', views.gestao_lucro, name='gestao_lucro'),
     path('gestao/caixa/exportar/', views.gestao_caixa_exportar_excel, name='gestao_caixa_exportar_excel'),
+    path('gestao/saft/', views.gestao_saft_exportar, name='gestao_saft_exportar'),
     path('gestao/salarios/', views.gestao_salarios, name='gestao_salarios'),
     path('gestao/salarios/exportar/', views.gestao_salarios_exportar_excel, name='gestao_salarios_exportar_excel'),
     path('gestao/clientes/', views.gestao_clientes, name='gestao_clientes'),
@@ -119,4 +120,8 @@ urlpatterns = [
     path('gestao/cupoes/<int:pk>/toggle/', views.gestao_cupao_toggle, name='gestao_cupao_toggle'),
     # API pública
     path('api/validar-cupao/', views.validar_cupao, name='validar_cupao'),
+    # Conformidade AGT
+    path('gestao/conformidade/', views.gestao_conformidade_agt, name='gestao_conformidade_agt'),
+    path('gestao/conformidade/verificar-cadeia/', views.gestao_verificar_cadeia, name='gestao_verificar_cadeia'),
+    path('gestao/vendas/<int:pk>/nota-credito/', views.gestao_nota_credito, name='gestao_nota_credito'),
 ]

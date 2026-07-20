@@ -1,0 +1,144 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Conformidade AGT{% endblock %}
+{% block page_title %}Conformidade AGT — Decreto Presidencial n.º 312/18{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+
+    <div class="bg-amber-50 border border-amber-200 px-5 py-4 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+            </svg>
+            <div>
+                <p class="text-xs text-amber-800 font-semibold">Estado da Conformidade</p>
+                <p class="text-[11px] text-amber-700 mt-1">
+                    Este painel apresenta o estado de cumprimento dos requisitos técnicos exigidos pela AGT
+                    para a certificação de software de processamento electrónico de facturação.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="bg-white border border-stone-200 px-4 py-4 text-center">
+            <p class="text-[9px] uppercase tracking-widest text-stone-400">Conformes</p>
+            <p class="text-3xl font-bold text-emerald-600 font-mono mt-1">{{ ok_count }}</p>
+        </div>
+        <div class="bg-white border border-stone-200 px-4 py-4 text-center">
+            <p class="text-[9px] uppercase tracking-widest text-stone-400">Pendentes</p>
+            <p class="text-3xl font-bold text-amber-600 font-mono mt-1">{{ pendentes }}</p>
+        </div>
+        <div class="bg-white border border-stone-200 px-4 py-4 text-center">
+            <p class="text-[9px] uppercase tracking-widest text-stone-400">Erros</p>
+            <p class="text-3xl font-bold text-red-600 font-mono mt-1">{{ erros }}</p>
+        </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="bg-white border border-stone-200 mb-6">
+        <div class="px-5 py-3 border-b border-stone-200">
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Checklist de Requisitos</p>
+        </div>
+        <div class="divide-y divide-stone-100">
+            {% for item in checklist %}
+            <div class="flex items-center gap-4 px-5 py-3.5">
+                <div class="flex-shrink-0">
+                    {% if item.estado == 'ok' %}
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                    </svg>
+                    {% elif item.estado == 'pendente' %}
+                    <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    {% elif item.estado == 'erro' %}
+                    <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-stone-800 font-medium">{{ item.item }}</p>
+                    <p class="text-[11px] text-stone-400 mt-0.5">{{ item.detalhe }}</p>
+                </div>
+                <span class="text-[9px] uppercase tracking-widest px-2 py-1
+                    {% if item.estado == 'ok' %}bg-emerald-50 text-emerald-700
+                    {% elif item.estado == 'pendente' %}bg-amber-50 text-amber-700
+                    {% elif item.estado == 'erro' %}bg-red-50 text-red-700{% endif %}">
+                    {{ item.estado }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Verificação da cadeia de hash -->
+    <div class="bg-white border border-stone-200 mb-6">
+        <div class="px-5 py-3 border-b border-stone-200 flex items-center justify-between">
+            <p class="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Verificação da Cadeia de Hash</p>
+            <button id="btn-verificar" class="bg-stone-800 hover:bg-stone-700 text-white text-[10px] uppercase tracking-widest px-4 py-2 transition-colors">
+                Verificar Agora
+            </button>
+        </div>
+        <div id="resultado-cadeia" class="px-5 py-4 hidden">
+            <p id="cadeia-status" class="text-sm font-medium"></p>
+            <div id="cadeia-quebras" class="mt-3 hidden">
+                <p class="text-[10px] uppercase tracking-widest text-red-600 mb-2">Quebras Detectadas:</p>
+                <div id="lista-quebras" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    {% if not certificado %}
+    <div class="bg-red-50 border border-red-200 px-5 py-4">
+        <p class="text-xs text-red-800 font-semibold">⚠ Software não certificado</p>
+        <p class="text-[11px] text-red-700 mt-1">
+            Após implementar todos os requisitos, o sistema deve ser submetido à AGT para validação.
+            O número de certificado será atribuído pela AGT e deve ser configurado em <code class="bg-red-100 px-1">AGT_NUMERO_CERTIFICADO</code>.
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+document.getElementById('btn-verificar').addEventListener('click', function() {
+    this.disabled = true;
+    this.textContent = 'A verificar...';
+    fetch('{% url "gestao_verificar_cadeia" %}')
+        .then(r => r.json())
+        .then(data => {
+            const div = document.getElementById('resultado-cadeia');
+            const status = document.getElementById('cadeia-status');
+            const quebras = document.getElementById('cadeia-quebras');
+            const lista = document.getElementById('lista-quebras');
+            div.classList.remove('hidden');
+            if (data.valida) {
+                status.className = 'text-sm font-medium text-emerald-700';
+                status.textContent = '✓ Cadeia íntegra — ' + data.total + ' documento(s) verificado(s).';
+                quebras.classList.add('hidden');
+            } else {
+                status.className = 'text-sm font-medium text-red-700';
+                status.textContent = '✗ Quebras detectadas em ' + data.quebras.length + ' de ' + data.total + ' documento(s).';
+                quebras.classList.remove('hidden');
+                lista.innerHTML = data.quebras.map(function(q) {
+                    return '<div class="text-[11px] text-red-700 border border-red-200 bg-red-50 px-3 py-2"><strong>' + q.documento + '</strong>: ' + q.erros.join(', ') + '</div>';
+                }).join('');
+            }
+        })
+        .catch(function() {
+            const div = document.getElementById('resultado-cadeia');
+            div.classList.remove('hidden');
+            document.getElementById('cadeia-status').className = 'text-sm font-medium text-red-700';
+            document.getElementById('cadeia-status').textContent = 'Erro ao verificar a cadeia.';
+        })
+        .finally(function() {
+            const btn = document.getElementById('btn-verificar');
+            btn.disabled = false;
+            btn.textContent = 'Verificar Agora';
+        });
+});
+</script>
+{% endblock %}

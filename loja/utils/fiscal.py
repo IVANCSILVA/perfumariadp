@@ -166,3 +166,136 @@ def finalizar_documento_fiscal(encomenda, serie='FT'):
         ])
 
     return encomenda
+
+
+def verificar_cadeia_hash():
+    """Verifica a integridade da cadeia de assinaturas de todos os
+    documentos fiscais emitidos. Retorna um dicionário com:
+    - 'valida': bool — True se a cadeia está intacta
+    - 'total': int — número de documentos verificados
+    - 'quebras': list — lista de documentos com quebra de cadeia"""
+    from ..models import Encomenda
+
+    docs = list(
+        Encomenda.objects
+        .filter(hash_atual__isnull=False)
+        .order_by('data_emissao')
+    )
+    quebras = []
+    hash_esperado_anterior = ''
+
+    for doc in docs:
+        erros = []
+        if doc.hash_anterior != hash_esperado_anterior:
+            erros.append('hash_anterior não corresponde ao documento anterior')
+        hash_esperado_anterior = doc.hash_atual
+
+        total = doc.total()
+        mensagem = (
+            f'{doc.data_emissao.isoformat()};'
+            f'{doc.numero_documento};'
+            f'{total};'
+            f'{doc.hash_anterior or ""}'
+        )
+        hash_recalculado = _assinar(mensagem)
+        if hash_recalculado != doc.hash_atual:
+            erros.append('hash_atual não corresponde à re-assinatura dos dados')
+
+        if erros:
+            quebras.append({
+                'documento': doc.numero_documento,
+                'pk': doc.pk,
+                'erros': erros,
+            })
+
+    return {
+        'valida': len(quebras) == 0,
+        'total': len(docs),
+        'quebras': quebras,
+    }
+
+
+def emitir_nota_credito(factura, motivo, valor, descricao='', emitido_por=None):
+    """Emite uma nota de crédito (documento de rectificação) para uma
+    factura emitida. A nota de crédito tem numeração própria (série NC),
+    assinatura digital encadeada e é registada no log de auditoria."""
+    from django.utils import timezone
+    from ..models import NotaCredito, LogAuditoria, Encomenda
+
+    if not factura.numero_documento:
+        raise ValueError('A factura original ainda não foi finalizada fiscalmente.')
+
+    with transaction.atomic():
+        nc = NotaCredito.objects.create(
+            factura_original=factura,
+            motivo=motivo,
+            descricao=descricao,
+            valor=valor,
+            emitida_por=emitido_por,
+        )
+        nc.data_emissao = timezone.now()
+
+        ano = nc.data_emissao.year
+        prefixo = f'NC {ano}/'
+        ultima_nc = (
+            NotaCredito.objects
+            .filter(numero_documento__startswith=prefixo)
+            .exclude(pk=nc.pk)
+            .order_by('-pk')
+            .select_for_update()
+            .first()
+        )
+        if ultima_nc and ultima_nc.numero_documento:
+            try:
+                ultimo_seq = int(ultima_nc.numero_documento.rsplit('/', 1)[-1])
+            except (ValueError, IndexError):
+                ultimo_seq = 0
+        else:
+            ultimo_seq = 0
+        nc.numero_documento = f'{prefixo}{ultimo_seq + 1}'
+
+        ultimo_doc = (
+            Encomenda.objects
+            .filter(hash_atual__isnull=False)
+            .order_by('-data_emissao')
+            .select_for_update()
+            .first()
+        )
+        ultima_nc_doc = (
+            NotaCredito.objects
+            .filter(hash_atual__isnull=False)
+            .exclude(pk=nc.pk)
+            .order_by('-data_emissao')
+            .select_for_update()
+            .first()
+        )
+        if ultima_nc_doc and (not ultimo_doc or ultima_nc_doc.data_emissao > ultimo_doc.data_emissao):
+            hash_anterior = ultima_nc_doc.hash_atual
+        elif ultimo_doc:
+            hash_anterior = ultimo_doc.hash_atual
+        else:
+            hash_anterior = ''
+        nc.hash_anterior = hash_anterior
+
+        mensagem = (
+            f'{nc.data_emissao.isoformat()};'
+            f'{nc.numero_documento};'
+            f'{valor};'
+            f'{hash_anterior}'
+        )
+        nc.hash_atual = _assinar(mensagem)
+        nc.hash_curto = extrair_hash_curto(nc.hash_atual)
+        nc.save(update_fields=[
+            'data_emissao', 'numero_documento',
+            'hash_anterior', 'hash_atual', 'hash_curto',
+        ])
+
+        LogAuditoria.objects.create(
+            utilizador=emitido_por,
+            acao='rectificacao',
+            descricao=f'Nota de crédito {nc.numero_documento} emitida para {factura.numero_documento}',
+            objeto_tipo='NotaCredito',
+            objeto_id=nc.pk,
+        )
+
+    return nc

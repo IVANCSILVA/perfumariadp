@@ -5,6 +5,7 @@ from .models import (
     Funcionario, VisitaSite, Promocao, Cupao,
 )
 from .models import NewsletterInscricao
+from .models import LogAuditoria, RegistoBackup, SerieDocumental, NotaCredito
 from django.utils.html import format_html
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -228,4 +229,35 @@ class CupaoAdmin(admin.ModelAdmin):
     search_fields = ('codigo', 'descricao')
     list_editable = ('ativo',)
     readonly_fields = ('criado_em', 'usos')
+
+
+@admin.register(LogAuditoria)
+class LogAuditoriaAdmin(admin.ModelAdmin):
+    list_display = ('data_hora', 'acao', 'utilizador', 'ip', 'descricao')
+    list_filter = ('acao',)
+    search_fields = ('descricao', 'utilizador__username')
+    readonly_fields = ('data_hora',)
+    date_hierarchy = 'data_hora'
+
+
+@admin.register(RegistoBackup)
+class RegistoBackupAdmin(admin.ModelAdmin):
+    list_display = ('data_hora', 'resultado', 'ficheiro', 'tamanho_bytes', 'efectuado_por')
+    list_filter = ('resultado',)
+    readonly_fields = ('data_hora',)
+
+
+@admin.register(SerieDocumental)
+class SerieDocumentalAdmin(admin.ModelAdmin):
+    list_display = ('serie', 'ano', 'numero_actual', 'activa')
+    list_filter = ('serie', 'activa')
+    list_editable = ('activa',)
+
+
+@admin.register(NotaCredito)
+class NotaCreditoAdmin(admin.ModelAdmin):
+    list_display = ('numero_documento', 'factura_original', 'motivo', 'valor', 'data_emissao', 'emitida_por')
+    list_filter = ('motivo',)
+    search_fields = ('numero_documento', 'factura_original__numero_documento')
+    readonly_fields = ('numero_documento', 'data_emissao', 'hash_anterior', 'hash_atual', 'hash_curto', 'criada_em')
 

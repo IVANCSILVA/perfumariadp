@@ -1,0 +1,72 @@
+{% extends 'gestao/base.html' %}
+{% load loja_filters %}
+{% block title %}SAF-T (AO){% endblock %}
+{% block page_title %}Exportação SAF-T (AO){% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+
+    <div class="bg-amber-50 border border-amber-200 px-5 py-4 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+            </svg>
+            <div>
+                <p class="text-xs text-amber-800 font-semibold">Decreto Presidencial n.º 312/18</p>
+                <p class="text-[11px] text-amber-700 mt-1">
+                    O ficheiro SAF-T (AO) é obrigatório para contribuintes com volume de negócios anual superior a Kz 50.000.000,00.
+                    Deve ser gerado mensalmente e disponibilizado à AGT mediante requisição.
+                </p>
+                {% if not agt_certificado %}
+                <p class="text-[11px] text-red-700 mt-2 font-semibold">
+                    ⚠ Software ainda não certificado pela AGT. Os campos Hash/HashControl indicam "Não Validado".
+                    Após a certificação, defina <code class="bg-amber-100 px-1">AGT_NUMERO_CERTIFICADO</code> nas configurações.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border border-stone-200 px-6 py-8">
+        <p class="text-xs text-stone-500 mb-6">Seleccione o período e clique em "Gerar SAF-T" para descarregar o ficheiro XML.</p>
+
+        <form method="get" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">Ano</label>
+                    <select name="ano" class="w-full border border-stone-300 text-sm px-3 py-2.5 focus:border-stone-800 focus:outline-none">
+                        {% for a in anos_disponiveis %}
+                        <option value="{{ a }}" {% if a == ano_selecionado %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">Mês</label>
+                    <select name="mes" class="w-full border border-stone-300 text-sm px-3 py-2.5 focus:border-stone-800 focus:outline-none">
+                        <option value="" {% if not mes_selecionado %}selected{% endif %}>Ano completo</option>
+                        {% for n, nome in mes_choices %}
+                        <option value="{{ n }}" {% if mes_selecionado == n %}selected{% endif %}>{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" name="gerar" value="1"
+                            class="w-full bg-stone-800 hover:bg-stone-700 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors duration-150 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                        </svg>
+                        Gerar SAF-T
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-6 bg-stone-50 border border-stone-200 px-6 py-5">
+        <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-3">Também disponível via linha de comandos:</p>
+        <pre class="text-[11px] text-stone-600 bg-white border border-stone-200 px-4 py-3 overflow-x-auto"><code>python manage.py exportar_saft --ano {{ ano_selecionado }} --mes 7
+python manage.py exportar_saft --ano {{ ano_selecionado }} --ano-completo --saida SAFT_AO.xml</code></pre>
+    </div>
+
+</div>
+{% endblock %}

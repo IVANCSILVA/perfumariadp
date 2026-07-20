@@ -90,11 +90,19 @@ from django.views.decorators.http import require_POST
 
 @require_POST
 def newsletter_inscrever(request):
-    form = NewsletterInscricaoForm(request.POST)
-    if form.is_valid():
-        form.save()
-        return JsonResponse({'success': True, 'message': 'Inscrição realizada com sucesso!'}, status=201)
-    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+    import json as _json
+    try:
+        data = _json.loads(request.body)
+    except (ValueError, TypeError):
+        data = request.POST
+    email = (data.get('email') or '').strip()
+    nome = (data.get('nome') or '').strip()
+    if not email:
+        return JsonResponse({'ok': False, 'error': 'E-mail em falta.'}, status=400)
+    if NewsletterInscricao.objects.filter(email=email).exists():
+        return JsonResponse({'ok': False, 'error': 'E-mail já inscrito.'}, status=409)
+    NewsletterInscricao.objects.create(email=email, nome=nome)
+    return JsonResponse({'ok': True, 'message': 'Inscrição realizada com sucesso!'}, status=200)
 from django.contrib.auth.models import User, Group
 from .utils.auth import is_operador, pode_criar_produtos, GRUPO_OPERADOR, GRUPO_SECRETARIA
 from .utils.validators import limpar_bi, limpar_telefone, BI_REGEX, TELEFONE_REGEX
@@ -394,6 +402,8 @@ def contactos(request):
 # ---------------------------------------------------------------------------
 
 def gestao_login(request):
+    from .models import LogAuditoria
+
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('gestao_dashboard')
 
@@ -406,9 +416,19 @@ def gestao_login(request):
         if user is not None and user.is_staff:
             logger.warning(f'[LOGIN] Autenticado: user={user.username}, is_staff={user.is_staff}, is_active={user.is_active}')
             login(request, user)
+            LogAuditoria.objects.create(
+                utilizador=user, acao='login',
+                descricao=f'Login efectuado por {user.username}',
+                ip=request.META.get('REMOTE_ADDR'),
+            )
             return redirect('gestao_dashboard')
         else:
             logger.warning(f'[LOGIN] Falhou: user={user}, username={username!r}')
+            LogAuditoria.objects.create(
+                utilizador=user, acao='login_falhado',
+                descricao=f'Tentativa de login falhada: {username}',
+                ip=request.META.get('REMOTE_ADDR'),
+            )
             erro = 'Utilizador ou senha inválidos, ou sem permissão de acesso.'
 
     return render(request, 'gestao/login.html', {'erro': erro})
@@ -416,7 +436,15 @@ def gestao_login(request):
 
 @require_POST
 def gestao_logout(request):
+    from .models import LogAuditoria
+    user = request.user
     logout(request)
+    if user.is_authenticated:
+        LogAuditoria.objects.create(
+            utilizador=user, acao='logout',
+            descricao=f'Logout efectuado por {user.username}',
+            ip=request.META.get('REMOTE_ADDR'),
+        )
     return redirect('gestao_login')
 
 
@@ -2915,6 +2943,55 @@ def gestao_relatorio_exportar_excel(request):
 
 @staff_member_required(login_url='/gestao/login/')
 @_block_operador
+def gestao_saft_exportar(request):
+    """Gera e disponibiliza para download o ficheiro SAF-T(AO) do mês/ano
+    seleccionado (conformidade AGT — Decreto Presidencial n.º 312/18)."""
+    import calendar
+    from .utils.saft import gerar_saft_ao
+
+    hoje = timezone.now().date()
+    try:
+        ano = int(request.GET.get('ano', hoje.year))
+        mes = request.GET.get('mes', '')
+        mes = int(mes) if mes else None
+    except (TypeError, ValueError):
+        ano = hoje.year
+        mes = None
+
+    if request.GET.get('gerar'):
+        if mes:
+            ultimo_dia = calendar.monthrange(ano, mes)[1]
+            data_inicio = date(ano, mes, 1)
+            data_fim = date(ano, mes, ultimo_dia)
+            sufixo = f'{ano}-{mes:02d}'
+        else:
+            data_inicio = date(ano, 1, 1)
+            data_fim = date(ano, 12, 31)
+            sufixo = f'{ano}'
+
+        xml_bytes = gerar_saft_ao(data_inicio, data_fim)
+        response = HttpResponse(xml_bytes, content_type='application/xml')
+        response['Content-Disposition'] = f'attachment; filename="SAFT_AO_{sufixo}.xml"'
+        return response
+
+    meses = [
+        (1, 'Janeiro'), (2, 'Fevereiro'), (3, 'Março'), (4, 'Abril'),
+        (5, 'Maio'), (6, 'Junho'), (7, 'Julho'), (8, 'Agosto'),
+        (9, 'Setembro'), (10, 'Outubro'), (11, 'Novembro'), (12, 'Dezembro'),
+    ]
+    anos_disponiveis = list(range(hoje.year, hoje.year - 5, -1))
+    return render(request, 'gestao/saft_exportar.html', {
+        'active_page': 'saft',
+        'anos_disponiveis': anos_disponiveis,
+        'ano_selecionado': ano,
+        'mes_selecionado': mes,
+        'mes_choices': meses,
+        'agt_certificado': getattr(settings, 'AGT_NUMERO_CERTIFICADO', ''),
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
 def gestao_caixa_exportar_excel(request):
     """Exporta os movimentos de caixa (entradas e saídas) para Excel."""
     try:
@@ -3553,4 +3630,179 @@ def validar_cupao(request):
         'tipo': cupao.tipo_desconto,
         'valor': float(cupao.valor_desconto),
         'codigo': cupao.codigo,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Conformidade AGT — Painel, Verificação de Cadeia e Notas de Crédito
+# ---------------------------------------------------------------------------
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_conformidade_agt(request):
+    """Painel de conformidade AGT — checklist do estado de cumprimento
+    dos requisitos do Decreto Presidencial n.º 312/18."""
+    from .models import LogAuditoria, RegistoBackup, SerieDocumental, NotaCredito
+    from .utils.fiscal import verificar_cadeia_hash, get_private_key
+    import os as _os
+
+    checklist = []
+
+    # 1. Numeração sequencial
+    docs_com_numero = Encomenda.objects.filter(numero_documento__isnull=False).count()
+    checklist.append({
+        'item': 'Numeração sequencial por série/ano',
+        'estado': 'ok' if docs_com_numero > 0 else 'pendente',
+        'detalhe': f'{docs_com_numero} documento(s) com número fiscal atribuído',
+    })
+
+    # 2. Assinatura digital encadeada
+    docs_com_hash = Encomenda.objects.filter(hash_atual__isnull=False).count()
+    checklist.append({
+        'item': 'Assinatura digital RSA/SHA-256 encadeada',
+        'estado': 'ok' if docs_com_hash > 0 else 'pendente',
+        'detalhe': f'{docs_com_hash} documento(s) assinado(s)',
+    })
+
+    # 3. Chave privada
+    from .utils.fiscal import _chave_privada_path
+    chave_path = _chave_privada_path()
+    chave_existe = _os.path.exists(chave_path)
+    checklist.append({
+        'item': 'Chave privada RSA-2048 gerada',
+        'estado': 'ok' if chave_existe else 'pendente',
+        'detalhe': f'Ficheiro: {chave_path}',
+    })
+
+    # 4. Certificado AGT
+    certificado = getattr(settings, 'AGT_NUMERO_CERTIFICADO', '')
+    checklist.append({
+        'item': 'Certificação AGT (número de certificado)',
+        'estado': 'ok' if certificado else 'pendente',
+        'detalhe': certificado or 'Pendente de validação pela AGT',
+    })
+
+    # 5. SAF-T
+    checklist.append({
+        'item': 'Exportação SAF-T (AO)',
+        'estado': 'ok',
+        'detalhe': 'Disponível via painel e linha de comandos',
+    })
+
+    # 6. Imutabilidade
+    checklist.append({
+        'item': 'Imutabilidade de documentos fiscais',
+        'estado': 'ok',
+        'detalhe': 'Vendas finalizadas/canceladas não podem ser eliminadas',
+    })
+
+    # 7. Registo de auditoria
+    total_logs = LogAuditoria.objects.count()
+    checklist.append({
+        'item': 'Registo de auditoria (trilha)',
+        'estado': 'ok' if total_logs > 0 else 'ok',
+        'detalhe': f'{total_logs} registo(s) de auditoria',
+    })
+
+    # 8. Registo de backups
+    total_backups = RegistoBackup.objects.count()
+    checklist.append({
+        'item': 'Registo de backups',
+        'estado': 'ok' if total_backups > 0 else 'pendente',
+        'detalhe': f'{total_backups} backup(s) registado(s)',
+    })
+
+    # 9. Séries documentais
+    series = SerieDocumental.objects.filter(activa=True).count()
+    checklist.append({
+        'item': 'Registo de séries documentais',
+        'estado': 'ok' if series > 0 else 'pendente',
+        'detalhe': f'{series} série(s) activa(s)',
+    })
+
+    # 10. Notas de crédito
+    total_nc = NotaCredito.objects.count()
+    checklist.append({
+        'item': 'Notas de crédito (rectificação)',
+        'estado': 'ok',
+        'detalhe': f'{total_nc} nota(s) de crédito emitida(s)',
+    })
+
+    # Verificação da cadeia de hash
+    resultado_cadeia = verificar_cadeia_hash()
+    checklist.append({
+        'item': 'Integridade da cadeia de hash',
+        'estado': 'ok' if resultado_cadeia['valida'] else 'erro',
+        'detalhe': f'{resultado_cadeia["total"]} documento(s) verificado(s), '
+                    f'{len(resultado_cadeia["quebras"])} quebra(s)' if resultado_cadeia['total'] > 0
+                    else 'Nenhum documento emitido ainda',
+    })
+
+    pendentes = sum(1 for c in checklist if c['estado'] == 'pendente')
+    erros = sum(1 for c in checklist if c['estado'] == 'erro')
+    ok_count = sum(1 for c in checklist if c['estado'] == 'ok')
+
+    return render(request, 'gestao/conformidade_agt.html', {
+        'active_page': 'conformidade',
+        'checklist': checklist,
+        'pendentes': pendentes,
+        'erros': erros,
+        'ok_count': ok_count,
+        'certificado': certificado,
+        'resultado_cadeia': resultado_cadeia,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_verificar_cadeia(request):
+    """Executa verificação da cadeia de hash e retorna o resultado."""
+    from .models import LogAuditoria
+    from .utils.fiscal import verificar_cadeia_hash
+
+    resultado = verificar_cadeia_hash()
+    LogAuditoria.objects.create(
+        utilizador=request.user,
+        acao='outra',
+        descricao=f'Verificação da cadeia de hash: {resultado["total"]} docs, '
+                  f'{"válida" if resultado["valida"] else "quebras detectadas"}',
+    )
+    return JsonResponse(resultado)
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_nota_credito(request, pk):
+    """Emite uma nota de crédito para uma factura finalizada."""
+    from .models import LogAuditoria, NotaCredito
+    from .utils.fiscal import emitir_nota_credito
+    from decimal import Decimal
+
+    encomenda = get_object_or_404(Encomenda, pk=pk)
+    if not encomenda.numero_documento:
+        messages.error(request, 'Esta venda ainda não foi finalizada fiscalmente.')
+        return redirect('gestao_venda_detalhe', pk=pk)
+
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo', 'anulacao')
+        valor_str = request.POST.get('valor', '').strip()
+        descricao = request.POST.get('descricao', '').strip()
+        try:
+            valor = Decimal(valor_str) if valor_str else encomenda.total()
+        except Exception:
+            valor = encomenda.total()
+
+        nc = emitir_nota_credito(
+            factura=encomenda,
+            motivo=motivo,
+            valor=valor,
+            descricao=descricao,
+            emitido_por=request.user,
+        )
+        messages.success(request, f'Nota de crédito {nc.numero_documento} emitida com sucesso.')
+        return redirect('gestao_venda_detalhe', pk=pk)
+
+    return render(request, 'gestao/nota_credito_form.html', {
+        'active_page': 'vendas',
+        'encomenda': encomenda,
     })

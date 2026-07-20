@@ -64,6 +64,18 @@ if not DEBUG:
 # ---------------------------------------------------------------------------
 # gestao.decentprive.ao/ mostra sempre a página de login diretamente.
 
+# ---------------------------------------------------------------------------
+# Dados fiscais da empresa (usados nas facturas e na exportação SAF-T(AO))
+# ---------------------------------------------------------------------------
+EMPRESA_NOME = os.environ.get('EMPRESA_NOME', 'Banild — Comércio e Serviços, Lda.')
+EMPRESA_NIF = os.environ.get('EMPRESA_NIF', '5002884747')
+EMPRESA_ENDERECO = os.environ.get('EMPRESA_ENDERECO', 'Huambo, Angola')
+EMPRESA_TELEFONE = os.environ.get('EMPRESA_TELEFONE', '929 006 478')
+# Número de certificado atribuído pela AGT após validação do software.
+# Deve permanecer vazio até à obtenção formal do certificado — ver
+# loja/utils/fiscal.py e loja/utils/saft.py.
+AGT_NUMERO_CERTIFICADO = os.environ.get('AGT_NUMERO_CERTIFICADO', '')
+
 
 # Application definition
 
