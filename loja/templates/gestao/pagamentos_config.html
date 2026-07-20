@@ -1,0 +1,163 @@
+{% extends 'gestao/base.html' %}
+{% block title %}Configurar Pagamentos{% endblock %}
+{% block page_title %}Configuração de Métodos de Pagamento{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+    <a href="{% url 'gestao_promocoes' %}"
+       class="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 mb-6">
+        ← Voltar
+    </a>
+
+    {% if messages %}
+        <div class="mb-6 space-y-2">
+        {% for m in messages %}
+            <div class="px-4 py-3 rounded text-xs
+                {% if m.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800
+                {% elif m.tags == 'error' %}bg-red-50 border border-red-200 text-red-800
+                {% else %}bg-amber-50 border border-amber-200 text-amber-800{% endif %}">{{ m }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-stone-100 bg-gradient-to-r from-amber-50 to-stone-50">
+            <h2 class="font-serif italic text-2xl text-stone-800">💳 Métodos de Pagamento</h2>
+            <p class="text-xs text-stone-500 mt-1">Active e configure os métodos de pagamento disponíveis no checkout da loja online.</p>
+        </div>
+
+        <form method="POST" class="px-6 py-6 space-y-6">
+            {% csrf_token %}
+
+            <!-- Métodos manuais -->
+            <div class="space-y-4">
+                <p class="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold border-b border-stone-100 pb-2">Métodos Manuais</p>
+
+                <!-- Numerário -->
+                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                    {% if config.aceitar_numerario %}border-emerald-300 bg-emerald-50{% else %}border-stone-200{% endif %}">
+                    <input type="checkbox" name="aceitar_numerario" class="w-4 h-4 accent-emerald-600" {% if config.aceitar_numerario %}checked{% endif %}>
+                    <div>
+                        <p class="text-xs font-semibold text-stone-800">Numerário à Entrega</p>
+                        <p class="text-[10px] text-stone-500">O cliente paga em dinheiro no momento da entrega.</p>
+                    </div>
+                </label>
+
+                <!-- Transferência Bancária -->
+                <div class="border border-stone-200 rounded-lg p-4 space-y-3
+                    {% if config.aceitar_transferencia %}border-emerald-300 bg-emerald-50/40{% endif %}">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="aceitar_transferencia" class="w-4 h-4 accent-emerald-600" {% if config.aceitar_transferencia %}checked{% endif %}>
+                        <div>
+                            <p class="text-xs font-semibold text-stone-800">Transferência Bancária</p>
+                            <p class="text-[10px] text-stone-500">O cliente transfere para a conta indicada abaixo.</p>
+                        </div>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pl-6">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Banco</label>
+                            <input type="text" name="banco_nome" value="{{ config.banco_nome }}"
+                                   class="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Titular</label>
+                            <input type="text" name="banco_titular" value="{{ config.banco_titular }}"
+                                   class="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">IBAN</label>
+                            <input type="text" name="banco_iban" value="{{ config.banco_iban }}"
+                                   class="w-full px-3 py-2 text-sm font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paypay -->
+                <div class="border border-stone-200 rounded-lg p-4 space-y-3
+                    {% if config.aceitar_paypay %}border-emerald-300 bg-emerald-50/40{% endif %}">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="aceitar_paypay" class="w-4 h-4 accent-emerald-600" {% if config.aceitar_paypay %}checked{% endif %}>
+                        <div>
+                            <p class="text-xs font-semibold text-stone-800">Paypay</p>
+                            <p class="text-[10px] text-stone-500">O cliente envia pagamento via Paypay para o número indicado.</p>
+                        </div>
+                    </label>
+                    <div class="pl-6">
+                        <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Número Paypay</label>
+                        <input type="text" name="paypay_numero" value="{{ config.paypay_numero }}"
+                               placeholder="Ex: +244 9XX XXX XXX"
+                               class="w-full md:w-1/2 px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gateway Online (EMIS Multicaixa Express) -->
+            <div class="space-y-4 border-t border-stone-100 pt-5">
+                <p class="text-[10px] uppercase tracking-[0.25em] text-stone-500 font-semibold border-b border-stone-100 pb-2">Gateway Online — Multicaixa Express (EMIS GPO)</p>
+
+                <label class="flex items-center gap-2 cursor-pointer p-3 border rounded-lg
+                    {% if config.gateway_activo %}border-amber-300 bg-amber-50{% else %}border-stone-200{% endif %}">
+                    <input type="checkbox" name="gateway_activo" class="w-4 h-4 accent-amber-600" {% if config.gateway_activo %}checked{% endif %}>
+                    <div>
+                        <p class="text-xs font-semibold text-stone-800">Activar Multicaixa Express (Online)</p>
+                        <p class="text-[10px] text-stone-500">Só funciona se Entity ID e Token GPO estiverem preenchidos. O cliente é redireccionado para o portal seguro da EMIS.</p>
+                    </div>
+                </label>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Ambiente</label>
+                        <select name="emis_ambiente"
+                                class="w-full px-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                            <option value="sandbox" {% if config.emis_ambiente == 'sandbox' %}selected{% endif %}>Sandbox (testes)</option>
+                            <option value="producao" {% if config.emis_ambiente == 'producao' %}selected{% endif %}>Produção</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Entity ID (EMIS)</label>
+                        <input type="text" name="emis_entity_id" value="{{ config.emis_entity_id }}"
+                               class="w-full px-3 py-2 text-sm font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Token GPO (EMIS)</label>
+                        <input type="password" name="emis_gpo_token" placeholder="{{ config.emis_gpo_token|yesno:'••••••••,Deixe em branco para manter' }}"
+                               class="w-full px-3 py-2 text-sm font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                        <p class="text-[10px] text-stone-500 mt-1">Deixe em branco para manter o valor actual.</p>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-stone-500 mb-1">Chave de Verificação do Callback</label>
+                        <input type="password" name="emis_callback_secret" placeholder="{{ config.emis_callback_secret|yesno:'••••••••,Deixe em branco para manter' }}"
+                               class="w-full px-3 py-2 text-sm font-mono bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-amber-600 focus:bg-white transition">
+                        <p class="text-[10px] text-stone-500 mt-1">Usada para validar notificações (webhook) da EMIS.</p>
+                    </div>
+                </div>
+
+                {% if config.gateway_activo and not config.gateway_configurado %}
+                <div class="px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                    ⚠ O gateway está activo mas faltam credenciais (Entity ID ou Token GPO). O Multicaixa Express não aparecerá no checkout até preencher ambos.
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Botões -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">
+                <a href="{% url 'gestao_promocoes' %}"
+                   class="px-5 py-2.5 text-[10px] uppercase tracking-[0.3em] text-stone-500 hover:text-stone-800 transition">Cancelar</a>
+                <button type="submit"
+                        class="bg-stone-900 hover:bg-stone-800 text-white text-[10px] uppercase tracking-[0.3em] px-6 py-2.5 rounded-lg shadow-sm transition">
+                    Guardar Configuração
+                </button>
+            </div>
+        </form>
+
+        <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 text-[11px] text-stone-600">
+            <p class="font-semibold mb-1">ℹ Informação</p>
+            <p>O <strong>webhook</strong> da EMIS (callback de confirmação de pagamento) está configurado em:</p>
+            <pre class="mt-1 p-2 bg-stone-900 text-emerald-300 rounded text-[10px] overflow-x-auto">/pagamentos/emis/callback/</pre>
+            <p class="mt-2">Forneça este URL à EMIS ao registar o comércio no GPO. O endpoint aceita POST sem CSRF (é validado pela chave de verificação).</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

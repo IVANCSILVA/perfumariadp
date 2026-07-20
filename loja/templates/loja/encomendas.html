@@ -224,6 +224,35 @@
                 </div>
             </div>
 
+            <!-- Método de Pagamento -->
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest text-stone-600 mb-2">Método de Pagamento</label>
+                <div class="grid grid-cols-1 gap-3">
+                    {% for valor, label in config_pagamento.metodos_disponiveis %}
+                    <label class="flex items-center gap-3 border border-stone-300 px-4 py-3 cursor-pointer hover:border-amber-700 transition-colors has-[:checked]:border-amber-700 has-[:checked]:bg-amber-50">
+                        <input type="radio" name="metodo_pagamento" value="{{ valor }}" class="accent-amber-700"
+                               {% if form_data.metodo_pagamento == valor %}checked{% endif %}
+                               {% if not form_data.metodo_pagamento and forloop.first %}checked{% endif %}>
+                        <span class="text-sm text-stone-700">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% if config_pagamento.aceitar_transferencia and config_pagamento.banco_iban %}
+                <div class="mt-3 p-3 bg-stone-50 border border-stone-200 rounded text-xs text-stone-600 space-y-1">
+                    <p class="font-semibold text-stone-700">Dados para Transferência Bancária:</p>
+                    <p>Banco: {{ config_pagamento.banco_nome }}</p>
+                    <p>Titular: {{ config_pagamento.banco_titular }}</p>
+                    <p>IBAN: <span class="font-mono">{{ config_pagamento.banco_iban }}</span></p>
+                </div>
+                {% endif %}
+                {% if config_pagamento.aceitar_paypay and config_pagamento.paypay_numero %}
+                <div class="mt-3 p-3 bg-stone-50 border border-stone-200 rounded text-xs text-stone-600 space-y-1">
+                    <p class="font-semibold text-stone-700">Paypay:</p>
+                    <p>Número: <span class="font-mono">{{ config_pagamento.paypay_numero }}</span></p>
+                </div>
+                {% endif %}
+            </div>
+
             <!-- Resumo do carrinho (se existir) -->
             <div id="cart-summary" class="hidden border border-stone-200 bg-stone-50 p-5">
                 <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-3">Itens do Carrinho</p>

@@ -79,7 +79,7 @@ from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models import Sum, Count, Q
-from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao, Banner, ImagemGaleria, Cupao
+from .models import Encomenda, ItemEncomenda, Produto, Cliente, Funcionario, Categoria, MovimentoCaixa, VisitaSite, NewsletterInscricao, MovimentoStock, Promocao, PagamentoSalario, LoteImportacao, ItemLoteImportacao, Banner, ImagemGaleria, Cupao, ConfiguracaoPagamento
 from .forms import NewsletterInscricaoForm
 
 logger = logging.getLogger(__name__)
@@ -87,6 +87,7 @@ logger = logging.getLogger(__name__)
 # Newsletter - Cadastro de e-mails
 # ---------------------------------------------------------------------------
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 @require_POST
 def newsletter_inscrever(request):
@@ -338,6 +339,7 @@ def promocao_publica(request, slug):
 
 def encomendas(request):
     import json
+    config_pagamento = ConfiguracaoPagamento.get_solo()
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         telefone = request.POST.get('telefone', '').strip()
@@ -348,11 +350,17 @@ def encomendas(request):
 
         if not nome or not telefone:
             messages.error(request, 'Nome e telefone são obrigatórios.')
-            return render(request, 'loja/encomendas.html', {'form_data': request.POST})
+            return render(request, 'loja/encomendas.html', {'form_data': request.POST, 'config_pagamento': config_pagamento})
 
         forma_pag = request.POST.get('forma_pagamento', 'avista')
         if forma_pag not in ('avista', 'parcelado'):
             forma_pag = 'avista'
+
+        metodos_validos = [m[0] for m in config_pagamento.metodos_disponiveis()]
+        metodo_pag = request.POST.get('metodo_pagamento', 'numerario')
+        if metodo_pag not in metodos_validos:
+            messages.error(request, 'Método de pagamento inválido ou indisponível.')
+            return render(request, 'loja/encomendas.html', {'form_data': request.POST, 'config_pagamento': config_pagamento})
 
         # Cupão de desconto
         cupao_codigo = request.POST.get('cupao_codigo', '').strip().upper()
@@ -378,6 +386,7 @@ def encomendas(request):
                 notas=notas,
                 origem='online',
                 forma_pagamento=forma_pag,
+                metodo_pagamento=metodo_pag,
                 status='em_curso',
             )
 
@@ -427,6 +436,20 @@ def encomendas(request):
                 encomenda.save(update_fields=['notas'])
 
         request.session['ultima_encomenda_id'] = encomenda.pk
+
+        # Pagamento online (Multicaixa Express via EMIS GPO)
+        if metodo_pag == 'multicaixa_express':
+            from .services import emis_gateway
+            try:
+                redirect_url = emis_gateway.criar_referencia(encomenda)
+                return redirect(redirect_url)
+            except emis_gateway.GatewayIndisponivel as exc:
+                messages.warning(
+                    request,
+                    f'{exc} A sua encomenda #{encomenda.pk} foi registada — entraremos em contacto para combinar o pagamento.'
+                )
+                return redirect('encomenda_sucesso')
+
         return redirect('encomenda_sucesso')
 
     else:
@@ -437,11 +460,35 @@ def encomendas(request):
         except (json.JSONDecodeError, ValueError):
             carrinho = []
 
-        return render(request, 'loja/encomendas.html', {'itens': carrinho})
+        return render(request, 'loja/encomendas.html', {'itens': carrinho, 'config_pagamento': config_pagamento})
 
 def encomenda_sucesso(request):
     encomenda_id = request.session.pop('ultima_encomenda_id', None)
     return render(request, 'loja/encomenda_sucesso.html', {'encomenda_id': encomenda_id})
+
+
+@csrf_exempt
+@require_POST
+def pagamento_emis_callback(request):
+    """Endpoint de notificação (webhook) do gateway EMIS Multicaixa Express (GPO).
+
+    A EMIS chama este URL para informar o resultado do pagamento de uma
+    referência criada em `loja.services.emis_gateway.criar_referencia()`.
+    Ver esse módulo para notas sobre o formato exacto do payload, que deve
+    ser confirmado com a documentação oficial da EMIS.
+    """
+    import json as _json
+    from .services import emis_gateway
+
+    try:
+        dados = _json.loads(request.body or b'{}')
+    except (ValueError, TypeError):
+        dados = request.POST.dict()
+
+    encomenda = emis_gateway.processar_callback(dados)
+    if encomenda and encomenda.status_pagamento_gateway == 'pago':
+        logger.info('Pagamento EMIS confirmado para a encomenda #%s.', encomenda.pk)
+    return HttpResponse(status=200)
 
 def galeria(request):
     imagens = ImagemGaleria.objects.filter(activo=True).order_by('ordem', '-criado_em')
@@ -2559,6 +2606,52 @@ def gestao_aniversarios_config(request):
 
     return render(request, 'gestao/aniversarios_config.html', {
         'active_page': 'promocoes',
+        'config': config,
+    })
+
+
+@staff_member_required(login_url='/gestao/login/')
+@_block_operador
+def gestao_pagamentos_config(request):
+    """Configuração dos métodos de pagamento aceites na loja online:
+    métodos manuais (numerário, transferência, Paypay) e as
+    credenciais do gateway Multicaixa Express (EMIS GPO)."""
+    config = ConfiguracaoPagamento.get_solo()
+    if request.method == 'POST':
+        config.aceitar_numerario = request.POST.get('aceitar_numerario') == 'on'
+        config.aceitar_transferencia = request.POST.get('aceitar_transferencia') == 'on'
+        config.banco_nome = (request.POST.get('banco_nome') or '').strip()
+        config.banco_titular = (request.POST.get('banco_titular') or '').strip()
+        config.banco_iban = (request.POST.get('banco_iban') or '').strip()
+        config.aceitar_paypay = request.POST.get('aceitar_paypay') == 'on'
+        config.paypay_numero = (request.POST.get('paypay_numero') or '').strip()
+
+        config.gateway_activo = request.POST.get('gateway_activo') == 'on'
+        config.emis_ambiente = request.POST.get('emis_ambiente', 'sandbox')
+        if config.emis_ambiente not in ('sandbox', 'producao'):
+            config.emis_ambiente = 'sandbox'
+        config.emis_entity_id = (request.POST.get('emis_entity_id') or '').strip()
+        novo_token = (request.POST.get('emis_gpo_token') or '').strip()
+        if novo_token:
+            config.emis_gpo_token = novo_token
+        novo_secret = (request.POST.get('emis_callback_secret') or '').strip()
+        if novo_secret:
+            config.emis_callback_secret = novo_secret
+
+        if not any([config.aceitar_numerario, config.aceitar_transferencia,
+                    config.aceitar_paypay, config.gateway_configurado]):
+            messages.error(request, 'Deve manter pelo menos um método de pagamento activo.')
+            return render(request, 'gestao/pagamentos_config.html', {
+                'active_page': 'pagamentos',
+                'config': config,
+            })
+
+        config.save()
+        messages.success(request, 'Configuração de pagamentos actualizada.')
+        return redirect('gestao_pagamentos_config')
+
+    return render(request, 'gestao/pagamentos_config.html', {
+        'active_page': 'pagamentos',
         'config': config,
     })
 

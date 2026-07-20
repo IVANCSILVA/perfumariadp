@@ -171,12 +171,39 @@ class Encomenda(models.Model):
         ('balcao', 'Balcão'),
         ('online', 'Online')
     ]
+    METODO_PAGAMENTO_CHOICES = [
+        ('numerario', 'Numerário à Entrega'),
+        ('transferencia', 'Transferência Bancária'),
+        ('multicaixa_express', 'Multicaixa Express (Online)'),
+        ('paypay', 'Paypay'),
+    ]
+    STATUS_PAGAMENTO_GATEWAY_CHOICES = [
+        ('pendente', 'Pendente'),
+        ('pago', 'Pago'),
+        ('falhado', 'Falhado'),
+    ]
 
     forma_pagamento = models.CharField(
         max_length=20,
         choices=PAGAMENTO_CHOICES,
         default='avista',
         verbose_name='Forma de Pagamento'
+    )
+    metodo_pagamento = models.CharField(
+        max_length=30,
+        choices=METODO_PAGAMENTO_CHOICES,
+        default='numerario',
+        verbose_name='Método de Pagamento',
+        help_text='Como o cliente pretende pagar (numerário, transferência, Multicaixa Express, Paypay).'
+    )
+    referencia_pagamento_gateway = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name='Referência do Gateway',
+        help_text='Identificador/referência devolvido pelo gateway de pagamento online (ex: EMIS GPO).'
+    )
+    status_pagamento_gateway = models.CharField(
+        max_length=20, choices=STATUS_PAGAMENTO_GATEWAY_CHOICES, default='pendente', blank=True,
+        verbose_name='Estado do Pagamento Online'
     )
     valor_parcela1 = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True,
@@ -774,6 +801,91 @@ MENSAGEM_FUNCIONARIO_DEFAULT = (
     "{brinde}"
     "Um forte abraço,\nDirecção Décent Privé"
 )
+
+
+class ConfiguracaoPagamento(models.Model):
+    """Configuração singleton dos métodos de pagamento da loja online.
+
+    Controla quais métodos manuais estão disponíveis no checkout (numerário,
+    transferência bancária, Paypay) e as credenciais do gateway de
+    pagamento online (EMIS Multicaixa Express / GPO). O gateway só fica
+    disponível para os clientes quando `gateway_activo` estiver ligado E
+    `entity_id`/`gpo_token` estiverem preenchidos (ver `gateway_configurado`).
+    """
+
+    AMBIENTE_CHOICES = [
+        ('sandbox', 'Sandbox (testes)'),
+        ('producao', 'Produção'),
+    ]
+
+    # --- Métodos manuais ---
+    aceitar_numerario = models.BooleanField(
+        default=True, verbose_name='Aceitar Numerário à Entrega'
+    )
+    aceitar_transferencia = models.BooleanField(
+        default=True, verbose_name='Aceitar Transferência Bancária'
+    )
+    banco_nome = models.CharField(max_length=100, blank=True, verbose_name='Nome do Banco')
+    banco_titular = models.CharField(max_length=150, blank=True, verbose_name='Titular da Conta')
+    banco_iban = models.CharField(max_length=30, blank=True, verbose_name='IBAN')
+    aceitar_paypay = models.BooleanField(
+        default=False, verbose_name='Aceitar Paypay'
+    )
+    paypay_numero = models.CharField(max_length=30, blank=True, verbose_name='Número Paypay')
+
+    # --- Gateway online (EMIS Multicaixa Express / GPO) ---
+    gateway_activo = models.BooleanField(
+        default=False,
+        verbose_name='Activar Multicaixa Express (Online)',
+        help_text='Só entra em funcionamento se o Entity ID e o Token GPO estiverem preenchidos.'
+    )
+    emis_ambiente = models.CharField(
+        max_length=10, choices=AMBIENTE_CHOICES, default='sandbox',
+        verbose_name='Ambiente EMIS'
+    )
+    emis_entity_id = models.CharField(
+        max_length=100, blank=True, verbose_name='Entity ID (EMIS)',
+        help_text='Fornecido pela EMIS ao registar o comércio no GPO.'
+    )
+    emis_gpo_token = models.CharField(
+        max_length=200, blank=True, verbose_name='Token GPO (EMIS)',
+        help_text='Chave secreta do GPO — nunca partilhe este valor.'
+    )
+    emis_callback_secret = models.CharField(
+        max_length=200, blank=True, verbose_name='Chave de Verificação do Callback',
+        help_text='Usada para validar as notificações (webhook) recebidas da EMIS.'
+    )
+    actualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Configuração de Pagamentos'
+        verbose_name_plural = 'Configuração de Pagamentos'
+
+    def __str__(self):
+        return 'Configuração de Pagamentos'
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def gateway_configurado(self):
+        """True apenas quando existem credenciais suficientes para chamar o GPO."""
+        return bool(self.gateway_activo and self.emis_entity_id and self.emis_gpo_token)
+
+    def metodos_disponiveis(self):
+        """Lista de (valor, label) dos métodos de pagamento activos, para uso no checkout."""
+        metodos = []
+        if self.aceitar_numerario:
+            metodos.append(('numerario', 'Numerário à Entrega'))
+        if self.aceitar_transferencia:
+            metodos.append(('transferencia', 'Transferência Bancária'))
+        if self.gateway_configurado:
+            metodos.append(('multicaixa_express', 'Multicaixa Express (Online)'))
+        if self.aceitar_paypay:
+            metodos.append(('paypay', 'Paypay'))
+        return metodos or [('numerario', 'Numerário à Entrega')]
 
 
 class ConfigAniversario(models.Model):
