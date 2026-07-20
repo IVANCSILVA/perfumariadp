@@ -119,6 +119,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'loja.context_processors.encomendas_online_pendentes',
                 'loja.context_processors.nivel_acesso',
+                'loja.context_processors.configuracao_pagamento',
             ],
         },
     },

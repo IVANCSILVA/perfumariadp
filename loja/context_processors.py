@@ -1,5 +1,10 @@
-from .models import Encomenda
+from .models import Encomenda, ConfiguracaoPagamento
 from .utils.auth import is_operador as _is_operador, pode_criar_produtos as _pode_criar_produtos
+
+
+def configuracao_pagamento(request):
+    """Disponibiliza a configuração de métodos de pagamento em todos os templates."""
+    return {'config_pagamento': ConfiguracaoPagamento.get_solo()}
 
 
 def encomendas_online_pendentes(request):
