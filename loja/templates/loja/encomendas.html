@@ -20,6 +20,13 @@
         .ticker-track { animation: marquee 40s linear infinite; display: flex; width: max-content; gap: 2.5rem; white-space: nowrap; }
         .ticker-track:hover { animation-play-state: paused; }
         .wa-pulse { animation: pulseRing 2s infinite; }
+        @keyframes bounceEmoji { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes shakeCart { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        .anim-bounce { animation: bounceEmoji 2s ease-in-out infinite; display: inline-block; }
+        .anim-cart { animation: shakeCart 1.5s ease-in-out infinite; display: inline-block; }
+        .fade-up { animation: fadeInUp 0.5s ease forwards; }
+        .rotate-text { display: inline-block; min-width: 280px; text-align: center; }
     </style>
 </head>
 
@@ -65,8 +72,13 @@
     <!-- Hero -->
     <section class="bg-stone-50 border-b border-stone-200 py-14 text-center px-4 md:px-8">
         <p class="text-[10px] uppercase tracking-[0.35em] text-amber-800 mb-3">Décent Privé</p>
-        <h1 class="text-5xl font-serif italic text-stone-900 mb-4">Fazer Encomenda</h1>
-        <p class="text-stone-500 text-xs uppercase tracking-widest max-w-md mx-auto">Preencha o formulário e entraremos em contacto para confirmar a sua encomenda</p>
+        <h1 class="text-5xl font-serif italic text-stone-900 mb-4">Fazer Encomenda <span class="anim-bounce text-3xl">🛒</span></h1>
+        <p class="text-stone-500 text-sm max-w-lg mx-auto leading-relaxed">
+            É fácil, rápido, e respondemos imediatamente o seu pedido.
+        </p>
+        <p class="text-amber-700 text-xs uppercase tracking-widest mt-3">
+            <span class="rotate-text" id="rotate-text-encomenda">Preencha o formulário e entraremos em contacto para confirmar ✨</span>
+        </p>
     </section>
 
     <!-- Mensagens de erro -->
@@ -87,9 +99,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.892-7.143a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.273M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
             </svg>
         </div>
-        <p class="text-xs uppercase tracking-[0.4em] text-amber-700 mb-3">Carrinho Vazio</p>
+        <p class="text-xs uppercase tracking-[0.4em] text-amber-700 mb-3">Carrinho Vazio <span class="anim-cart">🛒</span></p>
         <h2 class="font-serif italic text-3xl text-stone-800 mb-4">Seleccione produtos primeiro</h2>
-        <p class="text-stone-400 text-xs uppercase tracking-widest max-w-xs mx-auto mb-8">Adicione fragrâncias ao carrinho antes de finalizar a encomenda.</p>
+        <p class="text-stone-400 text-xs uppercase tracking-widest max-w-xs mx-auto mb-8">Adicione fragrâncias ao carrinho antes de finalizar a encomenda. É só escolher e pronto! <span class="anim-bounce">👆</span></p>
         <a href="{% url 'home' %}" class="inline-block bg-amber-800 hover:bg-amber-700 text-white text-[10px] uppercase tracking-[0.4em] px-10 py-4 transition-colors duration-200">
             Ver Fragrâncias
         </a>
@@ -280,7 +292,7 @@
             </div>
 
             <p class="text-[10px] text-stone-400 tracking-wide text-center">
-                Após submissão, entraremos em contacto via WhatsApp ou email para confirmar a disponibilidade e o pagamento.
+                <span class="anim-cart">📦</span> Após submissão, entraremos em contacto via WhatsApp ou email para confirmar a disponibilidade e o pagamento. <span class="anim-bounce">⚡</span>
             </p>
         </form>
         </div>
@@ -556,6 +568,28 @@
                 document.getElementById('cupao-btn').click();
             }
         });
+    </script>
+    <script>
+        (function() {
+            const frases = [
+                'Preencha o formulário e entraremos em contacto para confirmar ✨',
+                'É simples: escolha, preencha, e nós tratamos do resto! 🚀',
+                'Resposta imediata via WhatsApp assim que enviar ⚡',
+                'A sua fragrância preferida a um clique de distância 🎁',
+                'Entregas em toda Angola — rápido e seguro! 📦',
+            ];
+            let idx = 0;
+            const el = document.getElementById('rotate-text-encomenda');
+            if (el) {
+                setInterval(function() {
+                    idx = (idx + 1) % frases.length;
+                    el.classList.remove('fade-up');
+                    el.offsetHeight;
+                    el.textContent = frases[idx];
+                    el.classList.add('fade-up');
+                }, 4000);
+            }
+        })();
     </script>
 </body>
 </html>

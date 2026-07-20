@@ -41,6 +41,11 @@
         .ticker-track:hover { animation-play-state: paused; }
         @keyframes cartPop { 0%{opacity:0;transform:translateY(10px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-6px)} }
         .cart-toast { animation: cartPop 2.4s ease forwards; }
+        @keyframes bounceEmoji { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        .anim-bounce { animation: bounceEmoji 2s ease-in-out infinite; display: inline-block; }
+        .fade-up { animation: fadeInUp 0.5s ease forwards; }
+        .rotate-text { display: inline-block; min-width: 340px; text-align: center; }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-900">
@@ -87,11 +92,11 @@
         <div class="absolute -top-20 -left-20 w-72 h-72 bg-amber-700/20 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl"></div>
         <div class="relative">
-            <span class="text-xs uppercase tracking-[0.4em] text-amber-400">A nossa curadoria</span>
+            <span class="text-xs uppercase tracking-[0.4em] text-amber-400">A nossa curadoria <span class="anim-bounce">🌸</span></span>
             <h1 class="font-serif italic text-4xl md:text-6xl mt-3">Colecções</h1>
             <div class="w-16 h-px bg-amber-500 mx-auto mt-5"></div>
             <p class="text-stone-300 text-sm md:text-base mt-6 max-w-xl mx-auto leading-relaxed">
-                {{ total }} fragrâncias seleccionadas com rigor — da elegância masculina ao requinte feminino, passando pelo equilíbrio unissex.
+                <span class="rotate-text" id="rotate-text-colecoes">{{ total }} fragrâncias seleccionadas com rigor — da elegância masculina ao requinte feminino, passando pelo equilíbrio unissex. ✨</span>
             </p>
         </div>
     </header>
@@ -469,9 +474,9 @@
 
             <!-- CTA Encomenda -->
             <div class="text-center mt-8 py-12 border-t border-stone-200">
-                <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Não encontrou o que procura?</span>
+                <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Não encontrou o que procura? <span class="anim-bounce">🤔</span></span>
                 <h3 class="font-serif italic text-2xl text-stone-800 mt-2 mb-4">Faça a sua encomenda especial</h3>
-                <p class="text-stone-400 text-sm max-w-md mx-auto mb-6">Contacte-nos pelo WhatsApp ou preencha o formulário de encomenda. Tratamos de encontrar a fragrância que procura.</p>
+                <p class="text-stone-400 text-sm max-w-md mx-auto mb-6">Contacte-nos pelo WhatsApp ou preencha o formulário de encomenda. Tratamos de encontrar a fragrância que procura. <span class="anim-bounce">🎁</span></p>
                 <div class="flex justify-center gap-4 flex-wrap">
                     <a href="{% url 'encomendas' %}" class="border border-amber-800 text-amber-800 text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-800 hover:text-white transition-all duration-300">Formulário de Encomenda</a>
                     <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20encomendar%20uma%20fragr%C3%A2ncia." target="_blank" rel="noopener" class="bg-green-700 text-white text-[10px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-green-800 transition-all duration-300">WhatsApp</a>
@@ -768,6 +773,28 @@
             menu.classList.toggle('-translate-x-full', !open);
             overlay.classList.toggle('hidden', !open);
         }
+    </script>
+    <script>
+        (function() {
+            const frases = [
+                '{{ total }} fragrâncias seleccionadas com rigor — da elegância masculina ao requinte feminino, passando pelo equilíbrio unissex. ✨',
+                'Use a pesquisa acima para encontrar a sua fragrância ideal 🔍',
+                'Clique em qualquer perfume para ver todos os detalhes 📖',
+                'Adicione ao carrinho com um só clique 🛒',
+                'Encomende por WhatsApp ou formulário — é rápido e fácil! ⚡',
+            ];
+            let idx = 0;
+            const el = document.getElementById('rotate-text-colecoes');
+            if (el) {
+                setInterval(function() {
+                    idx = (idx + 1) % frases.length;
+                    el.classList.remove('fade-up');
+                    el.offsetHeight;
+                    el.textContent = frases[idx];
+                    el.classList.add('fade-up');
+                }, 4000);
+            }
+        })();
     </script>
 </body>
 </html>

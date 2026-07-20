@@ -17,6 +17,13 @@
             100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
         }
         .wa-pulse { animation: pulseRing 2s infinite; }
+        @keyframes bounceEmoji { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes spinStar { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+        .anim-bounce { animation: bounceEmoji 2s ease-in-out infinite; display: inline-block; }
+        .fade-up { animation: fadeInUp 0.5s ease forwards; }
+        .rotate-text { display: inline-block; min-width: 340px; text-align: center; }
+        .anim-spin { animation: spinStar 6s linear infinite; display: inline-block; }
     </style>
 </head>
 <body class="bg-white text-stone-900">
@@ -43,34 +50,34 @@
     </nav>
 
     <main class="max-w-4xl mx-auto px-4 md:px-8 py-20 text-center">
-        <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Programa</span>
+        <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Programa <span class="anim-bounce">⭐</span></span>
         <h1 class="font-serif italic text-4xl md:text-5xl text-stone-800 mt-3 mb-6">Programa de Fidelidade</h1>
         <div class="w-16 h-px bg-amber-700 mx-auto mb-10"></div>
         <p class="text-stone-500 text-sm leading-relaxed max-w-xl mx-auto tracking-wide">
-            Junte-se ao nosso programa de fidelidade e acumule pontos em cada compra. Quanto mais comprar, mais benefícios exclusivos desbloqueia — descontos especiais, acesso antecipado a novas colecções e ofertas personalizadas.
+            <span class="rotate-text" id="rotate-text-fidelidade">Junte-se ao nosso programa de fidelidade e acumule pontos em cada compra. Quanto mais comprar, mais benefícios exclusivos desbloqueia! ✨</span>
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             <div class="border border-stone-200 p-8">
-                <div class="text-amber-700 text-3xl mb-4">&#9733;</div>
+                <div class="text-amber-700 text-3xl mb-4 anim-bounce">&#9733;</div>
                 <h3 class="font-serif italic text-xl text-stone-800 mb-3">Bronze</h3>
-                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir da 1.ª compra. Acesso a promoções exclusivas para membros.</p>
+                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir da 1.ª compra. Acesso a promoções exclusivas para membros. 🥉</p>
             </div>
             <div class="border border-amber-700 p-8 bg-amber-50">
-                <div class="text-amber-700 text-3xl mb-4">&#9733;&#9733;</div>
+                <div class="text-amber-700 text-3xl mb-4 anim-bounce">&#9733;&#9733;</div>
                 <h3 class="font-serif italic text-xl text-stone-800 mb-3">Prata</h3>
-                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir de 5 compras. Desconto de 10% em todos os artigos.</p>
+                <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir de 5 compras. Desconto de 10% em todos os artigos. 🥈</p>
             </div>
             <div class="border border-stone-800 p-8 bg-stone-900">
-                <div class="text-amber-400 text-3xl mb-4">&#9733;&#9733;&#9733;</div>
+                <div class="text-amber-400 text-3xl mb-4 anim-spin">&#9733;&#9733;&#9733;</div>
                 <h3 class="font-serif italic text-xl text-amber-400 mb-3">Ouro</h3>
-                <p class="text-xs text-stone-300 leading-relaxed tracking-wide">A partir de 12 compras. Desconto de 20%, acesso VIP e brindes exclusivos.</p>
+                <p class="text-xs text-stone-300 leading-relaxed tracking-wide">A partir de 12 compras. Desconto de 20%, acesso VIP e brindes exclusivos. 🥇</p>
             </div>
         </div>
 
         <div class="mt-16">
             <a href="{% url 'encomendas' %}" class="border border-amber-800 text-amber-800 text-[10px] uppercase tracking-[0.4em] px-10 py-3 hover:bg-amber-800 hover:text-white transition-all duration-300">
-                Fazer uma Encomenda
+                Fazer uma Encomenda <span class="anim-bounce">🛍️</span>
             </a>
         </div>
     </main>
@@ -127,6 +134,28 @@
             menu.classList.toggle('-translate-x-full', !open);
             overlay.classList.toggle('hidden', !open);
         }
+    </script>
+    <script>
+        (function() {
+            const frases = [
+                'Junte-se ao nosso programa de fidelidade e acumule pontos em cada compra. Quanto mais comprar, mais benefícios exclusivos desbloqueia! ✨',
+                'Descontos especiais, acesso antecipado a novas colecções e ofertas personalizadas 🎁',
+                'Suba de nível: Bronze, Prata e Ouro — cada nível traz mais vantagens 🚀',
+                'Os membros Ouro recebem brindes exclusivos e acesso VIP 🏆',
+                'Comece já hoje — a sua primeira compra conta para o nível Bronze! ⭐',
+            ];
+            let idx = 0;
+            const el = document.getElementById('rotate-text-fidelidade');
+            if (el) {
+                setInterval(function() {
+                    idx = (idx + 1) % frases.length;
+                    el.classList.remove('fade-up');
+                    el.offsetHeight;
+                    el.textContent = frases[idx];
+                    el.classList.add('fade-up');
+                }, 4000);
+            }
+        })();
     </script>
 </body>
 </html>
