@@ -235,6 +235,38 @@ class Encomenda(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
+    # -----------------------------------------------------------------------
+    # Campos fiscais (conformidade AGT — Decreto Presidencial n.º 312/18)
+    # Preenchidos uma única vez no momento da finalização da venda, através
+    # de loja.utils.fiscal.finalizar_documento_fiscal(). Nunca alterados
+    # depois de definidos (o documento fiscal é imutável).
+    # -----------------------------------------------------------------------
+    numero_documento = models.CharField(
+        max_length=30, blank=True, null=True, unique=True, db_index=True,
+        verbose_name='Número do Documento Fiscal',
+        help_text='Numeração sequencial por série/ano, ex: FT 2026/145'
+    )
+    data_emissao = models.DateTimeField(
+        blank=True, null=True,
+        verbose_name='Data de Emissão',
+        help_text='Data/hora de finalização, usada na assinatura digital do documento'
+    )
+    hash_anterior = models.TextField(
+        blank=True, null=True,
+        verbose_name='Hash do Documento Anterior',
+        help_text='Assinatura do documento fiscal imediatamente anterior na cadeia'
+    )
+    hash_atual = models.TextField(
+        blank=True, null=True,
+        verbose_name='Assinatura Digital (Hash)',
+        help_text='Assinatura RSA/SHA-256 deste documento, encadeada ao anterior'
+    )
+    hash_curto = models.CharField(
+        max_length=4, blank=True, null=True,
+        verbose_name='Hash Curto',
+        help_text='4 caracteres (posições 1ª, 11ª, 21ª, 31ª da assinatura) impressos no documento'
+    )
+
     class Meta:
         verbose_name = 'Encomenda'
         verbose_name_plural = 'Encomendas'

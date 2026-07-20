@@ -116,10 +116,14 @@
     </div>
     <div class="header-right">
       <div class="badge">Fatura — Recibo</div>
+      {% if encomenda.numero_documento %}
+      <div class="invoice-number">{{ encomenda.numero_documento }}</div>
+      {% else %}
       <div class="invoice-number">#{{ encomenda.pk|stringformat:"05d" }}</div>
+      {% endif %}
       <div class="invoice-meta">
-        Data: <span>{{ encomenda.criado_em|date:"d/m/Y" }}</span><br>
-        Hora: <span>{{ encomenda.criado_em|date:"H:i" }}</span>
+        Data: <span>{{ encomenda.data_emissao|default:encomenda.criado_em|date:"d/m/Y" }}</span><br>
+        Hora: <span>{{ encomenda.data_emissao|default:encomenda.criado_em|date:"H:i" }}</span>
       </div>
     </div>
   </div>
@@ -240,7 +244,11 @@
   <!-- Rodapé -->
   <div class="footer">
     <div class="footer-left">
+      {% if encomenda.hash_curto %}
+      <div class="footer-small">{{ encomenda.hash_curto }}-Processado por computador</div>
+      {% else %}
       <div class="footer-small">Processado por computador</div>
+      {% endif %}
       <div class="footer-detail">Décent Privé · NIF: 5002884747 · Huambo, Angola</div>
     </div>
     <div class="footer-right">

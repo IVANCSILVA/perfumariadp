@@ -62,10 +62,14 @@
                 <div class="inline-block bg-amber-800 text-white px-4 py-1.5 text-xs uppercase tracking-[0.2em] font-semibold mb-4">
                     Fatura — Recibo
                 </div>
+                {% if encomenda.numero_documento %}
+                <p class="text-3xl font-bold text-stone-900 font-mono">{{ encomenda.numero_documento }}</p>
+                {% else %}
                 <p class="text-5xl font-bold text-stone-900 font-mono">#{{ encomenda.pk|stringformat:"05d" }}</p>
+                {% endif %}
                 <div class="mt-3 text-xs text-stone-500 space-y-1">
-                    <p>Data: <span class="font-semibold text-stone-700">{{ encomenda.criado_em|date:"d/m/Y" }}</span></p>
-                    <p>Hora: <span class="font-semibold text-stone-700">{{ encomenda.criado_em|date:"H:i" }}</span></p>
+                    <p>Data: <span class="font-semibold text-stone-700">{{ encomenda.data_emissao|default:encomenda.criado_em|date:"d/m/Y" }}</span></p>
+                    <p>Hora: <span class="font-semibold text-stone-700">{{ encomenda.data_emissao|default:encomenda.criado_em|date:"H:i" }}</span></p>
                 </div>
             </div>
         </div>
@@ -209,7 +213,11 @@
         <!-- Rodapé da Fatura -->
         <div class="border-t border-stone-300 pt-4 mt-4 flex items-end justify-between">
             <div>
+                {% if encomenda.hash_curto %}
+                <p class="text-[9px] text-stone-600 uppercase tracking-widest font-semibold">{{ encomenda.hash_curto }}-Processado por computador</p>
+                {% else %}
                 <p class="text-[9px] text-stone-600 uppercase tracking-widest font-semibold">Processado por computador</p>
+                {% endif %}
                 <p class="text-[9px] text-stone-500 mt-1">Décent Privé · NIF: 5002884747 · Huambo, Angola</p>
             </div>
             <div class="text-right">

@@ -102,6 +102,7 @@ from .utils.stock import reverter_stock_encomenda
 from .utils.promotions import get_promocoes_activas
 from .utils.encomenda import contar_por_status
 from .utils.slug import gerar_slug_unico
+from .utils.fiscal import finalizar_documento_fiscal
 
 
 # ---------------------------------------------------------------------------
@@ -610,6 +611,7 @@ def gestao_registar_pagamento_parcela2(request, pk):
         encomenda.parcela2_paga = True
         encomenda.status = 'finalizada'
         encomenda.save(update_fields=['parcela2_paga', 'status', 'atualizado_em'])
+        finalizar_documento_fiscal(encomenda)
         _registar_venda_no_caixa(encomenda, request.user)
         messages.success(request, f'Encomenda #{pk} - 2ª parcela registada e venda finalizada.')
         return redirect('gestao_fatura', pk=pk)
@@ -687,6 +689,7 @@ def gestao_venda_detalhe(request, pk):
             # Se está em curso e não é parcelado, pode finalizar
             encomenda.status = 'finalizada'
             encomenda.save(update_fields=['status', 'atualizado_em'])
+            finalizar_documento_fiscal(encomenda)
             _registar_venda_no_caixa(encomenda, request.user)
             messages.success(request, f'Venda #{encomenda.pk} finalizada com sucesso.')
             return redirect('gestao_venda_detalhe', pk=pk)
@@ -867,6 +870,8 @@ def gestao_venda_nova(request):
                         encomenda=encomenda,
                         criado_por=request.user if request.user.is_authenticated else None,
                     )
+                if status == 'finalizada':
+                    finalizar_documento_fiscal(encomenda)
                 _registar_venda_no_caixa(encomenda, request.user)
             if forma_pagamento == 'parcelado':
                 messages.success(request, f'Venda parcelada #{encomenda.pk} criada. 1ª parcela paga. Próximo pagamento: {encomenda.data_proxima_parcela.strftime("%d/%m/%Y")}')
