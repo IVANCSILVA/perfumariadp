@@ -27,7 +27,7 @@
         </button>
         {% endif %}
         {% endif %}
-        {% if not is_operador %}
+        {% if not is_operador and encomenda.status == 'em_curso' %}
         <button type="button" onclick="document.getElementById('modal_eliminar').style.display='flex'"
            class="bg-stone-700 hover:bg-stone-600 text-white text-[10px] uppercase tracking-[0.3em] px-5 py-2.5 transition-colors">
             🗑 Eliminar Venda

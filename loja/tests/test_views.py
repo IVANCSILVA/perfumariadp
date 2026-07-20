@@ -424,6 +424,33 @@ class GestaoVendaDetalheViewTest(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertFalse(Encomenda.objects.filter(pk=pk).exists())
 
+    def test_eliminar_bloqueado_para_venda_finalizada(self):
+        """Conformidade AGT (Decreto Presidencial n.º 312/18): documento fiscal
+        já emitido (venda finalizada) não pode ser eliminado da base de dados."""
+        self.encomenda.status = 'finalizada'
+        self.encomenda.save(update_fields=['status'])
+        pk = self.encomenda.pk
+        resp = self.client.post(
+            reverse('gestao_venda_detalhe', args=[pk]),
+            {'acao': 'eliminar'},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Encomenda.objects.filter(pk=pk).exists())
+
+    def test_eliminar_bloqueado_para_venda_cancelada(self):
+        """Conformidade AGT: venda cancelada também constitui documento fiscal
+        já emitido e não pode ser apagada."""
+        self.encomenda.status = 'cancelada'
+        self.encomenda.motivo_cancelamento = 'Teste'
+        self.encomenda.save(update_fields=['status', 'motivo_cancelamento'])
+        pk = self.encomenda.pk
+        resp = self.client.post(
+            reverse('gestao_venda_detalhe', args=[pk]),
+            {'acao': 'eliminar'},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Encomenda.objects.filter(pk=pk).exists())
+
 
 # ---------------------------------------------------------------------------
 # Fatura

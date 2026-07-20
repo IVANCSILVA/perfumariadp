@@ -704,6 +704,14 @@ def gestao_venda_detalhe(request, pk):
                 return redirect('gestao_vendas')
         
         elif acao == 'eliminar':
+            # NOTA DE CONFORMIDADE AGT: documentos fiscais (vendas finalizadas ou
+            # canceladas, que já geraram fatura) não podem ser eliminados da base
+            # de dados — apenas rascunhos ('em_curso') que ainda não constituem
+            # documento comercial emitido. Ver Decreto Presidencial n.º 312/18.
+            if encomenda.status != 'em_curso':
+                messages.error(request, 'Não é permitido eliminar uma venda finalizada ou cancelada (documento fiscal já emitido). Utilize "Cancelar Venda" se necessário.')
+                return redirect('gestao_venda_detalhe', pk=pk)
+
             from django.db import transaction
             with transaction.atomic():
                 for item in encomenda.itens.all():
