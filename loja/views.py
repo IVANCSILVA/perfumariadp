@@ -265,6 +265,63 @@ def produto_detalhe(request, pk):
     })
 
 
+def pesquisar_produtos(request):
+    """API endpoint para pesquisa dinâmica de produtos.
+    Retorna JSON com produtos que correspondem ao termo de pesquisa
+    (nome, marca ou género). Inclui sugestões quando não há correspondência exacta."""
+    from django.urls import reverse
+    q = request.GET.get('q', '').strip().lower()
+    if not q:
+        return JsonResponse({'resultados': [], 'total': 0, 'termo': ''})
+
+    qs = Produto.objects.filter(disponivel=True).filter(
+        models.Q(nome__icontains=q) |
+        models.Q(marca__icontains=q) |
+        models.Q(genero__icontains=q) |
+        models.Q(essencia__icontains=q) |
+        models.Q(concentracao__icontains=q)
+    ).distinct()
+
+    resultados = []
+    for p in qs[:20]:
+        preco = p.preco_promocional if p.tem_desconto else p.preco_venda
+        resultados.append({
+            'id': p.pk,
+            'nome': p.nome,
+            'marca': p.marca,
+            'genero': p.get_genero_display() if p.genero else '',
+            'preco': float(preco),
+            'preco_original': float(p.preco_venda) if p.tem_desconto else None,
+            'desconto': p.desconto_percentagem if p.tem_desconto else 0,
+            'imagem': p.imagem.url if p.imagem else '',
+            'url': reverse('produto_detalhe', args=[p.pk]),
+            'quantidade': p.quantidade or '',
+        })
+
+    # Sugestões: se não houver resultados, sugerir produtos populares
+    sugestoes = []
+    if not resultados:
+        sugest_qs = Produto.objects.filter(disponivel=True).order_by('-desconto_percentagem', 'nome')[:6]
+        for p in sugest_qs:
+            preco = p.preco_promocional if p.tem_desconto else p.preco_venda
+            sugestoes.append({
+                'id': p.pk,
+                'nome': p.nome,
+                'marca': p.marca,
+                'genero': p.get_genero_display() if p.genero else '',
+                'preco': float(preco),
+                'imagem': p.imagem.url if p.imagem else '',
+                'url': reverse('produto_detalhe', args=[p.pk]),
+            })
+
+    return JsonResponse({
+        'resultados': resultados,
+        'total': len(resultados),
+        'termo': q,
+        'sugestoes': sugestoes,
+    })
+
+
 def promocao_publica(request, slug):
     promo = get_object_or_404(Promocao, slug=slug, activo=True)
     produtos = list(promo.produtos.filter(disponivel=True).order_by('genero', 'nome'))
