@@ -58,21 +58,32 @@
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div class="border border-stone-200 p-8">
+            <div class="border border-stone-200 p-8 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl cursor-default">
                 <div class="text-amber-700 text-3xl mb-4 anim-bounce">&#9733;</div>
                 <h3 class="font-serif italic text-xl text-stone-800 mb-3">Bronze</h3>
                 <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir da 1.ª compra. Acesso a promoções exclusivas para membros. 🥉</p>
             </div>
-            <div class="border border-amber-700 p-8 bg-amber-50">
+            <div class="border border-amber-700 p-8 bg-amber-50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl cursor-default">
                 <div class="text-amber-700 text-3xl mb-4 anim-bounce">&#9733;&#9733;</div>
                 <h3 class="font-serif italic text-xl text-stone-800 mb-3">Prata</h3>
                 <p class="text-xs text-stone-500 leading-relaxed tracking-wide">A partir de 5 compras. Desconto de 10% em todos os artigos. 🥈</p>
             </div>
-            <div class="border border-stone-800 p-8 bg-stone-900">
+            <div class="border border-stone-800 p-8 bg-stone-900 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl cursor-default">
                 <div class="text-amber-400 text-3xl mb-4 anim-spin">&#9733;&#9733;&#9733;</div>
                 <h3 class="font-serif italic text-xl text-amber-400 mb-3">Ouro</h3>
                 <p class="text-xs text-stone-300 leading-relaxed tracking-wide">A partir de 12 compras. Desconto de 20%, acesso VIP e brindes exclusivos. 🥇</p>
             </div>
+        </div>
+
+        <!-- Simulador de nível -->
+        <div class="mt-16 max-w-md mx-auto bg-stone-50 border border-stone-200 rounded-xl p-6 text-left">
+            <p class="text-xs uppercase tracking-[0.3em] text-amber-700 mb-3 text-center">Simule o seu nível <span class="anim-bounce">🎯</span></p>
+            <label for="compras-input" class="text-xs text-stone-500 block mb-2">Quantas compras já fez?</label>
+            <input type="number" id="compras-input" min="0" placeholder="Ex: 3" class="w-full border border-stone-300 rounded px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-700 mb-4">
+            <div class="w-full bg-stone-200 rounded-full h-2 mb-3 overflow-hidden">
+                <div id="progresso-bar" class="bg-amber-700 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
+            <p id="progresso-texto" class="text-sm text-stone-600 text-center">Introduza o número de compras para ver o seu nível.</p>
         </div>
 
         <div class="mt-16">
@@ -81,6 +92,11 @@
             </a>
         </div>
     </main>
+
+    <!-- Voltar ao topo -->
+    <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="hidden fixed bottom-24 right-6 z-30 w-10 h-10 bg-stone-800/90 hover:bg-amber-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200" aria-label="Topo">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+    </button>
 
     <!-- Rodapé -->
     <footer class="bg-stone-900 text-stone-300 border-t border-stone-800">
@@ -134,6 +150,35 @@
             menu.classList.toggle('-translate-x-full', !open);
             overlay.classList.toggle('hidden', !open);
         }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scroll-top');
+            if (btn) { btn.classList.toggle('hidden', window.scrollY <= 400); }
+        });
+
+        (function() {
+            const input = document.getElementById('compras-input');
+            const bar = document.getElementById('progresso-bar');
+            const texto = document.getElementById('progresso-texto');
+            if (!input) return;
+            input.addEventListener('input', function() {
+                const n = Math.max(0, parseInt(this.value) || 0);
+                let tier, next, pct;
+                if (n < 1) { tier = 'Ainda sem nível'; next = 1; }
+                else if (n < 5) { tier = 'Bronze 🥉'; next = 5; }
+                else if (n < 12) { tier = 'Prata 🥈'; next = 12; }
+                else { tier = 'Ouro 🥇 — nível máximo!'; next = null; }
+                if (next) {
+                    const faltam = next - n;
+                    pct = Math.min(100, (n / next) * 100);
+                    texto.textContent = 'Nível actual: ' + tier + '. Faltam ' + faltam + ' compra(s) para o próximo nível!';
+                } else {
+                    pct = 100;
+                    texto.textContent = 'Nível actual: ' + tier;
+                }
+                bar.style.width = pct + '%';
+            });
+        })();
     </script>
     <script>
         (function() {

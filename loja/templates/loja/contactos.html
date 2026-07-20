@@ -22,6 +22,8 @@
         .anim-bounce { animation: bounceEmoji 2s ease-in-out infinite; display: inline-block; }
         .fade-up { animation: fadeInUp 0.5s ease forwards; }
         .rotate-text { display: inline-block; min-width: 340px; text-align: center; }
+        @keyframes cartPop { 0%{opacity:0;transform:translateY(10px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-6px)} }
+        .copy-toast { animation: cartPop 2s ease forwards; }
     </style>
 </head>
 <body class="bg-white text-stone-900">
@@ -59,7 +61,7 @@
 
     <!-- Cartões de contacto -->
     <main class="max-w-5xl mx-auto px-6 py-16">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
             <!-- WhatsApp -->
             <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20D%C3%A9cent%20Priv%C3%A9."
@@ -73,6 +75,7 @@
                 <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">WhatsApp</h3>
                 <p class="font-serif italic text-xl text-stone-800 mb-1">929 006 478</p>
                 <p class="text-xs text-stone-400 tracking-wide">Resposta rápida ⚡</p>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); copiarTexto('929006478', this);" class="mt-3 text-[10px] uppercase tracking-widest text-stone-400 hover:text-green-600 transition-colors underline">Copiar número</button>
             </a>
 
             <!-- Email -->
@@ -86,6 +89,7 @@
                 <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">Email</h3>
                 <p class="font-serif italic text-xl text-stone-800 mb-1 break-all">decentprive@gmail.com</p>
                 <p class="text-xs text-stone-400 tracking-wide">Disponível 24h 📬</p>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); copiarTexto('decentprive@gmail.com', this);" class="mt-3 text-[10px] uppercase tracking-widest text-stone-400 hover:text-amber-700 transition-colors underline">Copiar email</button>
             </a>
 
             <!-- Telefone -->
@@ -99,6 +103,22 @@
                 <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">Telefone</h3>
                 <p class="font-serif italic text-xl text-stone-800 mb-1">929 006 478</p>
                 <p class="text-xs text-stone-400 tracking-wide">Seg – Sáb, 9h – 20h 📞</p>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); copiarTexto('929006478', this);" class="mt-3 text-[10px] uppercase tracking-widest text-stone-400 hover:text-amber-700 transition-colors underline">Copiar número</button>
+            </a>
+
+            <!-- Localização -->
+            <a href="https://maps.google.com/?q=Em+frente+ao+SIAC,+Huambo,+Angola"
+               target="_blank" rel="noopener noreferrer"
+               class="group flex flex-col items-center text-center border border-stone-200 hover:border-amber-400 p-8 transition-all duration-300 hover:shadow-lg">
+                <div class="w-14 h-14 bg-amber-50 group-hover:bg-amber-100 rounded-full flex items-center justify-center mb-5 transition-colors duration-300">
+                    <svg class="w-7 h-7 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xs uppercase tracking-[0.3em] text-stone-500 mb-2">Localização</h3>
+                <p class="font-serif italic text-xl text-stone-800 mb-1">Em frente ao SIAC</p>
+                <p class="text-xs text-stone-400 tracking-wide">Huambo, Angola 📍</p>
             </a>
 
         </div>
@@ -140,6 +160,11 @@
         </div>
     </main>
 
+    <!-- Voltar ao topo -->
+    <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="hidden fixed bottom-24 right-6 z-30 w-10 h-10 bg-stone-800/90 hover:bg-amber-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200" aria-label="Topo">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+    </button>
+
     <!-- Rodapé -->
     <footer class="bg-stone-900 text-stone-400 text-xs text-center py-6 mt-10">
         &copy; 2026 Décent Privé. Todos os direitos reservados.
@@ -180,6 +205,26 @@
             menu.classList.toggle('-translate-x-full', !open);
             overlay.classList.toggle('hidden', !open);
         }
+
+        function copiarTexto(texto, btn) {
+            function mostrarToast() {
+                const toast = document.createElement('div');
+                toast.className = 'copy-toast fixed bottom-20 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-xs px-5 py-3 shadow-xl z-50 flex items-center gap-2 whitespace-nowrap';
+                toast.innerHTML = '<svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg><span>' + texto + ' copiado!</span>';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(texto).then(mostrarToast).catch(mostrarToast);
+            } else {
+                mostrarToast();
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scroll-top');
+            if (btn) { btn.classList.toggle('hidden', window.scrollY <= 400); }
+        });
     </script>
     <script>
         (function() {

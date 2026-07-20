@@ -28,6 +28,8 @@
         .anim-bounce { animation: bounceEmoji 2s ease-in-out infinite; display: inline-block; }
         .fade-up { animation: fadeInUp 0.5s ease forwards; }
         .rotate-text { display: inline-block; min-width: 320px; text-align: center; }
+        .gallery-item.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .gallery-item.reveal.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="bg-white text-stone-900">
@@ -86,12 +88,14 @@
         {% if imagens %}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
             {% for img in imagens %}
-            <div class="gallery-item group cursor-pointer rounded-lg overflow-hidden bg-white border border-stone-100 relative"
+            <div class="gallery-item reveal group cursor-pointer rounded-lg overflow-hidden bg-white border border-stone-100 relative"
+                 style="transition-delay: {% widthratio forloop.counter0 1 40 %}ms"
                  onclick="openLightbox({{ forloop.counter0 }})">
                 <div class="aspect-square overflow-hidden">
                     <img src="{{ img.imagem.url }}" alt="{{ img.legenda }}"
                          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <span class="absolute top-2 right-2 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ forloop.counter }}/{{ imagens|length }}</span>
                 </div>
                 {% if img.legenda %}
                 <div class="p-3">
@@ -254,6 +258,39 @@
             if (e.key === 'ArrowLeft') navLightbox({ stopPropagation: () => {} }, -1);
             if (e.key === 'ArrowRight') navLightbox({ stopPropagation: () => {} }, 1);
         });
+
+        // Swipe (mobile) para navegar no lightbox
+        (function() {
+            const lb = document.getElementById('lightbox');
+            if (!lb) return;
+            let touchStartX = 0;
+            lb.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+            lb.addEventListener('touchend', function(e) {
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(dx) > 50) {
+                    navLightbox({ stopPropagation: () => {} }, dx > 0 ? -1 : 1);
+                }
+            }, { passive: true });
+        })();
+
+        // Revelar itens da galeria ao rolar
+        (function() {
+            const items = document.querySelectorAll('.gallery-item.reveal');
+            if (!items.length) return;
+            if (!('IntersectionObserver' in window)) {
+                items.forEach(el => el.classList.add('visible'));
+                return;
+            }
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            items.forEach(el => observer.observe(el));
+        })();
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');

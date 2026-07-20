@@ -56,6 +56,11 @@
         .ticker-track { animation: marquee 40s linear infinite; display: flex; width: max-content; gap: 2.5rem; white-space: nowrap; }
         .ticker-track:hover { animation-play-state: paused; }
         #location-heading { transition: opacity 0.4s ease, transform 0.4s ease; display: block; }
+        @keyframes fadeInUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+        .fade-up { animation: fadeInUp 0.5s ease forwards; }
+        .rotate-text { display: inline-block; min-width: 260px; text-align: center; }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
         </style>
 </head>
 <body class="bg-white text-gray-900 transition-colors duration-300">
@@ -432,7 +437,7 @@
     {% if promocoes_landing %}
     <!-- Promoções a decorrer (landing) -->
     <section id="promocoes" class="bg-white py-16 px-4 md:px-8 border-t border-stone-100">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 reveal">
             <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Tempo Limitado</span>
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Promoções a Decorrer</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
@@ -487,7 +492,7 @@
     <section id="produtos" class="bg-stone-50 py-16 px-4 md:px-8">
 
         <!-- Cabeçalho principal -->
-        <div class="text-center mb-14">
+        <div class="text-center mb-14 reveal">
             <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Selecção da Semana</span>
             <h2 class="font-serif italic text-3xl md:text-4xl text-stone-800 mt-2">Produtos em Destaque</h2>
             <div class="w-16 h-px bg-amber-700 mx-auto mt-4"></div>
@@ -713,10 +718,10 @@
     </section>
 
     <!-- Strip CTA -->
-    <section class="bg-stone-900 py-12 px-4 text-center">
+    <section class="bg-stone-900 py-12 px-4 text-center reveal">
         <p class="text-[9px] uppercase tracking-[0.45em] text-amber-500 mb-3">Exclusividade · Requinte · Autenticidade</p>
         <p class="font-serif italic text-2xl md:text-3xl text-white mb-2">Descubra. Sinta. Coleccione.</p>
-        <p class="text-stone-400 text-xs tracking-wide mb-7">Novas chegadas todas as semanas — seja o primeiro a saber.</p>
+        <p class="text-stone-400 text-xs tracking-wide mb-7"><span class="rotate-text" id="rotate-text-home">Novas chegadas todas as semanas — seja o primeiro a saber. ✨</span></p>
         <div class="flex flex-wrap justify-center gap-4">
             <a href="{% url 'colecoes' %}" class="border border-amber-600 text-amber-400 text-[9px] uppercase tracking-[0.4em] px-8 py-3 hover:bg-amber-700 hover:text-white hover:border-amber-700 transition-all duration-300">Ver Colecções</a>
             <a href="https://wa.me/929006478" target="_blank" rel="noopener noreferrer" class="bg-green-700 hover:bg-green-600 text-white text-[9px] uppercase tracking-[0.4em] px-8 py-3 transition-all duration-300 inline-flex items-center gap-2">
@@ -729,7 +734,7 @@
     <!-- Mapa Google -->
     <section class="bg-white py-14 px-4 md:px-8 border-t border-stone-100">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-8">
+            <div class="text-center mb-8 reveal">
                 <span class="text-xs uppercase tracking-[0.4em] text-amber-700">Visite-nos</span>
                 <h2 id="location-heading" class="font-serif italic text-3xl text-stone-800 mt-2">Onde nos Encontrar</h2>
                 <div class="w-16 h-px bg-amber-700 mx-auto mt-4 mb-2"></div>
@@ -1189,6 +1194,11 @@
         </div>
     </div>
 
+    <!-- Voltar ao topo -->
+    <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="hidden fixed bottom-24 right-6 z-30 w-10 h-10 bg-stone-800/90 hover:bg-amber-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200" aria-label="Topo">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+    </button>
+
     <!-- -- WhatsApp Flutuante -- -->
     <a href="https://wa.me/929006478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20as%20fragr%C3%A2ncias%20da%20Décent%20Priv%C3%A9."
        target="_blank" rel="noopener noreferrer"
@@ -1299,6 +1309,52 @@
             });
         }, { threshold: 0.6 });
         nums.forEach(function (n) { observer.observe(n); });
+    })();
+
+    /* === Revelar secções ao rolar === */
+    (function () {
+        var items = document.querySelectorAll('.reveal');
+        if (!items.length) return;
+        if (!('IntersectionObserver' in window)) {
+            items.forEach(function (el) { el.classList.add('visible'); });
+            return;
+        }
+        var revealObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        items.forEach(function (el) { revealObserver.observe(el); });
+    })();
+
+    /* === Botão voltar ao topo === */
+    window.addEventListener('scroll', function () {
+        var btn = document.getElementById('scroll-top');
+        if (btn) { btn.classList.toggle('hidden', window.scrollY <= 400); }
+    });
+
+    /* === Texto rotativo — Strip CTA === */
+    (function () {
+        var frases = [
+            'Novas chegadas todas as semanas — seja o primeiro a saber. ✨',
+            'Encomende agora e receba com rapidez e segurança 🛍️',
+            'Entrega em toda parte de Angola 🚚',
+            'Fale connosco no WhatsApp a qualquer hora 💬',
+            'O presente perfeito para todas as ocasiões 🎁',
+        ];
+        var idx = 0;
+        var el = document.getElementById('rotate-text-home');
+        if (!el) return;
+        setInterval(function () {
+            idx = (idx + 1) % frases.length;
+            el.classList.remove('fade-up');
+            el.offsetHeight;
+            el.textContent = frases[idx];
+            el.classList.add('fade-up');
+        }, 4000);
     })();
     </script>
 
