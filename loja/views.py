@@ -401,8 +401,6 @@ def encomendas(request):
                     if nome_prod and qty > 0:
                         produto = Produto.objects.filter(nome=nome_prod, disponivel=True).first()
                         if produto and produto.stock >= qty:
-                            produto.stock -= qty
-                            produto.save(update_fields=['stock'])
                             MovimentoStock.objects.create(
                                 produto=produto,
                                 tipo='saida',
@@ -849,10 +847,6 @@ def gestao_venda_detalhe(request, pk):
 
             from django.db import transaction
             with transaction.atomic():
-                for item in encomenda.itens.all():
-                    if item.produto:
-                        item.produto.stock += item.quantidade
-                        item.produto.save(update_fields=['stock'])
                 MovimentoStock.objects.filter(encomenda=encomenda).delete()
                 encomenda.itens.all().delete()
                 venda_id = encomenda.pk
@@ -992,8 +986,6 @@ def gestao_venda_nova(request):
                         preco_custo_unitario=p.preco_compra or 0,
                         quantidade=item['qty'],
                     )
-                    p.stock -= item['qty']
-                    p.save(update_fields=['stock'])
                     MovimentoStock.objects.create(
                         produto=p,
                         tipo='saida',
@@ -1677,11 +1669,7 @@ def gestao_produto_entrada_stock(request, pk):
             erros['descricao'] = 'Descrição obrigatória (ex: "Recebimento fornecedor" ou "Ajuste manual").'
         
         if not erros:
-            # Actualizar stock do produto
-            produto.stock += quantidade
-            produto.save(update_fields=['stock'])
-            
-            # Registar movimento
+            # Registar movimento (stock é recalculado automaticamente por MovimentoStock.save())
             MovimentoStock.objects.create(
                 produto=produto,
                 tipo='entrada',

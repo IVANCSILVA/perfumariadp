@@ -1168,7 +1168,8 @@ class MovimentoStock(models.Model):
         return f'{self.get_tipo_display()}: {self.quantidade} × {self.produto.nome}'
 
     def _actualizar_stock_produto(self):
-        self.produto.stock = self.produto.calcular_stock_atual()
+        calculado = self.produto.calcular_stock_atual()
+        self.produto.stock = max(0, calculado)
         self.produto.save(update_fields=['stock'])
 
     def save(self, *args, **kwargs):

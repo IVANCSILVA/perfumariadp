@@ -10,8 +10,6 @@ def reverter_stock_encomenda(encomenda, user=None, descricao_prefixo='Cancelamen
     criado_por = user if user and user.is_authenticated else None
     for item in encomenda.itens.select_related('produto').all():
         if item.produto:
-            item.produto.stock += item.quantidade
-            item.produto.save(update_fields=['stock'])
             MovimentoStock.objects.create(
                 produto=item.produto,
                 tipo='devolucao',
