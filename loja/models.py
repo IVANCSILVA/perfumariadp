@@ -1170,7 +1170,39 @@ class MovimentoStock(models.Model):
     def _actualizar_stock_produto(self):
         calculado = self.produto.calcular_stock_atual()
         self.produto.stock = max(0, calculado)
-        self.produto.save(update_fields=['stock'])
+        # Auto-marcar disponibilidade conforme stock
+        if self.produto.stock > 0 and not self.produto.disponivel:
+            self.produto.disponivel = True
+            self.produto.save(update_fields=['stock', 'disponivel'])
+            self._notificar_reposicao_stock()
+        elif self.produto.stock == 0 and self.produto.disponivel:
+            self.produto.disponivel = False
+            self.produto.save(update_fields=['stock', 'disponivel'])
+        else:
+            self.produto.save(update_fields=['stock'])
+
+    def _notificar_reposicao_stock(self):
+        """Envia notificação por email aos clientes inscritos quando o produto volta a ter stock."""
+        from django.core.mail import send_mail
+        from django.conf import settings
+        inscritos = NotificacaoStock.objects.filter(produto=self.produto, notificado=False)
+        for inscricao in inscritos:
+            try:
+                send_mail(
+                    subject=f'"{self.produto.nome}" já está disponível!',
+                    message=(
+                        f'Olá! O produto "{self.produto.nome}" da marca '
+                        f'{self.produto.marca} voltou a estar disponível na Décent Privé.\n\n'
+                        f'Visite: https://decentprive.ao/produto/{self.produto.pk}/'
+                    ),
+                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@decentprive.ao'),
+                    recipient_list=[inscricao.email],
+                    fail_silently=True,
+                )
+                inscricao.notificado = True
+                inscricao.save(update_fields=['notificado'])
+            except Exception:
+                pass
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -1422,4 +1454,23 @@ class NotaCredito(models.Model):
 
     def __str__(self):
         return f'{self.numero_documento or "NC pendente"} — {self.factura_original}'
+
+
+class NotificacaoStock(models.Model):
+    """Pedidos de clientes para serem avisados quando um produto esgotado volta a ter stock."""
+    produto = models.ForeignKey(
+        Produto, on_delete=models.CASCADE, related_name='pedidos_notificacao'
+    )
+    email = models.EmailField(verbose_name='E-mail do cliente')
+    notificado = models.BooleanField(default=False, verbose_name='Já notificado')
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Pedido de Notificação de Stock'
+        verbose_name_plural = 'Pedidos de Notificação de Stock'
+        ordering = ['-criado_em']
+        unique_together = [('produto', 'email')]
+
+    def __str__(self):
+        return f'{self.email} → {self.produto.nome}'
 

@@ -256,14 +256,42 @@ def colecoes(request):
 
 
 def produto_detalhe(request, pk):
-    produto = get_object_or_404(Produto, pk=pk, disponivel=True)
+    produto = get_object_or_404(Produto, pk=pk)
     relacionados = Produto.objects.filter(
         disponivel=True, genero=produto.genero
     ).exclude(pk=pk).order_by('?')[:4]
+    notificacao_enviada = False
+    if request.method == 'POST' and request.POST.get('acao') == 'notificar_stock':
+        email = request.POST.get('email_notificacao', '').strip()
+        if email and produto.stock == 0:
+            from .models import NotificacaoStock
+            NotificacaoStock.objects.get_or_create(
+                produto=produto, email=email,
+                defaults={'notificado': False}
+            )
+            notificacao_enviada = True
     return render(request, 'loja/produto_detalhe.html', {
         'produto': produto,
         'relacionados': relacionados,
+        'notificacao_enviada': notificacao_enviada,
     })
+
+
+@require_POST
+def pedir_notificacao_stock(request, pk):
+    """Endpoint AJAX para pedir notificação de reposição de stock de um produto esgotado."""
+    from .models import NotificacaoStock
+    produto = get_object_or_404(Produto, pk=pk)
+    email = request.POST.get('email', '').strip()
+    if not email:
+        return JsonResponse({'ok': False, 'erro': 'E-mail obrigatório.'}, status=400)
+    if produto.stock > 0:
+        return JsonResponse({'ok': False, 'erro': 'Este produto já tem stock.'}, status=400)
+    NotificacaoStock.objects.get_or_create(
+        produto=produto, email=email,
+        defaults={'notificado': False}
+    )
+    return JsonResponse({'ok': True, 'mensagem': 'Será avisado por e-mail assim que o produto voltar a estar disponível.'})
 
 
 def pesquisar_produtos(request):
